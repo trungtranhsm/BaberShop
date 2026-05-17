@@ -125,11 +125,6 @@ const _esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').rep
 
 window.initStaffTab = function() { loadStaffAndServices(); };
 
-// Background sync: re-render staff/services khi sheet thay đổi
-window.addEventListener('appcache:updated', () => {
-  if (window.AppCache && window.AppCache.isLoaded) loadStaffAndServices();
-});
-
 function loadStaffAndServices() {
   const staffData   = window.AppCache ? window.AppCache.getData('staff')    : [];
   const serviceData = window.AppCache ? window.AppCache.getData('services') : [];

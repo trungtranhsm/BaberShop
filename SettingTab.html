@@ -119,13 +119,6 @@ window.initSettingsTab = function() {
   }
 };
 
-// Background sync
-window.addEventListener('appcache:updated', () => {
-  if (!window.AppCache || !window.AppCache.isLoaded) return;
-  const el = document.getElementById('totalAppointmentsCount');
-  if (el) el.textContent = window.AppCache.getData('appointments').length;
-});
-
 function clearCache() {
   if (!confirm('Bạn có chắc muốn làm mới cache? Toàn bộ dữ liệu sẽ được tải lại.')) return;
   showToast('Đang làm mới dữ liệu...', 'info');

@@ -225,13 +225,6 @@
     showDetailsModal(phone, matched ? matched.name : 'Khách vãng lai');
   }
 
-  // Background sync: refresh customer list khi sheet thay đổi
-  window.addEventListener('appcache:updated', () => {
-    if (!window.AppCache || !window.AppCache.isLoaded) return;
-    allCustomers = AppCache.getData('customers').sort((a,b) => a.name.localeCompare(b.name));
-    filterAndRender();
-  });
-
   window.initCustomerTab = function() {
     allCustomers = AppCache.getData('customers').sort((a,b) => a.name.localeCompare(b.name));
     renderCustomers(allCustomers);
