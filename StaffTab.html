@@ -121,24 +121,15 @@
 </div>
 
 <script>
-function initStaffTab() { loadStaffAndServices(); }
+const _esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+window.initStaffTab = function() { loadStaffAndServices(); };
 
 function loadStaffAndServices() {
-  const staffData = window.AppCache ? window.AppCache.getData('staff') : [];
+  const staffData   = window.AppCache ? window.AppCache.getData('staff')    : [];
   const serviceData = window.AppCache ? window.AppCache.getData('services') : [];
-  if (staffData.length || serviceData.length) {
-    displayStaff(staffData);
-    displayServices(serviceData);
-  } else {
-    google.script.run
-      .withSuccessHandler(function(staff) { displayStaff(staff); })
-      .withFailureHandler(function(err) { console.error('Error loading staff:', err); })
-      .getStaff();
-    google.script.run
-      .withSuccessHandler(function(services) { displayServices(services); })
-      .withFailureHandler(function(err) { console.error('Error loading services:', err); })
-      .getServices();
-  }
+  displayStaff(staffData);
+  displayServices(serviceData);
 }
 
 function displayStaff(staff) {
@@ -153,12 +144,12 @@ function displayStaff(staff) {
 
   tbody.innerHTML = staff.map(m => `
     <tr class="hover:bg-[#1E1E2A] transition-colors">
-      <td class="px-5 py-3.5 text-xs text-[#64748B]">${m.id || m[0] || ''}</td>
-      <td class="px-5 py-3.5 text-sm font-medium">${m.name || m[1] || ''}</td>
-      <td class="px-5 py-3.5 text-sm text-[#94A3B8]">${m.specialty || m[2] || 'Không xác định'}</td>
+      <td class="px-5 py-3.5 text-xs text-[#64748B]">${_esc(m.id || m[0] || '')}</td>
+      <td class="px-5 py-3.5 text-sm font-medium">${_esc(m.name || m[1] || '')}</td>
+      <td class="px-5 py-3.5 text-sm text-[#94A3B8]">${_esc(m.specialty || m[2] || 'Không xác định')}</td>
       <td class="px-5 py-3.5">${statusBadge(m.status || m[3] || '')}</td>
       <td class="px-5 py-3.5 text-right">
-        <button onclick="deleteStaff('${m.id || m[0]}')" class="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-[#F87171] bg-[#EF4444]/10 hover:bg-[#EF4444]/20 rounded-lg cursor-pointer transition-colors ml-auto">
+        <button onclick="deleteStaff('${_esc(m.id || m[0])}')" class="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-[#F87171] bg-[#EF4444]/10 hover:bg-[#EF4444]/20 rounded-lg cursor-pointer transition-colors ml-auto">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
           Xóa
         </button>
@@ -174,11 +165,11 @@ function displayServices(services) {
   }
   tbody.innerHTML = services.map(s => `
     <tr class="hover:bg-[#1E1E2A] transition-colors">
-      <td class="px-5 py-3.5 text-xs text-[#64748B]">${s.id || s[0] || ''}</td>
-      <td class="px-5 py-3.5 text-sm font-medium">${s.name || s[1] || ''}</td>
+      <td class="px-5 py-3.5 text-xs text-[#64748B]">${_esc(s.id || s[0] || '')}</td>
+      <td class="px-5 py-3.5 text-sm font-medium">${_esc(s.name || s[1] || '')}</td>
       <td class="px-5 py-3.5 text-sm font-semibold text-[#4ADE80]">${(s.price || s[2] || 0).toLocaleString('vi-VN')} đ</td>
       <td class="px-5 py-3.5 text-right">
-        <button onclick="deleteService('${s.id || s[0]}')" class="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-[#F87171] bg-[#EF4444]/10 hover:bg-[#EF4444]/20 rounded-lg cursor-pointer transition-colors ml-auto">
+        <button onclick="deleteService('${_esc(s.id || s[0])}')" class="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-[#F87171] bg-[#EF4444]/10 hover:bg-[#EF4444]/20 rounded-lg cursor-pointer transition-colors ml-auto">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
           Xóa
         </button>
@@ -212,8 +203,11 @@ document.getElementById('staffForm').addEventListener('submit', function(e) {
   google.script.run
     .withSuccessHandler(function(result) {
       btn.disabled = false; btn.textContent = 'Thêm nhân viên';
-      if (result.success) { showToast('Thêm nhân viên thành công!', 'success'); hideStaffModal(); loadStaffAndServices(); }
-      else { showToast(result.error, 'error'); }
+      if (result.success) {
+        showToast('Thêm nhân viên thành công!', 'success');
+        hideStaffModal();
+        AppCache.refresh().then(() => loadStaffAndServices());
+      } else { showToast(result.error, 'error'); }
     })
     .withFailureHandler(function(err) {
       btn.disabled = false; btn.textContent = 'Thêm nhân viên';
@@ -224,16 +218,19 @@ document.getElementById('staffForm').addEventListener('submit', function(e) {
 
 document.getElementById('serviceForm').addEventListener('submit', function(e) {
   e.preventDefault();
-  const btn = e.submitter;
-  btn.disabled = true; btn.textContent = 'Đang lưu...';
+  const submitBtn = document.querySelector('#serviceForm button[type="submit"]');
+  submitBtn.disabled = true; submitBtn.textContent = 'Đang lưu...';
   google.script.run
     .withSuccessHandler(function(result) {
-      btn.disabled = false; btn.textContent = 'Thêm dịch vụ';
-      if (result.success) { showToast('Thêm dịch vụ thành công!', 'success'); hideServiceModal(); loadStaffAndServices(); }
-      else { showToast(result.error, 'error'); }
+      submitBtn.disabled = false; submitBtn.textContent = 'Thêm dịch vụ';
+      if (result.success) {
+        showToast('Thêm dịch vụ thành công!', 'success');
+        hideServiceModal();
+        AppCache.refresh().then(() => loadStaffAndServices());
+      } else { showToast(result.error, 'error'); }
     })
     .withFailureHandler(function(err) {
-      btn.disabled = false; btn.textContent = 'Thêm dịch vụ';
+      submitBtn.disabled = false; submitBtn.textContent = 'Thêm dịch vụ';
       showToast('Lỗi: ' + err.message, 'error');
     })
     .addService({ name: document.getElementById('serviceName').value, price: parseInt(document.getElementById('servicePrice').value) });
@@ -242,17 +239,21 @@ document.getElementById('serviceForm').addEventListener('submit', function(e) {
 function deleteStaff(id) {
   if (!confirm('Bạn có chắc muốn xóa nhân viên này?')) return;
   google.script.run
-    .withSuccessHandler(function(r) { if (r.success) { showToast('Đã xóa nhân viên!', 'success'); loadStaffAndServices(); } else { showToast(r.error, 'error'); } })
+    .withSuccessHandler(function(r) {
+      if (r.success) { showToast('Đã xóa nhân viên!', 'success'); AppCache.refresh().then(() => loadStaffAndServices()); }
+      else { showToast(r.error, 'error'); }
+    })
     .withFailureHandler(function(e) { showToast('Lỗi: ' + e.message, 'error'); })
     .deleteStaff(id);
 }
 function deleteService(id) {
   if (!confirm('Bạn có chắc muốn xóa dịch vụ này?')) return;
   google.script.run
-    .withSuccessHandler(function(r) { if (r.success) { showToast('Đã xóa dịch vụ!', 'success'); loadStaffAndServices(); } else { showToast(r.error, 'error'); } })
+    .withSuccessHandler(function(r) {
+      if (r.success) { showToast('Đã xóa dịch vụ!', 'success'); AppCache.refresh().then(() => loadStaffAndServices()); }
+      else { showToast(r.error, 'error'); }
+    })
     .withFailureHandler(function(e) { showToast('Lỗi: ' + e.message, 'error'); })
     .deleteService(id);
 }
-
-setTimeout(initStaffTab, 500);
 </script>

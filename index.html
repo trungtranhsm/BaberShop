@@ -347,8 +347,9 @@
 function toggleSidebar() {
   const sidebar = document.getElementById('sidebar');
   const overlay = document.getElementById('sidebarOverlay');
-  sidebar.classList.toggle('open');
+  const isOpen  = sidebar.classList.toggle('open');
   overlay.classList.toggle('hidden');
+  document.body.style.overflow = isOpen ? 'hidden' : '';
 }
 
 // ========== APP CACHE ==========
@@ -444,12 +445,13 @@ const TabManager = {
       activeBtn.classList.remove('text-[#94A3B8]');
     }
 
-    document.querySelectorAll('.tab-content').forEach(c => { c.style.display = 'none'; c.classList.remove('active'); });
+    document.querySelectorAll('.tab-content').forEach(c => { c.style.display = 'none'; c.classList.remove('active', 'fade-in'); });
 
     const activeContent = document.getElementById(tabName + 'Content');
     if (activeContent) {
       activeContent.style.display = 'block';
       activeContent.classList.add('active', 'fade-in');
+      activeContent.addEventListener('animationend', () => activeContent.classList.remove('fade-in'), { once: true });
     }
 
     const pageTitle = document.getElementById('pageTitle');
@@ -514,15 +516,19 @@ function renderRecentAppointments(apts) {
     return `
     <div class="flex items-center justify-between px-5 py-3 hover:bg-[#1E1E2A] transition-colors">
       <div class="flex-1 min-w-0">
-        <p class="text-sm font-medium truncate">${apt.customerName || 'N/A'}</p>
-        <p class="text-xs text-[#64748B] truncate">${apt.service || ''} · ${apt.date || ''} ${apt.time || ''}</p>
+        <p class="text-sm font-medium truncate">${esc(apt.customerName) || 'N/A'}</p>
+        <p class="text-xs text-[#64748B] truncate">${esc(apt.service)} · ${esc(apt.date)} ${esc(apt.time)}</p>
       </div>
-      <span class="ml-3 text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${si.cls}">${si.label}</span>
+      <span class="ml-3 text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${si.cls}">${esc(si.label)}</span>
     </div>`;
   }).join('');
 }
 
 // ========== UTILITIES ==========
+function esc(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 function getStatusColor(status) {
   const map = { 'Hoàn thành': 'text-[#4ADE80]', 'Đã hủy': 'text-[#F87171]', 'Đang thực hiện': 'text-[#818CF8]' };
   return map[status] || 'text-[#FBBF24]';
@@ -584,6 +590,8 @@ async function initApp() {
     if (typeof window.initAppointmentManagerTab === 'function') window.initAppointmentManagerTab();
     if (typeof window.initRevenueTab           === 'function') window.initRevenueTab();
     if (typeof window.initCustomerTab          === 'function') window.initCustomerTab();
+    if (typeof window.initStaffTab             === 'function') window.initStaffTab();
+    if (typeof window.initSettingsTab          === 'function') window.initSettingsTab();
     setInterval(() => AppCache.updateCacheStatus(), 30000);
     showToast('Ứng dụng đã sẵn sàng!', 'success');
   } else {

@@ -88,14 +88,15 @@
       listBody.innerHTML = '<tr><td colspan="4" class="px-5 py-8 text-center text-sm text-[#64748B]">Không có khách hàng nào.</td></tr>';
       return;
     }
+    const ce = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     listBody.innerHTML = customers.map(c => `
       <tr class="hover:bg-[#1E1E2A] transition-colors">
-        <td class="px-5 py-3.5 text-sm font-medium">${c.name}</td>
-        <td class="px-5 py-3.5 text-sm text-[#94A3B8]">${c.phone}</td>
-        <td class="px-5 py-3.5 text-sm text-[#94A3B8]">${c.createdDate || 'N/A'}</td>
+        <td class="px-5 py-3.5 text-sm font-medium">${ce(c.name)}</td>
+        <td class="px-5 py-3.5 text-sm text-[#94A3B8]">${ce(c.phone)}</td>
+        <td class="px-5 py-3.5 text-sm text-[#94A3B8]">${ce(c.createdDate) || 'N/A'}</td>
         <td class="px-5 py-3.5 text-right">
           <button class="view-details-btn flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#D97706] bg-[#D97706]/10 hover:bg-[#D97706]/20 rounded-lg cursor-pointer transition-colors ml-auto"
-            data-phone="${c.phone}" data-name="${c.name}">
+            data-phone="${ce(c.phone)}" data-name="${ce(c.name)}">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
             </svg>
@@ -140,14 +141,16 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-[#2A2A38]">
-              ${d.appointmentHistory.map(a => `
-                <tr>
-                  <td class="px-4 py-2.5 text-sm text-[#94A3B8]">${a.date}</td>
-                  <td class="px-4 py-2.5 text-sm">${a.service}</td>
+              ${d.appointmentHistory.map(a => {
+                const he = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+                return `<tr>
+                  <td class="px-4 py-2.5 text-sm text-[#94A3B8]">${he(a.date)}</td>
+                  <td class="px-4 py-2.5 text-sm">${he(a.service)}</td>
                   <td class="px-4 py-2.5">
-                    <span class="text-xs font-medium px-2 py-0.5 rounded-full ${statusMap[a.status] || 'badge-pending'}">${a.status}</span>
+                    <span class="text-xs font-medium px-2 py-0.5 rounded-full ${statusMap[a.status] || 'badge-pending'}">${he(a.status)}</span>
                   </td>
-                </tr>`).join('')}
+                </tr>`;
+              }).join('')}
             </tbody>
           </table>`;
       }

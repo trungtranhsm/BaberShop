@@ -112,22 +112,23 @@
 </div>
 
 <script>
-function initSettingsTab() {
+window.initSettingsTab = function() {
   document.getElementById('lastUpdate').textContent = new Date().toLocaleDateString('vi-VN');
   if (window.AppCache && window.AppCache.isLoaded) {
     document.getElementById('totalAppointmentsCount').textContent = window.AppCache.getData('appointments').length;
   }
-}
+};
 
 function clearCache() {
   if (!confirm('Bạn có chắc muốn làm mới cache? Toàn bộ dữ liệu sẽ được tải lại.')) return;
   showToast('Đang làm mới dữ liệu...', 'info');
-  setTimeout(() => window.location.reload(), 1000);
+  AppCache.refresh().then(() => {
+    showToast('Dữ liệu đã được làm mới!', 'success');
+    document.getElementById('totalAppointmentsCount').textContent = AppCache.getData('appointments').length;
+  }).catch(err => showToast('Lỗi làm mới: ' + err.message, 'error'));
 }
 
 function backupData() {
   showToast('Chức năng sao lưu đang được phát triển...', 'info');
 }
-
-setTimeout(initSettingsTab, 500);
 </script>
