@@ -16,12 +16,15 @@ const CONFIG = {
     CUSTOMERS: 'Khách hàng',
     SETTINGS: 'Cài Đặt',
     USERS: 'Users',
+    LOGS: 'Logs',
   },
   APPOINTMENT_HEADERS: ['ID', 'Tên khách hàng', 'Số điện thoại', 'Dịch vụ', 'Ngày', 'Giờ', 'Nhân viên', 'Trạng thái', 'Ghi chú'],
   SERVICE_HEADERS: ['ID', 'Tên dịch vụ', 'Giá'],
   STAFF_HEADERS: ['ID', 'Tên nhân viên', 'Chuyên môn'],
   CUSTOMER_HEADERS: ['Tên', 'Số điện thoại', 'Ngày tạo'],
   USER_HEADERS: ['Email', 'Role', 'Tên nhân viên liên kết', 'Trạng thái', 'Ngày tạo'],
+  LOG_HEADERS: ['Thời gian', 'Email', 'Role', 'Hành động', 'Chi tiết'],
+  LOG_MAX_ROWS: 5000, // tự cắt bớt log cũ khi vượt
   CACHE_DURATION_SECONDS: 300, // Cache tồn tại trong 5 phút
 };
 
@@ -338,6 +341,7 @@ function setupFirstAdmin(staffName) {
   }
   sheet.appendRow([email, ROLE.ADMIN, String(staffName || '').trim(), 'active', new Date()]);
   clearCache();
+  logAction_('auth_setup_first_admin', { email: email });
   return { success: true, email: email };
 }
 
@@ -366,6 +370,7 @@ function addUser(payload) {
   }
   sheet.appendRow([email, role, staffName, 'active', new Date()]);
   clearCache();
+  logAction_('user_add', { email: email, role: role, staffName: staffName });
   return { success: true };
 }
 
@@ -394,6 +399,7 @@ function updateUser(payload) {
   if (newStaffName !== undefined) sheet.getRange(rowNum, 3).setValue(newStaffName);
   if (newStatus) sheet.getRange(rowNum, 4).setValue(newStatus);
   clearCache();
+  logAction_('user_update', { email: target, role: newRole, staffName: newStaffName, status: newStatus });
   return { success: true };
 }
 
@@ -415,6 +421,7 @@ function deleteUser(email) {
   if (idx === -1) return { success: false, error: 'Không tìm thấy user.' };
   sheet.deleteRow(idx + 1);
   clearCache();
+  logAction_('user_delete', { email: target });
   return { success: true };
 }
 
@@ -422,6 +429,52 @@ function deleteUser(email) {
  * Helper cho các Service kiểm tra quyền sửa 1 appointment.
  * Throw nếu không có quyền.
  */
+/**
+ * Ghi 1 dòng vào sheet Logs. Best-effort: lỗi log không bao giờ làm hỏng action chính.
+ * @param {string} action  Ngắn gọn (snake_case), VD 'appointment_create'
+ * @param {string|object} details  Chuỗi hoặc object sẽ JSON.stringify
+ */
+function logAction_(action, details) {
+  try {
+    const sheet = getOrCreateSheet(CONFIG.SHEETS.LOGS, CONFIG.LOG_HEADERS);
+    const u = getCurrentUser();
+    const email = (u && u.email) || getActiveUserEmail_() || '(anon)';
+    const role = (u && u.role) || (u && u.isSetupNeeded ? 'setup' : (u && u.denied ? 'denied' : ''));
+    let detailStr = '';
+    if (details != null) detailStr = typeof details === 'string' ? details : JSON.stringify(details);
+    if (detailStr.length > 2000) detailStr = detailStr.slice(0, 2000) + '…';
+    sheet.appendRow([new Date(), email, role, String(action || ''), detailStr]);
+    // Trim log cũ nếu vượt ngưỡng
+    const lastRow = sheet.getLastRow();
+    if (lastRow > CONFIG.LOG_MAX_ROWS + 1) {
+      sheet.deleteRows(2, lastRow - CONFIG.LOG_MAX_ROWS - 1);
+    }
+  } catch (e) {
+    console.warn('logAction_ failed:', e);
+  }
+}
+
+/**
+ * Trả N log gần nhất (mới → cũ). Admin-only.
+ */
+function getLogs(limit) {
+  assertAdmin_();
+  const sheet = getOrCreateSheet(CONFIG.SHEETS.LOGS, CONFIG.LOG_HEADERS);
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return { success: true, data: [] };
+  const n = Math.min(Math.max(Number(limit) || 200, 1), 2000);
+  const start = Math.max(2, lastRow - n + 1);
+  const rows = sheet.getRange(start, 1, lastRow - start + 1, sheet.getLastColumn()).getValues();
+  const data = rows.map(r => ({
+    time: r[0] instanceof Date ? r[0].toISOString() : String(r[0] || ''),
+    email: String(r[1] || ''),
+    role: String(r[2] || ''),
+    action: String(r[3] || ''),
+    details: String(r[4] || '')
+  })).reverse();
+  return { success: true, data: data, total: lastRow - 1 };
+}
+
 function assertCanMutateAppointment_(appointmentRow) {
   const u = getCurrentUser();
   if (u.isSetupNeeded || u.denied) throw new Error('Phiên không hợp lệ. Vui lòng tải lại trang.');

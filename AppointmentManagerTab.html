@@ -238,6 +238,10 @@
       const sm = statusMap[apt.status] || { border: 'border-[#F59E0B]/50', badge: 'badge-pending', label: apt.status || 'Đã đặt' };
       const canAct = !['Hoàn thành','Đã hủy'].includes(apt.status);
       const actions = canAct ? `
+        <button data-id="${apt.id}" class="edit-btn flex items-center gap-1.5 px-3 py-1.5 bg-[#6366F1]/15 hover:bg-[#6366F1]/25 text-[#818CF8] text-xs font-medium rounded-lg cursor-pointer transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Sửa
+        </button>
         <button data-id="${apt.id}" class="complete-btn flex items-center gap-1.5 px-3 py-1.5 bg-[#22C55E]/15 hover:bg-[#22C55E]/25 text-[#4ADE80] text-xs font-medium rounded-lg cursor-pointer transition-colors">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
           Hoàn thành
@@ -321,6 +325,7 @@
     const btn = document.getElementById('save-appointment-btn');
     const selected = Array.from(addForm.querySelectorAll('input[name="services"]:checked')).map(c => c.value);
     if (!selected.length) { showToast('Vui lòng chọn ít nhất một dịch vụ.', 'error'); return; }
+    const editingId = document.getElementById('appointment-id').value;
     btn.disabled = true; btn.textContent = 'Đang lưu...';
 
     const data = {
@@ -333,6 +338,33 @@
       notes:        document.getElementById('notes').value
     };
 
+    if (editingId) {
+      // === UPDATE FLOW ===
+      const idx = window.AppCache.data.appointments.findIndex(a => a.id === editingId);
+      const original = idx !== -1 ? { ...window.AppCache.data.appointments[idx] } : null;
+      if (idx !== -1) window.AppCache.data.appointments[idx] = { ...original, ...data };
+      filterAndRender();
+      showAddModal(false);
+      addForm.reset();
+      document.getElementById('appointment-id').value = '';
+      try {
+        const result = await window.AppCache.callServerFunction('updateAppointment', editingId, data);
+        if (!result.success) throw new Error(result.error || 'Lỗi server.');
+        if (idx !== -1) window.AppCache.data.appointments[idx] = result.data;
+        filterAndRender();
+        showToast('Đã cập nhật lịch hẹn!', 'success');
+        if (window.updateDashboard) window.updateDashboard();
+      } catch (err) {
+        showToast('Lỗi: ' + err.message, 'error');
+        if (idx !== -1 && original) window.AppCache.data.appointments[idx] = original;
+        filterAndRender();
+      } finally {
+        btn.disabled = false; btn.textContent = 'Lưu lịch hẹn';
+      }
+      return;
+    }
+
+    // === CREATE FLOW ===
     const tempId = 'temp-' + Date.now();
     window.AppCache.data.appointments.unshift({ ...data, id: tempId, status: 'Đang lưu...' });
     filterAndRender();
@@ -354,6 +386,37 @@
     } finally {
       btn.disabled = false; btn.textContent = 'Lưu lịch hẹn';
     }
+  }
+
+  function openEditAppointment(apt) {
+    addForm.reset();
+    phoneDropdown.style.display = 'none';
+    document.getElementById('modal-title').textContent = 'Sửa lịch hẹn';
+    document.getElementById('appointment-id').value = apt.id;
+    document.getElementById('customerName').value = apt.customerName || '';
+    document.getElementById('phone').value        = apt.phone || '';
+    document.getElementById('date').value         = apt.date || '';
+    document.getElementById('time').value         = apt.time || '';
+    document.getElementById('notes').value        = apt.notes || '';
+    // Services
+    const listDiv = document.getElementById('services-checkbox-list');
+    populateServicesCheckboxes(listDiv);
+    const booked = String(apt.service || '').split(',').map(s => s.trim());
+    listDiv.querySelectorAll('input[name="services"]').forEach(cb => {
+      if (booked.includes(cb.value)) cb.checked = true;
+    });
+    // Staff
+    const staffSel = document.getElementById('staff');
+    populateStaffDropdown(staffSel);
+    if (apt.staff) {
+      if (![...staffSel.options].some(o => o.value === apt.staff)) {
+        const opt = document.createElement('option');
+        opt.value = apt.staff; opt.textContent = apt.staff + ' (cũ)';
+        staffSel.appendChild(opt);
+      }
+      staffSel.value = apt.staff;
+    }
+    showAddModal(true);
   }
 
   async function handleCompleteFormSubmit(e) {
@@ -463,6 +526,7 @@
 
   addBtn.addEventListener('click', () => {
     addForm.reset();
+    document.getElementById('appointment-id').value = '';
     phoneDropdown.style.display = 'none';
     document.getElementById('modal-title').textContent = 'Thêm lịch hẹn mới';
     populateServicesCheckboxes(document.getElementById('services-checkbox-list'));
@@ -487,6 +551,10 @@
     const apt = window.AppCache.getData('appointments').find(a => a.id === id);
     if (!apt) { showToast('Không tìm thấy lịch hẹn!', 'error'); return; }
 
+    if (btn.classList.contains('edit-btn')) {
+      openEditAppointment(apt);
+      return;
+    }
     if (btn.classList.contains('complete-btn')) {
       document.getElementById('complete-appointment-id').value = apt.id;
       document.getElementById('complete-customer-info').textContent = `${apt.customerName} — ${apt.phone}`;

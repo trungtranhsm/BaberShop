@@ -75,6 +75,7 @@ function createAppointment(appointmentData) {
 
     addCustomerIfNotExists(appointmentData.customerName, appointmentData.phone);
     clearCache();
+    logAction_('appointment_create', { id: newId, customer: appointmentData.customerName, phone: appointmentData.phone, date: appointmentData.date, time: appointmentData.time, staff: appointmentData.staff });
 
     // Trả về đối tượng đã được tạo để client có thể dùng (quan trọng cho Optimistic UI)
     const newAppointmentObject = {
@@ -94,6 +95,63 @@ function createAppointment(appointmentData) {
   } catch (error) {
     console.error('Error in createAppointment:', error.stack);
     return { success: false, error: error.toString() };
+  }
+}
+
+/**
+ * Cập nhật toàn bộ thông tin của 1 lịch hẹn (chỉnh sửa đơn).
+ * Không đổi trạng thái — nếu cần đổi status thì dùng complete/cancel.
+ */
+function updateAppointment(id, data) {
+  try {
+    if (!id) return { success: false, error: 'Thiếu ID lịch hẹn.' };
+    const sheet = getOrCreateSheet(CONFIG.SHEETS.APPOINTMENTS, CONFIG.APPOINTMENT_HEADERS);
+    const finder = sheet.getRange('A:A').createTextFinder(id).matchEntireCell(true);
+    const cell = finder.findNext();
+    if (!cell) return { success: false, error: 'Không tìm thấy lịch hẹn với ID: ' + id };
+    const rowIndex = cell.getRow();
+    const existingRow = sheet.getRange(rowIndex, 1, 1, sheet.getLastColumn()).getValues()[0];
+
+    // RBAC: staff chỉ sửa lịch của mình; và không được đổi nhân viên sang người khác
+    const me = assertCanMutateAppointment_(existingRow);
+    if (me.role === 'staff') {
+      data.staff = me.staffName || existingRow[6];
+    }
+
+    const required = ['customerName', 'phone', 'service', 'date', 'time'];
+    const missing = required.filter(k => !data[k] || String(data[k]).trim() === '');
+    if (missing.length) return { success: false, error: 'Trường bắt buộc còn thiếu: ' + missing.join(', ') };
+
+    // Cập nhật B..G + I (giữ nguyên A=ID, H=Trạng thái)
+    sheet.getRange(rowIndex, 2, 1, 6).setValues([[
+      data.customerName,
+      data.phone,
+      data.service,
+      data.date,
+      data.time,
+      data.staff || ''
+    ]]);
+    sheet.getRange(rowIndex, 9).setValue(data.notes || '');
+
+    sortAppointmentsSheet();
+    addCustomerIfNotExists(data.customerName, data.phone);
+    clearCache();
+    logAction_('appointment_update', { id: id, before: { customer: existingRow[1], phone: existingRow[2], service: existingRow[3], date: existingRow[4], time: existingRow[5], staff: existingRow[6] }, after: data });
+
+    return { success: true, data: {
+      id: id,
+      customerName: data.customerName,
+      phone: data.phone,
+      service: data.service,
+      date: data.date,
+      time: data.time,
+      staff: data.staff || '',
+      status: existingRow[7],
+      notes: data.notes || ''
+    }};
+  } catch (e) {
+    console.error('Error in updateAppointment:', e.stack);
+    return { success: false, error: e.toString() };
   }
 }
 
@@ -120,6 +178,7 @@ function completeAppointment(id, finalData) {
     sheet.getRange(rowIndex, 9).setValue(finalData.notes || '');
 
     clearCache();
+    logAction_('appointment_complete', { id: id, services: finalData.services, notes: finalData.notes });
     return { success: true };
 
   } catch (error) {
@@ -144,8 +203,9 @@ function cancelAppointment(appointmentId) {
     assertCanMutateAppointment_(data[rowIndex]);
     // Cập nhật cột Trạng thái (cột 8) thành "Đã hủy"
     sheet.getRange(rowIndex + 1, 8).setValue('Đã hủy');
-    
+
     clearCache();
+    logAction_('appointment_cancel', { id: appointmentId });
     return { success: true, id: appointmentId };
 
   } catch (error) {

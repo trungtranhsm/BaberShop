@@ -1,0 +1,132 @@
+<div class="space-y-5">
+  <!-- Header -->
+  <div class="bg-[#16161D] border border-[#2A2A38] rounded-xl p-4">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div>
+        <h2 class="text-base font-semibold">Nhật ký hoạt động</h2>
+        <p class="text-xs text-[#64748B] mt-0.5">Toàn bộ thao tác của user trên web app (chỉ Admin xem được).</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <input type="search" id="logSearchInput" placeholder="Lọc theo email / hành động / chi tiết..."
+          class="px-3 py-2 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm text-[#F1F5F9] placeholder-[#475569] outline-none transition-colors min-w-[260px]">
+        <select id="logLimitSelect" class="px-3 py-2 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none text-[#F1F5F9]">
+          <option value="100">100 dòng</option>
+          <option value="200" selected>200 dòng</option>
+          <option value="500">500 dòng</option>
+          <option value="1000">1000 dòng</option>
+        </select>
+        <button id="logReloadBtn"
+          class="flex items-center gap-1.5 px-3 py-2 bg-[#6366F1] hover:bg-[#4F46E5] text-white text-xs font-medium rounded-lg transition-colors cursor-pointer">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>
+            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>
+          </svg>
+          Tải lại
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-[#16161D] border border-[#2A2A38] rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full">
+        <thead>
+          <tr class="border-b border-[#2A2A38] bg-[#0F0F15]">
+            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase tracking-wider">Thời gian</th>
+            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase tracking-wider">Email</th>
+            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase tracking-wider">Role</th>
+            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase tracking-wider">Hành động</th>
+            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase tracking-wider">Chi tiết</th>
+          </tr>
+        </thead>
+        <tbody id="logTableBody" class="divide-y divide-[#2A2A38]">
+          <tr><td colspan="5" class="px-5 py-8 text-center text-sm text-[#64748B]">Đang tải...</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="logFooter" class="px-5 py-3 border-t border-[#2A2A38] text-xs text-[#64748B]"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  let _allLogs = [];
+
+  function _esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  function _fmtTime(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return iso;
+    return d.toLocaleString('vi-VN', { hour12: false });
+  }
+
+  function _actionBadge(action) {
+    const a = String(action || '');
+    let cls = 'bg-[#1E1E2A] text-[#94A3B8] border-[#2A2A38]';
+    if (a.includes('create') || a.includes('add')) cls = 'badge-doing';
+    else if (a.includes('update') || a.includes('complete')) cls = 'badge-done';
+    else if (a.includes('delete') || a.includes('cancel')) cls = 'badge-canceled';
+    else if (a.includes('auth') || a.includes('user')) cls = 'badge-pending';
+    return `<span class="text-xs font-medium px-2 py-0.5 rounded-full ${cls}">${_esc(a)}</span>`;
+  }
+
+  function renderLogs(logs) {
+    const tbody = document.getElementById('logTableBody');
+    const footer = document.getElementById('logFooter');
+    if (!logs.length) {
+      tbody.innerHTML = '<tr><td colspan="5" class="px-5 py-8 text-center text-sm text-[#64748B]">Không có log nào khớp.</td></tr>';
+      footer.textContent = '';
+      return;
+    }
+    tbody.innerHTML = logs.map(l => `
+      <tr class="hover:bg-[#1E1E2A] transition-colors">
+        <td class="px-5 py-2.5 text-xs text-[#94A3B8] whitespace-nowrap">${_esc(_fmtTime(l.time))}</td>
+        <td class="px-5 py-2.5 text-xs text-[#F1F5F9]">${_esc(l.email)}</td>
+        <td class="px-5 py-2.5 text-xs"><span class="px-2 py-0.5 rounded ${l.role==='admin'?'text-[#818CF8]':'text-[#FBBF24]'}">${_esc(l.role)}</span></td>
+        <td class="px-5 py-2.5">${_actionBadge(l.action)}</td>
+        <td class="px-5 py-2.5 text-xs text-[#94A3B8] font-mono break-all max-w-md">${_esc(l.details)}</td>
+      </tr>`).join('');
+    footer.textContent = `Hiển thị ${logs.length} dòng (mới → cũ)`;
+  }
+
+  function applyFilter() {
+    const q = (document.getElementById('logSearchInput').value || '').trim().toLowerCase();
+    if (!q) return renderLogs(_allLogs);
+    const f = _allLogs.filter(l =>
+      (l.email && l.email.toLowerCase().includes(q)) ||
+      (l.action && l.action.toLowerCase().includes(q)) ||
+      (l.details && l.details.toLowerCase().includes(q)) ||
+      (l.role && l.role.toLowerCase().includes(q))
+    );
+    renderLogs(f);
+  }
+
+  function loadLogs() {
+    const tbody = document.getElementById('logTableBody');
+    tbody.innerHTML = '<tr><td colspan="5" class="px-5 py-8 text-center text-sm text-[#64748B]">Đang tải...</td></tr>';
+    const limit = parseInt(document.getElementById('logLimitSelect').value, 10) || 200;
+    google.script.run
+      .withSuccessHandler(res => {
+        if (!res || !res.success) {
+          tbody.innerHTML = `<tr><td colspan="5" class="px-5 py-8 text-center text-sm text-[#F87171]">${res ? _esc(res.error) : 'Lỗi tải log'}</td></tr>`;
+          return;
+        }
+        _allLogs = res.data || [];
+        applyFilter();
+      })
+      .withFailureHandler(err => {
+        tbody.innerHTML = `<tr><td colspan="5" class="px-5 py-8 text-center text-sm text-[#F87171]">${_esc(err.message || err)}</td></tr>`;
+      })
+      .getLogs(limit);
+  }
+
+  document.getElementById('logReloadBtn').addEventListener('click', loadLogs);
+  document.getElementById('logLimitSelect').addEventListener('change', loadLogs);
+  document.getElementById('logSearchInput').addEventListener('input', applyFilter);
+
+  window.initLogsTab = function() {
+    if (window.AppCache && window.AppCache.isAdmin && window.AppCache.isAdmin()) loadLogs();
+  };
+})();
+</script>

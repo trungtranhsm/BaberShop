@@ -40,6 +40,7 @@ try {
 
   sheet.appendRow(newRow);
   clearCache('staff');
+  logAction_('staff_add', { id: newId, name: staffData.name });
 
   return { success: true, id: newId };
 
@@ -64,6 +65,7 @@ try {
   sheet.getRange(rowIndex + 1, 3).setValue(staffData.specialty || '');
 
   clearCache('staff');
+  logAction_('staff_update', { id: staffId, name: staffData.name });
   return { success: true };
 
 } catch (error) {
@@ -85,6 +87,7 @@ try {
 
   sheet.deleteRow(rowIndex + 1);
   clearCache('staff');
+  logAction_('staff_delete', { id: staffId });
 
   return { success: true };
 
@@ -137,6 +140,7 @@ try {
   sheet.appendRow(newRow);
   clearCache('services');
   clearCache('initialData');
+  logAction_('service_add', { id: newId, name: serviceData.name, price: serviceData.price });
 
   return { success: true, id: newId };
 
@@ -162,6 +166,7 @@ try {
 
   clearCache('services');
   clearCache('initialData');
+  logAction_('service_update', { id: serviceId, name: serviceData.name, price: serviceData.price });
   return { success: true };
 
 } catch (error) {
@@ -184,6 +189,7 @@ try {
   sheet.deleteRow(rowIndex + 1);
   clearCache('services');
   clearCache('initialData');
+  logAction_('service_delete', { id: serviceId });
 
   return { success: true };
 
