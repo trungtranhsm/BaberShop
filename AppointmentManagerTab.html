@@ -61,8 +61,13 @@
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label for="phone" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Số điện thoại</label>
-          <input type="tel" id="phone" required placeholder="0901..."
-            class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none transition-colors placeholder-[#475569]">
+          <div class="relative">
+            <input type="tel" id="phone" required placeholder="0901..." autocomplete="off"
+              class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none transition-colors placeholder-[#475569]">
+            <div id="phone-autocomplete-dropdown"
+              class="absolute top-full left-0 right-0 mt-1 bg-[#1E1E2A] border border-[#2A2A38] rounded-lg shadow-2xl z-50 overflow-hidden"
+              style="display:none;"></div>
+          </div>
         </div>
         <div>
           <label for="customerName" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Tên khách hàng</label>
@@ -404,12 +409,66 @@
   }
 
   // ── Events ────────────────────────────────────────────────────
+  // ── Phone autocomplete in add modal ──────────────────────────
+  const phoneInput      = document.getElementById('phone');
+  const nameInput       = document.getElementById('customerName');
+  const phoneDropdown   = document.getElementById('phone-autocomplete-dropdown');
+
+  function showPhoneSuggestions(query) {
+    const customers = window.AppCache ? window.AppCache.getData('customers') : [];
+    const q = query.trim().toLowerCase();
+    if (!q || !customers.length) { phoneDropdown.style.display = 'none'; return; }
+
+    const matches = customers.filter(c =>
+      String(c.phone).includes(q) || c.name.toLowerCase().includes(q)
+    ).slice(0, 6);
+
+    if (!matches.length) { phoneDropdown.style.display = 'none'; return; }
+
+    const ce = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    phoneDropdown.innerHTML = matches.map(c => `
+      <div class="phone-suggest-item flex items-center justify-between px-3 py-2.5 hover:bg-[#2A2A38] cursor-pointer transition-colors gap-3"
+           data-phone="${ce(c.phone)}" data-name="${ce(c.name)}">
+        <div class="flex items-center gap-2 min-w-0">
+          <div class="w-6 h-6 rounded-full bg-[#6366F1]/20 flex items-center justify-center flex-shrink-0">
+            <svg class="w-3 h-3 text-[#6366F1]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <span class="text-sm font-medium truncate">${ce(c.name)}</span>
+        </div>
+        <span class="text-xs text-[#64748B] font-mono flex-shrink-0">${ce(c.phone)}</span>
+      </div>`).join('');
+    phoneDropdown.style.display = 'block';
+  }
+
+  function hidePhoneDropdown() {
+    setTimeout(() => { phoneDropdown.style.display = 'none'; }, 150);
+  }
+
+  phoneInput.addEventListener('input', () => showPhoneSuggestions(phoneInput.value));
+  phoneInput.addEventListener('blur', hidePhoneDropdown);
+  phoneInput.addEventListener('keydown', e => {
+    if (e.key === 'Escape') phoneDropdown.style.display = 'none';
+  });
+
+  phoneDropdown.addEventListener('click', e => {
+    const item = e.target.closest('.phone-suggest-item');
+    if (!item) return;
+    phoneInput.value = item.dataset.phone;
+    nameInput.value  = item.dataset.name;
+    phoneDropdown.style.display = 'none';
+    nameInput.focus();
+  });
+
   addBtn.addEventListener('click', () => {
     addForm.reset();
+    phoneDropdown.style.display = 'none';
     document.getElementById('modal-title').textContent = 'Thêm lịch hẹn mới';
     populateServicesCheckboxes(document.getElementById('services-checkbox-list'));
     populateStaffDropdown(document.getElementById('staff'));
     showAddModal(true);
+    setTimeout(() => phoneInput.focus(), 100);
   });
 
   [document.getElementById('close-modal-btn'), document.getElementById('close-modal-btn2')].forEach(b => {
