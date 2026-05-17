@@ -13,6 +13,42 @@
     </div>
   </div>
 
+  <!-- Phone History Lookup -->
+  <div class="bg-[#16161D] border border-[#2A2A38] rounded-xl p-5">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="w-9 h-9 rounded-xl bg-[#6366F1]/15 flex items-center justify-center flex-shrink-0">
+        <svg class="w-4 h-4 text-[#6366F1]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+        </svg>
+      </div>
+      <div>
+        <p class="text-sm font-semibold">Tra cứu lịch sử theo SĐT</p>
+        <p class="text-xs text-[#64748B]">Nhập số điện thoại để xem toàn bộ lịch sử đặt lịch</p>
+      </div>
+    </div>
+    <div class="relative">
+      <div class="flex gap-2">
+        <div class="relative flex-1">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748B] pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="tel" id="phone-lookup-input" placeholder="VD: 0901234567"
+            autocomplete="off"
+            class="w-full pl-9 pr-4 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm text-[#F1F5F9] placeholder-[#475569] outline-none transition-colors">
+          <!-- Autocomplete dropdown -->
+          <div id="phone-lookup-suggestions" class="absolute top-full left-0 right-0 mt-1 bg-[#1E1E2A] border border-[#2A2A38] rounded-lg shadow-xl z-20 overflow-hidden" style="display:none;"></div>
+        </div>
+        <button id="phone-lookup-btn"
+          class="px-4 py-2.5 bg-[#6366F1] hover:bg-[#4F46E5] text-white text-sm font-medium rounded-lg cursor-pointer transition-colors flex items-center gap-2 flex-shrink-0">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          Tra cứu
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Table -->
   <div class="bg-[#16161D] border border-[#2A2A38] rounded-xl overflow-hidden">
     <div class="overflow-x-auto">
@@ -160,15 +196,73 @@
     }
   }
 
+  // ── Phone lookup ─────────────────────────────────────────────────
+  const phoneLookupInput   = document.getElementById('phone-lookup-input');
+  const phoneLookupBtn     = document.getElementById('phone-lookup-btn');
+  const phoneSuggestions   = document.getElementById('phone-lookup-suggestions');
+
+  function renderSuggestions(matches) {
+    if (!matches.length) { phoneSuggestions.style.display = 'none'; return; }
+    const ce = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    phoneSuggestions.innerHTML = matches.slice(0, 6).map(c => `
+      <div class="suggestion-item flex items-center justify-between px-4 py-2.5 hover:bg-[#2A2A38] cursor-pointer transition-colors"
+           data-phone="${ce(c.phone)}" data-name="${ce(c.name)}">
+        <span class="text-sm font-medium">${ce(c.name)}</span>
+        <span class="text-xs text-[#64748B] font-mono">${ce(c.phone)}</span>
+      </div>`).join('');
+    phoneSuggestions.style.display = 'block';
+  }
+
+  function hideSuggestions() {
+    setTimeout(() => { phoneSuggestions.style.display = 'none'; }, 150);
+  }
+
+  function doPhoneLookup() {
+    const phone = phoneLookupInput.value.trim();
+    if (!phone) { showToast('Vui lòng nhập số điện thoại', 'error'); return; }
+    phoneSuggestions.style.display = 'none';
+    const matched = allCustomers.find(c => String(c.phone).replace(/\s/g,'') === phone.replace(/\s/g,''));
+    showDetailsModal(phone, matched ? matched.name : 'Khách vãng lai');
+  }
+
   window.initCustomerTab = function() {
     allCustomers = AppCache.getData('customers').sort((a,b) => a.name.localeCompare(b.name));
     renderCustomers(allCustomers);
+
+    // Table search
     searchInput.addEventListener('input', filterAndRender);
+
+    // Modal close
     closeDetailsBtn.addEventListener('click', () => detailsModal.style.display = 'none');
+    detailsModal.addEventListener('click', e => { if (e.target === detailsModal) detailsModal.style.display = 'none'; });
+
+    // Table row click
     listBody.addEventListener('click', e => {
       const btn = e.target.closest('.view-details-btn');
       if (btn) showDetailsModal(btn.dataset.phone, btn.dataset.name);
     });
+
+    // Phone lookup – suggestions while typing
+    phoneLookupInput.addEventListener('input', () => {
+      const q = phoneLookupInput.value.trim();
+      if (!q) { phoneSuggestions.style.display = 'none'; return; }
+      const matches = allCustomers.filter(c => String(c.phone).includes(q) || c.name.toLowerCase().includes(q.toLowerCase()));
+      renderSuggestions(matches);
+    });
+
+    // Phone lookup – select suggestion
+    phoneSuggestions.addEventListener('click', e => {
+      const item = e.target.closest('.suggestion-item');
+      if (!item) return;
+      phoneLookupInput.value = item.dataset.phone;
+      phoneSuggestions.style.display = 'none';
+      showDetailsModal(item.dataset.phone, item.dataset.name);
+    });
+
+    // Phone lookup – button & Enter
+    phoneLookupBtn.addEventListener('click', doPhoneLookup);
+    phoneLookupInput.addEventListener('keydown', e => { if (e.key === 'Enter') doPhoneLookup(); });
+    phoneLookupInput.addEventListener('blur', hideSuggestions);
   };
 })();
 </script>
