@@ -412,6 +412,94 @@ window.AppCache = {
 
   async refresh() {
     return await this.init();
+  },
+
+  // ===== BACKGROUND SYNC (Sheet → Web App) =====
+  lastKnownVersion: null,
+  _syncTimer: null,
+  _syncInFlight: false,
+  isMutating: false,
+
+  startBackgroundSync(intervalMs = 15000) {
+    this.stopBackgroundSync();
+    // Lấy version hiện tại làm baseline để không trigger refresh ngay lập tức
+    this.callServerFunction('getDataVersion')
+      .then(v => { if (v && v.version) this.lastKnownVersion = v.version; })
+      .catch(() => {});
+
+    this._syncTimer = setInterval(() => this._tickSync(), intervalMs);
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) return;
+      this._tickSync(); // tab trở lại active → check ngay
+    });
+    console.log(`🛰️ Background sync started (interval ${intervalMs}ms)`);
+  },
+
+  stopBackgroundSync() {
+    if (this._syncTimer) { clearInterval(this._syncTimer); this._syncTimer = null; }
+  },
+
+  async _tickSync() {
+    if (document.hidden) return;
+    if (this._syncInFlight) return;
+    this._syncInFlight = true;
+    try {
+      const res = await this.callServerFunction('getDataVersion');
+      const v = res && res.version;
+      if (!v) return;
+      if (this.lastKnownVersion == null) { this.lastKnownVersion = v; return; }
+      if (v === this.lastKnownVersion) return;
+
+      if (this.isUserBusy()) {
+        console.log('🔁 Sync skipped (user busy), will retry next tick');
+        return; // không cập nhật lastKnownVersion → tick sau thử lại
+      }
+      await this.silentRefresh(v);
+    } catch (e) {
+      console.warn('Sync tick error:', e);
+    } finally {
+      this._syncInFlight = false;
+    }
+  },
+
+  isUserBusy() {
+    if (this.isMutating) return true;
+    const openModal = document.querySelector('.modal:not(.hidden), [data-modal-open="true"]');
+    if (openModal) return true;
+    const ae = document.activeElement;
+    if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.tagName === 'SELECT' || ae.isContentEditable)) {
+      return true;
+    }
+    return false;
+  },
+
+  async silentRefresh(newVersion) {
+    try {
+      const result = await this.callServerFunction('initializeAllData');
+      if (!result || result.error) throw new Error(result ? result.error : 'invalid data');
+      this.data = {
+        appointments: Array.isArray(result.appointments) ? result.appointments : [],
+        services:     Array.isArray(result.services)     ? result.services     : [],
+        staff:        Array.isArray(result.staff)        ? result.staff        : [],
+        customers:    Array.isArray(result.customers)    ? result.customers    : [],
+        stats: result.stats || {}
+      };
+      this.loadedAt = new Date();
+      if (newVersion) this.lastKnownVersion = newVersion;
+      this.updateCacheStatus();
+      // Bắn event cho từng tab tự re-render — không reset form / không đóng modal
+      window.dispatchEvent(new CustomEvent('appcache:updated', { detail: { silent: true } }));
+      console.log('✅ Synced new version', newVersion);
+      const el = document.getElementById('cacheStatus');
+      if (el) {
+        const prev = el.textContent;
+        el.textContent = '🔄 Đã đồng bộ';
+        setTimeout(() => { if (el.textContent === '🔄 Đã đồng bộ') this.updateCacheStatus(); }, 2000);
+      }
+    } catch (e) {
+      console.warn('silentRefresh failed:', e);
+    }
   }
 };
 
@@ -593,12 +681,18 @@ async function initApp() {
     if (typeof window.initStaffTab             === 'function') window.initStaffTab();
     if (typeof window.initSettingsTab          === 'function') window.initSettingsTab();
     setInterval(() => AppCache.updateCacheStatus(), 30000);
+    AppCache.startBackgroundSync(15000);
     showToast('Ứng dụng đã sẵn sàng!', 'success');
   } else {
     showToast('Lỗi khởi tạo ứng dụng', 'error');
   }
   hideLoading();
 }
+
+// Background sync: refresh dashboard khi data từ Sheet vừa update
+window.addEventListener('appcache:updated', () => {
+  if (window.AppCache && window.AppCache.isLoaded) updateDashboard();
+});
 
 document.addEventListener('DOMContentLoaded', initApp);
 

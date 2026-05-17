@@ -544,5 +544,10 @@
   window.initAppointmentManagerTab = function() {
     if (window.AppCache && window.AppCache.isLoaded) filterAndRender();
   };
+
+  // Background sync: re-render khi data từ Sheet vừa cập nhật
+  window.addEventListener('appcache:updated', () => {
+    if (window.AppCache && window.AppCache.isLoaded) filterAndRender();
+  });
 })();
 </script>
