@@ -1,0 +1,250 @@
+<div class="space-y-5">
+  <!-- Header -->
+  <div class="bg-[#16161D] border border-[#2A2A38] rounded-xl p-4">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+      <h2 class="text-base font-semibold">Báo cáo doanh thu</h2>
+      <div class="flex items-center gap-2">
+        <button id="prevPeriodBtn" class="w-8 h-8 flex items-center justify-center bg-[#1E1E2A] border border-[#2A2A38] hover:border-[#3A3A50] rounded-lg cursor-pointer transition-colors text-[#94A3B8] hover:text-white">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <select id="viewModeSelect" class="px-3 py-2 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm text-[#F1F5F9] outline-none font-medium cursor-pointer min-w-[180px] text-center"></select>
+        <button id="nextPeriodBtn" class="w-8 h-8 flex items-center justify-center bg-[#1E1E2A] border border-[#2A2A38] hover:border-[#3A3A50] rounded-lg cursor-pointer transition-colors text-[#94A3B8] hover:text-white">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="bg-[#16161D] border border-[#2A2A38] rounded-xl p-5">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-xs font-medium text-[#64748B] uppercase tracking-wider">Tổng doanh thu</span>
+        <div class="w-8 h-8 rounded-lg bg-[#22C55E]/15 flex items-center justify-center">
+          <svg class="w-4 h-4 text-[#22C55E]" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </div>
+      </div>
+      <p id="totalRevenue" class="text-2xl font-bold text-[#4ADE80]">0đ</p>
+    </div>
+    <div class="bg-[#16161D] border border-[#2A2A38] rounded-xl p-5">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-xs font-medium text-[#64748B] uppercase tracking-wider">Lịch hẹn hoàn thành</span>
+        <div class="w-8 h-8 rounded-lg bg-[#6366F1]/15 flex items-center justify-center">
+          <svg class="w-4 h-4 text-[#6366F1]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+      </div>
+      <p id="completedAppointments" class="text-2xl font-bold">0</p>
+    </div>
+    <div class="bg-[#16161D] border border-[#2A2A38] rounded-xl p-5">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-xs font-medium text-[#64748B] uppercase tracking-wider">Trung bình / lịch hẹn</span>
+        <div class="w-8 h-8 rounded-lg bg-[#D97706]/15 flex items-center justify-center">
+          <svg class="w-4 h-4 text-[#D97706]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
+          </svg>
+        </div>
+      </div>
+      <p id="averageRevenue" class="text-2xl font-bold text-[#FCD34D]">0đ</p>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="bg-[#16161D] border border-[#2A2A38] rounded-xl p-5">
+    <h3 id="chartTitle" class="text-sm font-semibold mb-4">Biểu đồ doanh thu</h3>
+    <div id="timeSeriesChartContainer" style="min-height:300px; position:relative;">
+      <canvas id="revenueTimeSeriesChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Transactions Table -->
+  <div class="bg-[#16161D] border border-[#2A2A38] rounded-xl overflow-hidden">
+    <div class="px-5 py-3.5 border-b border-[#2A2A38]">
+      <h3 class="text-sm font-semibold">Chi tiết giao dịch trong kỳ</h3>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full">
+        <thead>
+          <tr class="border-b border-[#2A2A38]">
+            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase tracking-wider">Khách hàng</th>
+            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase tracking-wider">Dịch vụ</th>
+            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase tracking-wider">Nhân viên</th>
+            <th class="px-5 py-3 text-right text-xs font-medium text-[#64748B] uppercase tracking-wider">Doanh thu</th>
+          </tr>
+        </thead>
+        <tbody id="revenueTableBody" class="divide-y divide-[#2A2A38]">
+          <tr><td colspan="4" class="px-5 py-8 text-center text-sm text-[#64748B]">Đang tải dữ liệu...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  let revenueChartInstance;
+  let allTransactions = [];
+  const state = { viewMode: 'month', refDate: new Date() };
+
+  const dom = {
+    select:   document.getElementById('viewModeSelect'),
+    prevBtn:  document.getElementById('prevPeriodBtn'),
+    nextBtn:  document.getElementById('nextPeriodBtn'),
+    chartTitle:           document.getElementById('chartTitle'),
+    totalRevenue:         document.getElementById('totalRevenue'),
+    completedAppointments: document.getElementById('completedAppointments'),
+    averageRevenue:       document.getElementById('averageRevenue')
+  };
+
+  const DateHelpers = {
+    getWeekRange:  d => { d = new Date(d); const day = d.getDay(), diff = d.getDate() - day + (day===0?-6:1); const s = new Date(d.setDate(diff)); return { startDate: s, endDate: new Date(new Date(s).setDate(s.getDate()+6)) }; },
+    getMonthRange: d => { d = new Date(d); return { startDate: new Date(d.getFullYear(),d.getMonth(),1), endDate: new Date(d.getFullYear(),d.getMonth()+1,0) }; },
+    getYearRange:  d => { d = new Date(d); return { startDate: new Date(d.getFullYear(),0,1),            endDate: new Date(d.getFullYear(),11,31) }; }
+  };
+
+  function updateView() {
+    dom.select.innerHTML = `
+      <option value="week">Tuần ${getWeekNumber(state.refDate)} (${state.refDate.getFullYear()})</option>
+      <option value="month">Tháng ${state.refDate.getMonth()+1}, ${state.refDate.getFullYear()}</option>
+      <option value="year">Năm ${state.refDate.getFullYear()}</option>
+      <option value="all">Tất cả thời gian</option>`;
+    dom.select.value = state.viewMode;
+    dom.prevBtn.style.display = state.viewMode === 'all' ? 'none' : '';
+    dom.nextBtn.style.display = state.viewMode === 'all' ? 'none' : '';
+
+    let kpiStart, kpiEnd, chartStart, chartEnd, unit;
+    if (state.viewMode === 'week') {
+      ({ startDate: kpiStart, endDate: kpiEnd } = DateHelpers.getWeekRange(state.refDate));
+      chartStart = kpiStart; chartEnd = kpiEnd; unit = 'dayOfWeek';
+      dom.chartTitle.textContent = 'Doanh thu các ngày trong tuần';
+    } else if (state.viewMode === 'month') {
+      ({ startDate: kpiStart, endDate: kpiEnd } = DateHelpers.getMonthRange(state.refDate));
+      chartStart = kpiStart; chartEnd = kpiEnd; unit = 'dayOfMonth';
+      dom.chartTitle.textContent = 'Doanh thu các ngày trong tháng';
+    } else if (state.viewMode === 'year') {
+      ({ startDate: kpiStart, endDate: kpiEnd } = DateHelpers.getYearRange(state.refDate));
+      chartStart = kpiStart; chartEnd = kpiEnd; unit = 'month';
+      dom.chartTitle.textContent = 'Doanh thu các tháng trong năm';
+    } else {
+      kpiStart = new Date(1970,0,1); kpiEnd = new Date(3000,0,1);
+      chartStart = kpiStart; chartEnd = kpiEnd; unit = 'year';
+      dom.chartTitle.textContent = 'Tổng doanh thu qua các năm';
+    }
+
+    const period = allTransactions.filter(t => { const d = new Date(t.date); return d >= kpiStart && d <= kpiEnd; });
+    const total  = period.reduce((s,t) => s + t.revenue, 0);
+    dom.totalRevenue.textContent          = formatCurrency(total);
+    dom.completedAppointments.textContent = period.length;
+    dom.averageRevenue.textContent        = formatCurrency(period.length > 0 ? total / period.length : 0);
+
+    const chartData = allTransactions.filter(t => { const d = new Date(t.date); return d >= chartStart && d <= chartEnd; });
+    renderChart(aggregateData(chartData, unit, chartStart));
+    updateTable(period);
+  }
+
+  function aggregateData(transactions, unit, startDate) {
+    const groups = {};
+    transactions.forEach(t => {
+      const d = new Date(t.date);
+      const k = unit==='dayOfWeek' ? d.getDay() : unit==='dayOfMonth' ? d.getDate() : unit==='month' ? d.getMonth() : d.getFullYear();
+      groups[k] = (groups[k] || 0) + t.revenue;
+    });
+    const cd = { labels: [], data: [] };
+    if (unit==='dayOfWeek') {
+      ['CN','T2','T3','T4','T5','T6','T7'].forEach((l,i) => { cd.labels.push(l); cd.data.push(groups[i]||0); });
+    } else if (unit==='dayOfMonth') {
+      const days = new Date(startDate.getFullYear(), startDate.getMonth()+1, 0).getDate();
+      for (let i=1; i<=days; i++) { cd.labels.push(`${i}`); cd.data.push(groups[i]||0); }
+    } else if (unit==='month') {
+      for (let i=0; i<12; i++) { cd.labels.push(`T${i+1}`); cd.data.push(groups[i]||0); }
+    } else {
+      [...new Set(transactions.map(t => new Date(t.date).getFullYear()))].sort().forEach(y => { cd.labels.push(y); cd.data.push(groups[y]||0); });
+    }
+    return cd;
+  }
+
+  function renderChart({ labels, data }) {
+    if (revenueChartInstance) revenueChartInstance.destroy();
+    const ctx = document.getElementById('revenueTimeSeriesChart').getContext('2d');
+    revenueChartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Doanh thu',
+          data,
+          borderColor: '#6366F1',
+          backgroundColor: 'rgba(99,102,241,0.08)',
+          pointBackgroundColor: '#6366F1',
+          pointBorderColor: '#16161D',
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1E1E2A',
+            borderColor: '#2A2A38',
+            borderWidth: 1,
+            titleColor: '#F1F5F9',
+            bodyColor: '#94A3B8',
+            callbacks: { label: ctx => ' ' + formatCurrency(ctx.parsed.y) }
+          }
+        },
+        scales: {
+          x: { grid: { color: '#2A2A38' }, ticks: { color: '#64748B', font: { size: 11 } } },
+          y: { beginAtZero: true, grid: { color: '#2A2A38' }, ticks: { color: '#64748B', font: { size: 11 }, callback: v => (v/1000000 >= 1 ? (v/1000000).toFixed(1)+'M' : v/1000 >= 1 ? (v/1000).toFixed(0)+'K' : v) } }
+        }
+      }
+    });
+  }
+
+  function updateTable(transactions) {
+    const tbody = document.getElementById('revenueTableBody');
+    if (!transactions || !transactions.length) {
+      tbody.innerHTML = '<tr><td colspan="4" class="px-5 py-8 text-center text-sm text-[#64748B]">Không có dữ liệu trong kỳ này</td></tr>';
+      return;
+    }
+    tbody.innerHTML = transactions.map(t => `
+      <tr class="hover:bg-[#1E1E2A] transition-colors">
+        <td class="px-5 py-3.5 text-sm font-medium">${t.customerName}</td>
+        <td class="px-5 py-3.5 text-sm text-[#94A3B8]">${t.service}</td>
+        <td class="px-5 py-3.5 text-sm text-[#94A3B8]">${t.staff || 'N/A'}</td>
+        <td class="px-5 py-3.5 text-right text-sm font-semibold text-[#4ADE80]">${formatCurrency(t.revenue)}</td>
+      </tr>`).join('');
+  }
+
+  function getWeekNumber(d) {
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+    return Math.ceil((((d - new Date(Date.UTC(d.getUTCFullYear(),0,1)))/86400000)+1)/7);
+  }
+
+  function handleNav(dir) {
+    if (state.viewMode==='month')      state.refDate.setMonth(state.refDate.getMonth()+dir);
+    else if (state.viewMode==='week')  state.refDate.setDate(state.refDate.getDate()+7*dir);
+    else if (state.viewMode==='year')  state.refDate.setFullYear(state.refDate.getFullYear()+dir);
+    updateView();
+  }
+
+  window.initRevenueTab = function() {
+    dom.select.addEventListener('change', e => { state.viewMode = e.target.value; state.refDate = new Date(); updateView(); });
+    dom.prevBtn.addEventListener('click', () => handleNav(-1));
+    dom.nextBtn.addEventListener('click', () => handleNav(1));
+
+    google.script.run
+      .withSuccessHandler(resp => {
+        if (resp.success) { allTransactions = resp.data; updateView(); }
+        else { showToast(resp.error, 'error'); }
+      })
+      .getRevenueReportData();
+  };
+})();
+</script>

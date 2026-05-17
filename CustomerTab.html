@@ -1,0 +1,171 @@
+<div class="space-y-5">
+  <!-- Header -->
+  <div class="bg-[#16161D] border border-[#2A2A38] rounded-xl p-4">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+      <h2 class="text-base font-semibold">Quản lý khách hàng</h2>
+      <div class="relative w-full md:w-72">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748B] pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="search" id="customer-search-input" placeholder="Tìm theo tên hoặc SĐT..."
+          class="w-full pl-9 pr-4 py-2 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm text-[#F1F5F9] placeholder-[#475569] outline-none transition-colors">
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="bg-[#16161D] border border-[#2A2A38] rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full">
+        <thead>
+          <tr class="border-b border-[#2A2A38]">
+            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase tracking-wider">Tên khách hàng</th>
+            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase tracking-wider">Số điện thoại</th>
+            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase tracking-wider">Ngày tham gia</th>
+            <th class="px-5 py-3 text-right text-xs font-medium text-[#64748B] uppercase tracking-wider">Hành động</th>
+          </tr>
+        </thead>
+        <tbody id="customer-list-body" class="divide-y divide-[#2A2A38]">
+          <tr><td colspan="4" class="px-5 py-8 text-center text-sm text-[#64748B]">Đang tải...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CUSTOMER DETAILS MODAL ===== -->
+<div id="customer-details-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50" style="display:none;">
+  <div class="bg-[#16161D] border border-[#2A2A38] rounded-2xl shadow-2xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] flex flex-col">
+    <div class="flex items-center justify-between mb-5 flex-shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-[#D97706]/15 flex items-center justify-center">
+          <svg class="w-5 h-5 text-[#D97706]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+        <div>
+          <h3 id="details-modal-title" class="text-lg font-bold">Chi tiết khách hàng</h3>
+          <p id="details-phone" class="text-xs text-[#64748B]"></p>
+        </div>
+      </div>
+      <button id="close-details-modal-btn" class="w-8 h-8 rounded-lg bg-[#1E1E2A] hover:bg-[#2A2A38] flex items-center justify-center cursor-pointer transition-colors text-[#94A3B8] hover:text-white">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-2 gap-3 mb-5 flex-shrink-0">
+      <div class="bg-[#1E1E2A] border border-[#2A2A38] rounded-xl p-4">
+        <p class="text-xs text-[#64748B] mb-1">Tổng chi tiêu</p>
+        <p id="details-totalSpend" class="text-xl font-bold text-[#4ADE80]">Đang tính...</p>
+      </div>
+      <div class="bg-[#1E1E2A] border border-[#2A2A38] rounded-xl p-4">
+        <p class="text-xs text-[#64748B] mb-1">Lần ghé cuối</p>
+        <p id="details-lastVisit" class="text-xl font-bold">Đang tải...</p>
+      </div>
+    </div>
+
+    <!-- History -->
+    <div class="flex-1 overflow-hidden flex flex-col">
+      <h4 class="text-sm font-semibold mb-3 flex-shrink-0">Lịch sử lịch hẹn</h4>
+      <div id="details-history-container" class="flex-1 overflow-y-auto bg-[#1E1E2A] border border-[#2A2A38] rounded-xl">
+        <p class="p-4 text-center text-sm text-[#64748B]">Đang tải lịch sử...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  let allCustomers = [];
+  const searchInput    = document.getElementById('customer-search-input');
+  const listBody       = document.getElementById('customer-list-body');
+  const detailsModal   = document.getElementById('customer-details-modal');
+  const closeDetailsBtn = document.getElementById('close-details-modal-btn');
+
+  function renderCustomers(customers) {
+    if (!customers || !customers.length) {
+      listBody.innerHTML = '<tr><td colspan="4" class="px-5 py-8 text-center text-sm text-[#64748B]">Không có khách hàng nào.</td></tr>';
+      return;
+    }
+    listBody.innerHTML = customers.map(c => `
+      <tr class="hover:bg-[#1E1E2A] transition-colors">
+        <td class="px-5 py-3.5 text-sm font-medium">${c.name}</td>
+        <td class="px-5 py-3.5 text-sm text-[#94A3B8]">${c.phone}</td>
+        <td class="px-5 py-3.5 text-sm text-[#94A3B8]">${c.createdDate || 'N/A'}</td>
+        <td class="px-5 py-3.5 text-right">
+          <button class="view-details-btn flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#D97706] bg-[#D97706]/10 hover:bg-[#D97706]/20 rounded-lg cursor-pointer transition-colors ml-auto"
+            data-phone="${c.phone}" data-name="${c.name}">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+            Xem chi tiết
+          </button>
+        </td>
+      </tr>`).join('');
+  }
+
+  function filterAndRender() {
+    const q = searchInput.value.toLowerCase();
+    renderCustomers(q ? allCustomers.filter(c => c.name.toLowerCase().includes(q) || c.phone.toString().includes(q)) : allCustomers);
+  }
+
+  async function showDetailsModal(phone, name) {
+    document.getElementById('details-modal-title').textContent = name;
+    document.getElementById('details-phone').textContent = phone;
+    document.getElementById('details-totalSpend').textContent = 'Đang tính...';
+    document.getElementById('details-lastVisit').textContent  = 'Đang tải...';
+    document.getElementById('details-history-container').innerHTML = '<p class="p-4 text-center text-sm text-[#64748B]">Đang tải lịch sử...</p>';
+    detailsModal.style.display = 'flex';
+
+    try {
+      const result = await AppCache.callServerFunction('getCustomerDetailsWithStats', phone);
+      if (!result.success) throw new Error(result.error);
+      const d = result.data;
+      document.getElementById('details-totalSpend').textContent = formatCurrency(d.totalSpend);
+      document.getElementById('details-lastVisit').textContent  = d.lastVisit || 'Chưa có';
+
+      const hist = document.getElementById('details-history-container');
+      if (!d.appointmentHistory || !d.appointmentHistory.length) {
+        hist.innerHTML = '<p class="p-4 text-center text-sm text-[#64748B]">Không có lịch sử.</p>';
+      } else {
+        const statusMap = { 'Hoàn thành': 'badge-done', 'Đã hủy': 'badge-canceled' };
+        hist.innerHTML = `
+          <table class="min-w-full">
+            <thead class="border-b border-[#2A2A38] sticky top-0 bg-[#1E1E2A]">
+              <tr>
+                <th class="px-4 py-2.5 text-left text-xs font-medium text-[#64748B]">Ngày</th>
+                <th class="px-4 py-2.5 text-left text-xs font-medium text-[#64748B]">Dịch vụ</th>
+                <th class="px-4 py-2.5 text-left text-xs font-medium text-[#64748B]">Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#2A2A38]">
+              ${d.appointmentHistory.map(a => `
+                <tr>
+                  <td class="px-4 py-2.5 text-sm text-[#94A3B8]">${a.date}</td>
+                  <td class="px-4 py-2.5 text-sm">${a.service}</td>
+                  <td class="px-4 py-2.5">
+                    <span class="text-xs font-medium px-2 py-0.5 rounded-full ${statusMap[a.status] || 'badge-pending'}">${a.status}</span>
+                  </td>
+                </tr>`).join('')}
+            </tbody>
+          </table>`;
+      }
+    } catch (err) {
+      showToast('Lỗi tải chi tiết: ' + err.message, 'error');
+      document.getElementById('details-history-container').innerHTML = '<p class="p-4 text-center text-sm text-[#F87171]">Lỗi tải lịch sử.</p>';
+    }
+  }
+
+  window.initCustomerTab = function() {
+    allCustomers = AppCache.getData('customers').sort((a,b) => a.name.localeCompare(b.name));
+    renderCustomers(allCustomers);
+    searchInput.addEventListener('input', filterAndRender);
+    closeDetailsBtn.addEventListener('click', () => detailsModal.style.display = 'none');
+    listBody.addEventListener('click', e => {
+      const btn = e.target.closest('.view-details-btn');
+      if (btn) showDetailsModal(btn.dataset.phone, btn.dataset.name);
+    });
+  };
+})();
+</script>

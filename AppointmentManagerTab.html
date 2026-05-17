@@ -1,0 +1,486 @@
+<div class="space-y-5">
+  <!-- Header Bar -->
+  <div class="bg-[#16161D] border border-[#2A2A38] rounded-xl p-4">
+    <div class="flex flex-col md:flex-row items-start md:items-center gap-3">
+      <h2 class="text-base font-semibold flex-shrink-0">Quản lý lịch hẹn</h2>
+      <div class="flex-1 flex flex-wrap items-center gap-2">
+        <button id="add-appointment-btn"
+          class="flex items-center gap-2 px-4 py-2 bg-[#6366F1] hover:bg-[#4F46E5] text-white text-sm font-medium rounded-lg transition-colors cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Thêm lịch hẹn
+        </button>
+        <div class="relative flex-1 min-w-[200px]">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748B] pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="search" id="search-input" placeholder="Tìm theo tên hoặc SĐT..."
+            class="w-full pl-9 pr-4 py-2 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm text-[#F1F5F9] placeholder-[#475569] outline-none transition-colors">
+        </div>
+      </div>
+    </div>
+    <!-- Filter Pills -->
+    <div id="filter-controls" class="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-[#2A2A38]">
+      <span class="text-xs text-[#64748B]">Lọc:</span>
+      <button data-range="today"  class="filter-btn text-xs px-3 py-1.5 rounded-full font-medium bg-[#6366F1] text-white cursor-pointer transition-all">Hôm nay</button>
+      <button data-range="week"   class="filter-btn text-xs px-3 py-1.5 rounded-full font-medium bg-[#1E1E2A] text-[#94A3B8] border border-[#2A2A38] hover:border-[#3A3A50] cursor-pointer transition-all">Tuần này</button>
+      <button data-range="month"  class="filter-btn text-xs px-3 py-1.5 rounded-full font-medium bg-[#1E1E2A] text-[#94A3B8] border border-[#2A2A38] hover:border-[#3A3A50] cursor-pointer transition-all">Tháng này</button>
+      <button data-range="all"    class="filter-btn text-xs px-3 py-1.5 rounded-full font-medium bg-[#1E1E2A] text-[#94A3B8] border border-[#2A2A38] hover:border-[#3A3A50] cursor-pointer transition-all">Tất cả</button>
+    </div>
+  </div>
+
+  <!-- Appointment Cards -->
+  <div id="appointment-list" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 min-h-[200px]">
+    <div class="col-span-full text-center py-10 text-[#64748B] text-sm">Đang tải dữ liệu...</div>
+  </div>
+
+  <!-- Pagination -->
+  <div id="pagination-controls" class="hidden flex justify-center items-center gap-3">
+    <button id="prev-page-btn" class="flex items-center gap-1.5 px-4 py-2 bg-[#16161D] border border-[#2A2A38] hover:border-[#3A3A50] rounded-lg text-sm text-[#94A3B8] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors" disabled>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Trước
+    </button>
+    <span id="page-info" class="text-sm text-[#64748B]">Trang 1 / 1</span>
+    <button id="next-page-btn" class="flex items-center gap-1.5 px-4 py-2 bg-[#16161D] border border-[#2A2A38] hover:border-[#3A3A50] rounded-lg text-sm text-[#94A3B8] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors" disabled>
+      Sau
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ===== ADD/EDIT MODAL ===== -->
+<div id="add-edit-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50" style="display:none;">
+  <div class="bg-[#16161D] border border-[#2A2A38] rounded-2xl shadow-2xl p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between mb-5">
+      <h3 id="modal-title" class="text-lg font-bold">Thêm lịch hẹn mới</h3>
+      <button id="close-modal-btn" class="w-8 h-8 rounded-lg bg-[#1E1E2A] hover:bg-[#2A2A38] flex items-center justify-center cursor-pointer transition-colors text-[#94A3B8] hover:text-white">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <form id="appointment-form" class="space-y-4">
+      <input type="hidden" id="appointment-id">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label for="phone" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Số điện thoại</label>
+          <input type="tel" id="phone" required placeholder="0901..."
+            class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none transition-colors placeholder-[#475569]">
+        </div>
+        <div>
+          <label for="customerName" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Tên khách hàng</label>
+          <input type="text" id="customerName" required placeholder="Nguyễn Văn A"
+            class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none transition-colors placeholder-[#475569]">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label for="date" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Ngày</label>
+          <input type="date" id="date" required
+            class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none transition-colors text-[#F1F5F9]">
+        </div>
+        <div>
+          <label for="time" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Giờ</label>
+          <input type="time" id="time" required
+            class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none transition-colors text-[#F1F5F9]">
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-[#94A3B8] mb-1.5">Dịch vụ</label>
+        <div id="services-checkbox-list" class="max-h-36 overflow-y-auto bg-[#1E1E2A] border border-[#2A2A38] rounded-lg p-3 space-y-2"></div>
+      </div>
+      <div>
+        <label for="staff" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Nhân viên thực hiện</label>
+        <select id="staff" class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none transition-colors text-[#F1F5F9]"></select>
+      </div>
+      <div>
+        <label for="notes" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Ghi chú</label>
+        <textarea id="notes" rows="2" placeholder="Ghi chú thêm..."
+          class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none transition-colors resize-none placeholder-[#475569]"></textarea>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="button" id="close-modal-btn2" class="flex-1 px-4 py-2.5 bg-[#1E1E2A] hover:bg-[#252533] border border-[#2A2A38] text-sm font-medium rounded-lg cursor-pointer transition-colors">Hủy</button>
+        <button type="submit" id="save-appointment-btn" class="flex-1 px-4 py-2.5 bg-[#6366F1] hover:bg-[#4F46E5] disabled:opacity-60 text-white text-sm font-medium rounded-lg cursor-pointer transition-colors">Lưu lịch hẹn</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== COMPLETE MODAL ===== -->
+<div id="complete-appointment-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50" style="display:none;">
+  <div class="bg-[#16161D] border border-[#2A2A38] rounded-2xl shadow-2xl p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center gap-3 mb-5">
+      <div class="w-9 h-9 rounded-xl bg-[#22C55E]/15 flex items-center justify-center">
+        <svg class="w-5 h-5 text-[#22C55E]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h3 class="text-lg font-bold">Xác nhận hoàn thành</h3>
+    </div>
+    <form id="complete-appointment-form" class="space-y-4">
+      <input type="hidden" id="complete-appointment-id">
+      <div class="bg-[#1E1E2A] border border-[#2A2A38] rounded-xl p-4">
+        <p class="text-xs text-[#64748B] mb-1">Khách hàng</p>
+        <p id="complete-customer-info" class="font-semibold"></p>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-[#94A3B8] mb-1.5">Dịch vụ thực tế</label>
+        <div id="complete-services-list" class="max-h-36 overflow-y-auto bg-[#1E1E2A] border border-[#2A2A38] rounded-lg p-3 space-y-2"></div>
+      </div>
+      <div>
+        <label for="complete-notes" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Ghi chú hoàn thành</label>
+        <textarea id="complete-notes" rows="2" class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#22C55E] rounded-lg text-sm outline-none transition-colors resize-none"></textarea>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="button" id="cancel-complete-btn" class="flex-1 px-4 py-2.5 bg-[#1E1E2A] hover:bg-[#252533] border border-[#2A2A38] text-sm font-medium rounded-lg cursor-pointer transition-colors">Hủy bỏ</button>
+        <button type="submit" id="confirm-complete-btn" class="flex-1 px-4 py-2.5 bg-[#22C55E] hover:bg-[#16A34A] disabled:opacity-60 text-white text-sm font-bold rounded-lg cursor-pointer transition-colors">Xác nhận hoàn thành</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== CANCEL MODAL ===== -->
+<div id="cancel-appointment-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50" style="display:none;">
+  <div class="bg-[#16161D] border border-[#2A2A38] rounded-2xl shadow-2xl p-6 w-full max-w-md mx-4">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="w-9 h-9 rounded-xl bg-[#EF4444]/15 flex items-center justify-center">
+        <svg class="w-5 h-5 text-[#EF4444]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+      <h3 class="text-lg font-bold text-[#F87171]">Xác nhận hủy lịch hẹn</h3>
+    </div>
+    <input type="hidden" id="cancel-appointment-id">
+    <p id="cancel-confirmation-text" class="text-sm text-[#94A3B8] mb-6">Bạn có chắc chắn muốn hủy lịch hẹn này?</p>
+    <div class="flex gap-3">
+      <button type="button" id="close-cancel-modal-btn" class="flex-1 px-4 py-2.5 bg-[#1E1E2A] hover:bg-[#252533] border border-[#2A2A38] text-sm font-medium rounded-lg cursor-pointer transition-colors">Không, quay lại</button>
+      <button type="button" id="confirm-cancel-btn" class="flex-1 px-4 py-2.5 bg-[#EF4444] hover:bg-[#DC2626] text-white text-sm font-bold rounded-lg cursor-pointer transition-colors">Có, hủy lịch hẹn</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const state = { searchQuery: '', dateRange: 'today', currentPage: 1, itemsPerPage: 9 };
+
+  const listContainer     = document.getElementById('appointment-list');
+  const searchInput       = document.getElementById('search-input');
+  const paginationCtrls   = document.getElementById('pagination-controls');
+  const pageInfo          = document.getElementById('page-info');
+  const prevPageBtn       = document.getElementById('prev-page-btn');
+  const nextPageBtn       = document.getElementById('next-page-btn');
+  const filterControls    = document.getElementById('filter-controls');
+  const addBtn            = document.getElementById('add-appointment-btn');
+  const addModal          = document.getElementById('add-edit-modal');
+  const addForm           = document.getElementById('appointment-form');
+  const completeModal     = document.getElementById('complete-appointment-modal');
+  const completeForm      = document.getElementById('complete-appointment-form');
+  const cancelCompleteBtn = document.getElementById('cancel-complete-btn');
+  const cancelModal       = document.getElementById('cancel-appointment-modal');
+  const closeCancelBtn    = document.getElementById('close-cancel-modal-btn');
+  const confirmCancelBtn  = document.getElementById('confirm-cancel-btn');
+
+  // ── Filter & Render ──────────────────────────────────────────
+  function filterAndRender() {
+    if (!window.AppCache || !window.AppCache.isLoaded) {
+      listContainer.innerHTML = '<div class="col-span-full text-center py-10 text-[#64748B] text-sm">Dữ liệu chưa sẵn sàng...</div>';
+      return;
+    }
+    let filtered = [...window.AppCache.getData('appointments')];
+
+    if (state.dateRange !== 'all') {
+      const today = new Date();
+      if (state.dateRange === 'today') {
+        const iso = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+        filtered = filtered.filter(a => a.date === iso);
+      } else if (state.dateRange === 'week') {
+        const day = today.getDay();
+        const diff = today.getDate() - day + (day === 0 ? -6 : 1);
+        const start = new Date(today.getFullYear(), today.getMonth(), diff);
+        start.setHours(0,0,0,0);
+        filtered = filtered.filter(a => new Date(a.date) >= start);
+      } else if (state.dateRange === 'month') {
+        const start = new Date(today.getFullYear(), today.getMonth(), 1);
+        filtered = filtered.filter(a => new Date(a.date) >= start);
+      }
+    }
+    if (state.searchQuery) {
+      const q = state.searchQuery.toLowerCase();
+      filtered = filtered.filter(a =>
+        (a.customerName && a.customerName.toLowerCase().includes(q)) ||
+        (a.phone && a.phone.toString().includes(q))
+      );
+    }
+    filtered.sort((a,b) => new Date(b.date+'T'+b.time) - new Date(a.date+'T'+a.time));
+
+    const total = filtered.length;
+    const pages = Math.ceil(total / state.itemsPerPage) || 1;
+    state.currentPage = Math.min(state.currentPage, pages);
+    const start = (state.currentPage - 1) * state.itemsPerPage;
+    renderAppointments(filtered.slice(start, start + state.itemsPerPage));
+    updatePagination(pages, total > 0);
+  }
+
+  function renderAppointments(apts) {
+    if (!apts || !apts.length) {
+      listContainer.innerHTML = '<div class="col-span-full text-center py-10 text-[#64748B] text-sm">Không có lịch hẹn nào phù hợp.</div>';
+      return;
+    }
+
+    const statusMap = {
+      'Hoàn thành':     { border: 'border-[#22C55E]/50', badge: 'badge-done',     label: 'Hoàn thành' },
+      'Đã hủy':        { border: 'border-[#EF4444]/50', badge: 'badge-canceled',  label: 'Đã hủy' },
+      'Đang thực hiện': { border: 'border-[#6366F1]/50', badge: 'badge-doing',     label: 'Đang thực hiện' },
+    };
+
+    listContainer.innerHTML = '';
+    apts.forEach(apt => {
+      const sm = statusMap[apt.status] || { border: 'border-[#F59E0B]/50', badge: 'badge-pending', label: apt.status || 'Đã đặt' };
+      const canAct = !['Hoàn thành','Đã hủy'].includes(apt.status);
+      const actions = canAct ? `
+        <button data-id="${apt.id}" class="complete-btn flex items-center gap-1.5 px-3 py-1.5 bg-[#22C55E]/15 hover:bg-[#22C55E]/25 text-[#4ADE80] text-xs font-medium rounded-lg cursor-pointer transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          Hoàn thành
+        </button>
+        <button data-id="${apt.id}" class="cancel-btn flex items-center gap-1.5 px-3 py-1.5 bg-[#EF4444]/15 hover:bg-[#EF4444]/25 text-[#F87171] text-xs font-medium rounded-lg cursor-pointer transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Hủy
+        </button>` : '';
+
+      const card = document.createElement('div');
+      card.id = `appointment-card-${apt.id}`;
+      card.className = `bg-[#16161D] border border-l-2 ${sm.border} border-[#2A2A38] rounded-xl p-4 flex flex-col gap-3 hover:border-[#3A3A50] transition-colors`;
+      card.innerHTML = `
+        <div class="flex items-start justify-between gap-2">
+          <div class="min-w-0">
+            <p class="font-semibold text-sm truncate">${apt.customerName}</p>
+            <p class="text-xs text-[#64748B] mt-0.5">${apt.phone}</p>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="text-sm font-semibold">${apt.time}</p>
+            <p class="text-xs text-[#64748B]">${apt.date}</p>
+          </div>
+        </div>
+        <div class="space-y-1">
+          <p class="text-xs text-[#64748B]">Dịch vụ: <span class="text-[#F1F5F9] font-medium">${apt.service}</span></p>
+          <p class="text-xs text-[#64748B]">Nhân viên: <span class="text-[#F1F5F9]">${apt.staff || 'Chưa chỉ định'}</span></p>
+        </div>
+        <div class="flex items-center justify-between gap-2 pt-1 border-t border-[#2A2A38]">
+          <span class="text-xs font-medium px-2.5 py-1 rounded-full ${sm.badge}">${sm.label}</span>
+          <div class="flex gap-2">${actions}</div>
+        </div>`;
+      listContainer.appendChild(card);
+    });
+  }
+
+  function updatePagination(totalPages, hasItems) {
+    if (hasItems) {
+      paginationCtrls.classList.remove('hidden');
+      pageInfo.textContent = `Trang ${state.currentPage} / ${totalPages}`;
+      prevPageBtn.disabled = state.currentPage === 1;
+      nextPageBtn.disabled = state.currentPage === totalPages;
+    } else {
+      paginationCtrls.classList.add('hidden');
+    }
+  }
+
+  // ── Helpers ──────────────────────────────────────────────────
+  function showAddModal(show = true)      { addModal.style.display     = show ? 'flex' : 'none'; }
+  function showCompleteModal(show = true) { completeModal.style.display = show ? 'flex' : 'none'; }
+  function showCancelModal(show = true)   { cancelModal.style.display   = show ? 'flex' : 'none'; }
+
+  function populateServicesCheckboxes(listDiv) {
+    const services = window.AppCache.getData('services');
+    listDiv.innerHTML = '';
+    if (!services || !services.length) {
+      listDiv.innerHTML = '<p class="text-xs text-[#64748B]">Không có dịch vụ nào.</p>';
+      return;
+    }
+    services.forEach(s => {
+      listDiv.innerHTML += `
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" name="services" value="${s.name}" class="rounded border-[#2A2A38] bg-[#1E1E2A] text-[#6366F1] w-4 h-4">
+          <span class="text-sm text-[#F1F5F9]">${s.name}</span>
+          <span class="text-xs text-[#64748B] ml-auto">${formatCurrency(s.price)}</span>
+        </label>`;
+    });
+  }
+
+  function populateStaffDropdown(sel) {
+    const activeStaff = window.AppCache.getData('staff').filter(s => s.status === 'Đang làm');
+    sel.innerHTML = '<option value="">Chọn nhân viên...</option>';
+    activeStaff.forEach(s => {
+      sel.innerHTML += `<option value="${s.name}">${s.name}</option>`;
+    });
+  }
+
+  // ── Form Handlers ─────────────────────────────────────────────
+  async function handleAddFormSubmit(e) {
+    e.preventDefault();
+    const btn = document.getElementById('save-appointment-btn');
+    const selected = Array.from(addForm.querySelectorAll('input[name="services"]:checked')).map(c => c.value);
+    if (!selected.length) { showToast('Vui lòng chọn ít nhất một dịch vụ.', 'error'); return; }
+    btn.disabled = true; btn.textContent = 'Đang lưu...';
+
+    const data = {
+      customerName: document.getElementById('customerName').value.trim(),
+      phone:        document.getElementById('phone').value.trim(),
+      date:         document.getElementById('date').value,
+      time:         document.getElementById('time').value,
+      service:      selected.join(', '),
+      staff:        document.getElementById('staff').value,
+      notes:        document.getElementById('notes').value
+    };
+
+    const tempId = 'temp-' + Date.now();
+    window.AppCache.data.appointments.unshift({ ...data, id: tempId, status: 'Đang lưu...' });
+    filterAndRender();
+    showAddModal(false);
+    addForm.reset();
+
+    try {
+      const result = await window.AppCache.callServerFunction('createAppointment', data);
+      if (!result.success) throw new Error(result.error || 'Lỗi server.');
+      const idx = window.AppCache.data.appointments.findIndex(a => a.id === tempId);
+      if (idx !== -1) window.AppCache.data.appointments[idx] = result.data;
+      filterAndRender();
+      showToast('Tạo lịch hẹn thành công!', 'success');
+      if (window.updateDashboard) window.updateDashboard();
+    } catch (err) {
+      showToast('Lỗi: ' + err.message, 'error');
+      window.AppCache.data.appointments = window.AppCache.data.appointments.filter(a => a.id !== tempId);
+      filterAndRender();
+    } finally {
+      btn.disabled = false; btn.textContent = 'Lưu lịch hẹn';
+    }
+  }
+
+  async function handleCompleteFormSubmit(e) {
+    e.preventDefault();
+    const btn = document.getElementById('confirm-complete-btn');
+    btn.disabled = true; btn.textContent = 'Đang xử lý...';
+
+    const id = document.getElementById('complete-appointment-id').value;
+    const finalServices = Array.from(completeForm.querySelectorAll('input[name="complete_services"]:checked')).map(c => c.value);
+    const finalNotes    = document.getElementById('complete-notes').value;
+
+    const idx = window.AppCache.data.appointments.findIndex(a => a.id === id);
+    if (idx === -1) { showToast('Không tìm thấy lịch hẹn.', 'error'); btn.disabled = false; btn.textContent = 'Xác nhận hoàn thành'; return; }
+    const original = { ...window.AppCache.data.appointments[idx] };
+    window.AppCache.data.appointments[idx] = { ...original, status: 'Hoàn thành', service: finalServices.join(', '), notes: finalNotes };
+    filterAndRender();
+    showCompleteModal(false);
+
+    try {
+      const result = await window.AppCache.callServerFunction('completeAppointment', id, { services: finalServices, notes: finalNotes });
+      if (!result.success) throw new Error(result.error);
+      showToast('Đã hoàn thành lịch hẹn!', 'success');
+      if (window.updateDashboard) window.updateDashboard();
+    } catch (err) {
+      showToast('Lỗi: ' + err.message, 'error');
+      window.AppCache.data.appointments[idx] = original;
+      filterAndRender();
+    } finally {
+      btn.disabled = false; btn.textContent = 'Xác nhận hoàn thành';
+    }
+  }
+
+  async function handleConfirmCancel() {
+    const id = document.getElementById('cancel-appointment-id').value;
+    if (!id) return;
+    const idx = window.AppCache.data.appointments.findIndex(a => a.id === id);
+    if (idx === -1) return;
+    const original = { ...window.AppCache.data.appointments[idx] };
+    window.AppCache.data.appointments[idx] = { ...original, status: 'Đã hủy' };
+    filterAndRender();
+    showCancelModal(false);
+
+    try {
+      const result = await window.AppCache.callServerFunction('cancelAppointment', id);
+      if (!result.success) throw new Error(result.error);
+      showToast('Đã hủy lịch hẹn!', 'success');
+      if (window.updateDashboard) window.updateDashboard();
+    } catch (err) {
+      showToast('Lỗi: ' + err.message, 'error');
+      window.AppCache.data.appointments[idx] = original;
+      filterAndRender();
+    }
+  }
+
+  // ── Events ────────────────────────────────────────────────────
+  addBtn.addEventListener('click', () => {
+    addForm.reset();
+    document.getElementById('modal-title').textContent = 'Thêm lịch hẹn mới';
+    populateServicesCheckboxes(document.getElementById('services-checkbox-list'));
+    populateStaffDropdown(document.getElementById('staff'));
+    showAddModal(true);
+  });
+
+  [document.getElementById('close-modal-btn'), document.getElementById('close-modal-btn2')].forEach(b => {
+    if (b) b.addEventListener('click', () => showAddModal(false));
+  });
+  addForm.addEventListener('submit', handleAddFormSubmit);
+  completeForm.addEventListener('submit', handleCompleteFormSubmit);
+  cancelCompleteBtn.addEventListener('click', () => showCompleteModal(false));
+  confirmCancelBtn.addEventListener('click', handleConfirmCancel);
+  closeCancelBtn.addEventListener('click', () => showCancelModal(false));
+
+  listContainer.addEventListener('click', e => {
+    const btn = e.target.closest('button[data-id]');
+    if (!btn) return;
+    const id  = btn.dataset.id;
+    const apt = window.AppCache.getData('appointments').find(a => a.id === id);
+    if (!apt) { showToast('Không tìm thấy lịch hẹn!', 'error'); return; }
+
+    if (btn.classList.contains('complete-btn')) {
+      document.getElementById('complete-appointment-id').value = apt.id;
+      document.getElementById('complete-customer-info').textContent = `${apt.customerName} — ${apt.phone}`;
+      document.getElementById('complete-notes').value = apt.notes || '';
+      const allServices    = window.AppCache.getData('services');
+      const bookedServices = apt.service.split(',').map(s => s.trim());
+      const listDiv = document.getElementById('complete-services-list');
+      listDiv.innerHTML = '';
+      allServices.forEach(s => {
+        const checked = bookedServices.includes(s.name);
+        listDiv.innerHTML += `
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" name="complete_services" value="${s.name}" ${checked ? 'checked' : ''} class="rounded border-[#2A2A38] bg-[#1E1E2A] text-[#22C55E] w-4 h-4">
+            <span class="text-sm">${s.name}</span>
+          </label>`;
+      });
+      showCompleteModal(true);
+    }
+    if (btn.classList.contains('cancel-btn')) {
+      document.getElementById('cancel-appointment-id').value = apt.id;
+      document.getElementById('cancel-confirmation-text').innerHTML = `Bạn có chắc muốn hủy lịch hẹn của <strong>${apt.customerName}</strong> vào lúc <strong>${apt.time} ngày ${apt.date}</strong>?`;
+      showCancelModal(true);
+    }
+  });
+
+  searchInput.addEventListener('input', e => {
+    setTimeout(() => {
+      if (e.target.value === searchInput.value) {
+        state.searchQuery = e.target.value;
+        state.currentPage = 1;
+        filterAndRender();
+      }
+    }, 300);
+  });
+
+  filterControls.addEventListener('click', e => {
+    const btn = e.target.closest('.filter-btn');
+    if (!btn) return;
+    filterControls.querySelectorAll('.filter-btn').forEach(b => {
+      b.classList.remove('bg-[#6366F1]', 'text-white');
+      b.classList.add('bg-[#1E1E2A]', 'text-[#94A3B8]', 'border', 'border-[#2A2A38]');
+    });
+    btn.classList.add('bg-[#6366F1]', 'text-white');
+    btn.classList.remove('bg-[#1E1E2A]', 'text-[#94A3B8]');
+    state.dateRange = btn.dataset.range;
+    state.currentPage = 1;
+    filterAndRender();
+  });
+
+  prevPageBtn.addEventListener('click', () => { if (state.currentPage > 1) { state.currentPage--; filterAndRender(); } });
+  nextPageBtn.addEventListener('click', () => { state.currentPage++; filterAndRender(); });
+
+  window.initAppointmentManagerTab = function() {
+    if (window.AppCache && window.AppCache.isLoaded) filterAndRender();
+  };
+})();
+</script>
