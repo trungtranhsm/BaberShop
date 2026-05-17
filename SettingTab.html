@@ -200,14 +200,18 @@ window.initSettingsTab = function() {
 function loadUsers() {
   const tbody = document.getElementById('userTableBody');
   if (!tbody) return;
+  const ce = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   google.script.run
     .withSuccessHandler(res => {
-      if (!res || !res.success) {
-        tbody.innerHTML = `<tr><td colspan="5" class="px-5 py-8 text-center text-sm text-[#F87171]">${res ? res.error : 'Lỗi tải users'}</td></tr>`;
+      if (!res) {
+        tbody.innerHTML = `<tr><td colspan="5" class="px-5 py-8 text-center text-sm text-[#F87171]">Server không trả dữ liệu. Có thể bạn chưa được cấp quyền admin trong sheet Users hoặc deploy chưa cập nhật.</td></tr>`;
+        return;
+      }
+      if (!res.success) {
+        tbody.innerHTML = `<tr><td colspan="5" class="px-5 py-8 text-center text-sm text-[#F87171]">${ce(res.error || 'Lỗi không xác định')}</td></tr>`;
         return;
       }
       const me = (AppCache.currentUser && AppCache.currentUser.email) || '';
-      const ce = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
       if (!res.data.length) { tbody.innerHTML = '<tr><td colspan="5" class="px-5 py-8 text-center text-sm text-[#64748B]">Chưa có user</td></tr>'; return; }
       tbody.innerHTML = res.data.map(u => `
         <tr class="hover:bg-[#1E1E2A]">

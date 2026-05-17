@@ -346,35 +346,55 @@ function setupFirstAdmin(staffName) {
 }
 
 function listUsers() {
-  assertAdmin_();
-  return { success: true, data: listUsersRaw() };
+  try {
+    assertAdmin_();
+    const raw = listUsersRaw();
+    // Date không serialize ổn định qua google.script.run — chuyển ISO string
+    const data = raw.map(u => ({
+      email: u.email,
+      role: u.role,
+      staffName: u.staffName,
+      status: u.status,
+      createdAt: u.createdAt instanceof Date ? u.createdAt.toISOString() : String(u.createdAt || '')
+    }));
+    return { success: true, data: data };
+  } catch (e) {
+    console.error('listUsers error:', e && e.stack || e);
+    return { success: false, error: (e && e.message) || String(e) };
+  }
 }
 
 function addUser(payload) {
-  assertAdmin_();
-  const email = String(payload && payload.email || '').trim().toLowerCase();
-  const role = String(payload && payload.role || '').trim().toLowerCase();
-  const staffName = String(payload && payload.staffName || '').trim();
-  if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-    return { success: false, error: 'Email không hợp lệ.' };
+  try {
+    assertAdmin_();
+    const email = String(payload && payload.email || '').trim().toLowerCase();
+    const role = String(payload && payload.role || '').trim().toLowerCase();
+    const staffName = String(payload && payload.staffName || '').trim();
+    if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      return { success: false, error: 'Email không hợp lệ.' };
+    }
+    if (role !== ROLE.ADMIN && role !== ROLE.STAFF) {
+      return { success: false, error: 'Role phải là admin hoặc staff.' };
+    }
+    if (role === ROLE.STAFF && !staffName) {
+      return { success: false, error: 'Nhân viên phải gắn tên nhân viên (khớp sheet Nhân viên).' };
+    }
+    const sheet = getOrCreateSheet(CONFIG.SHEETS.USERS, CONFIG.USER_HEADERS);
+    if (listUsersRaw().some(u => u.email === email)) {
+      return { success: false, error: 'Email đã tồn tại.' };
+    }
+    sheet.appendRow([email, role, staffName, 'active', new Date()]);
+    clearCache();
+    logAction_('user_add', { email: email, role: role, staffName: staffName });
+    return { success: true };
+  } catch (e) {
+    console.error('addUser error:', e && e.stack || e);
+    return { success: false, error: (e && e.message) || String(e) };
   }
-  if (role !== ROLE.ADMIN && role !== ROLE.STAFF) {
-    return { success: false, error: 'Role phải là admin hoặc staff.' };
-  }
-  if (role === ROLE.STAFF && !staffName) {
-    return { success: false, error: 'Nhân viên phải gắn tên nhân viên (khớp sheet Nhân viên).' };
-  }
-  const sheet = getOrCreateSheet(CONFIG.SHEETS.USERS, CONFIG.USER_HEADERS);
-  if (listUsersRaw().some(u => u.email === email)) {
-    return { success: false, error: 'Email đã tồn tại.' };
-  }
-  sheet.appendRow([email, role, staffName, 'active', new Date()]);
-  clearCache();
-  logAction_('user_add', { email: email, role: role, staffName: staffName });
-  return { success: true };
 }
 
 function updateUser(payload) {
+  try {
   assertAdmin_();
   const target = String(payload && payload.email || '').trim().toLowerCase();
   const newRole = String(payload && payload.role || '').trim().toLowerCase();
@@ -401,9 +421,14 @@ function updateUser(payload) {
   clearCache();
   logAction_('user_update', { email: target, role: newRole, staffName: newStaffName, status: newStatus });
   return { success: true };
+  } catch (e) {
+    console.error('updateUser error:', e && e.stack || e);
+    return { success: false, error: (e && e.message) || String(e) };
+  }
 }
 
 function deleteUser(email) {
+  try {
   assertAdmin_();
   const target = String(email || '').trim().toLowerCase();
   const current = assertAdmin_();
@@ -423,6 +448,10 @@ function deleteUser(email) {
   clearCache();
   logAction_('user_delete', { email: target });
   return { success: true };
+  } catch (e) {
+    console.error('deleteUser error:', e && e.stack || e);
+    return { success: false, error: (e && e.message) || String(e) };
+  }
 }
 
 /**
@@ -458,21 +487,26 @@ function logAction_(action, details) {
  * Trả N log gần nhất (mới → cũ). Admin-only.
  */
 function getLogs(limit) {
-  assertAdmin_();
-  const sheet = getOrCreateSheet(CONFIG.SHEETS.LOGS, CONFIG.LOG_HEADERS);
-  const lastRow = sheet.getLastRow();
-  if (lastRow < 2) return { success: true, data: [] };
-  const n = Math.min(Math.max(Number(limit) || 200, 1), 2000);
-  const start = Math.max(2, lastRow - n + 1);
-  const rows = sheet.getRange(start, 1, lastRow - start + 1, sheet.getLastColumn()).getValues();
-  const data = rows.map(r => ({
-    time: r[0] instanceof Date ? r[0].toISOString() : String(r[0] || ''),
-    email: String(r[1] || ''),
-    role: String(r[2] || ''),
-    action: String(r[3] || ''),
-    details: String(r[4] || '')
-  })).reverse();
-  return { success: true, data: data, total: lastRow - 1 };
+  try {
+    assertAdmin_();
+    const sheet = getOrCreateSheet(CONFIG.SHEETS.LOGS, CONFIG.LOG_HEADERS);
+    const lastRow = sheet.getLastRow();
+    if (lastRow < 2) return { success: true, data: [], total: 0 };
+    const n = Math.min(Math.max(Number(limit) || 200, 1), 2000);
+    const start = Math.max(2, lastRow - n + 1);
+    const rows = sheet.getRange(start, 1, lastRow - start + 1, sheet.getLastColumn()).getValues();
+    const data = rows.map(r => ({
+      time: r[0] instanceof Date ? r[0].toISOString() : String(r[0] || ''),
+      email: String(r[1] || ''),
+      role: String(r[2] || ''),
+      action: String(r[3] || ''),
+      details: String(r[4] || '')
+    })).reverse();
+    return { success: true, data: data, total: lastRow - 1 };
+  } catch (e) {
+    console.error('getLogs error:', e && e.stack || e);
+    return { success: false, error: (e && e.message) || String(e) };
+  }
 }
 
 function assertCanMutateAppointment_(appointmentRow) {
