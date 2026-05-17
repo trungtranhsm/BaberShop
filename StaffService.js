@@ -20,6 +20,7 @@ try {
 
 function addStaff(staffData) {
 try {
+  assertAdmin_();
   // Validate required fields
   const requiredFields = ['name'];
   const errors = validateRequired(staffData, requiredFields);
@@ -73,6 +74,7 @@ try {
 
 function deleteStaff(staffId) {
 try {
+  assertAdmin_();
   const sheet = getOrCreateSheet(CONFIG.SHEETS.STAFF, CONFIG.STAFF_HEADERS);
   const data = sheet.getDataRange().getValues();
   const rowIndex = data.findIndex(row => row[0] == staffId);
@@ -114,6 +116,7 @@ try {
 
 function addService(serviceData) {
 try {
+  assertAdmin_();
   // Validate required fields
   const requiredFields = ['name', 'price'];
   const errors = validateRequired(serviceData, requiredFields);
@@ -169,6 +172,7 @@ try {
 
 function deleteService(serviceId) {
 try {
+  assertAdmin_();
   const sheet = getOrCreateSheet(CONFIG.SHEETS.SERVICES, CONFIG.SERVICE_HEADERS);
   const data = sheet.getDataRange().getValues();
   const rowIndex = data.findIndex(row => row[0] == serviceId);

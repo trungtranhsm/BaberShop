@@ -35,6 +35,18 @@ function getAppointments(filterOptions) {
  */
 function createAppointment(appointmentData) {
   try {
+    // RBAC: staff bị ép gán nhân viên = chính mình
+    const me = getCurrentUser();
+    if (me.isSetupNeeded || me.denied) {
+      return { success: false, error: 'Phiên không hợp lệ. Tải lại trang.' };
+    }
+    if (me.role === 'staff') {
+      appointmentData.staff = me.staffName || appointmentData.staff;
+      if (!me.staffName) {
+        return { success: false, error: 'Tài khoản nhân viên chưa được gắn tên nhân viên.' };
+      }
+    }
+
     // Validate required fields
     const requiredFields = ['customerName', 'phone', 'service', 'date', 'time'];
     const errors = requiredFields.filter(key => !appointmentData[key] || String(appointmentData[key]).trim() === '');
@@ -100,6 +112,8 @@ function completeAppointment(id, finalData) {
     }
 
     const rowIndex = foundCell.getRow();
+    const existingRow = sheet.getRange(rowIndex, 1, 1, sheet.getLastColumn()).getValues()[0];
+    assertCanMutateAppointment_(existingRow);
     // Cột 4: Dịch vụ, Cột 8: Trạng thái, Cột 9: Ghi chú
     sheet.getRange(rowIndex, 4).setValue(finalData.services.join(', '));
     sheet.getRange(rowIndex, 8).setValue('Hoàn thành');
@@ -127,6 +141,7 @@ function cancelAppointment(appointmentId) {
       return { success: false, error: 'Không tìm thấy lịch hẹn' };
     }
 
+    assertCanMutateAppointment_(data[rowIndex]);
     // Cập nhật cột Trạng thái (cột 8) thành "Đã hủy"
     sheet.getRange(rowIndex + 1, 8).setValue('Đã hủy');
     

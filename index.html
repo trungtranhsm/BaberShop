@@ -90,6 +90,40 @@
   </div>
 </div>
 
+<!-- ===== AUTH GATE: SETUP WIZARD ===== -->
+<div id="setupGate" class="fixed inset-0 bg-[#0B0B0F]/95 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+  <div class="bg-[#16161D] border border-[#2A2A38] rounded-2xl shadow-2xl p-7 w-full max-w-md">
+    <h2 class="text-xl font-bold mb-1">Thiết lập tài khoản Admin</h2>
+    <p class="text-sm text-[#94A3B8] mb-5">Đây là lần đầu mở web app. Hãy tạo tài khoản quản trị bằng email Google đang đăng nhập.</p>
+    <div class="mb-4">
+      <label class="block text-xs font-medium text-[#94A3B8] mb-1.5">Email Google của bạn</label>
+      <div id="setupEmail" class="px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] rounded-lg text-sm text-[#F1F5F9] break-all">Đang lấy email...</div>
+    </div>
+    <div class="mb-5">
+      <label for="setupStaffName" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Tên hiển thị (tuỳ chọn)</label>
+      <input type="text" id="setupStaffName" placeholder="VD: Chủ shop"
+        class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#D97706] rounded-lg text-sm outline-none transition-colors placeholder-[#475569]">
+    </div>
+    <button id="setupSubmitBtn" class="w-full px-4 py-2.5 bg-[#D97706] hover:bg-[#B45309] text-white text-sm font-bold rounded-lg cursor-pointer transition-colors">
+      Tạo tài khoản Admin
+    </button>
+  </div>
+</div>
+
+<!-- ===== AUTH GATE: ACCESS DENIED ===== -->
+<div id="deniedGate" class="fixed inset-0 bg-[#0B0B0F]/95 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+  <div class="bg-[#16161D] border border-[#2A2A38] rounded-2xl shadow-2xl p-7 w-full max-w-md text-center">
+    <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-[#EF4444]/15 flex items-center justify-center">
+      <svg class="w-7 h-7 text-[#F87171]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+      </svg>
+    </div>
+    <h2 class="text-xl font-bold mb-1">Truy cập bị từ chối</h2>
+    <p class="text-sm text-[#94A3B8] mb-2">Email <span id="deniedEmail" class="text-[#F1F5F9] font-medium">—</span> chưa được cấp quyền truy cập web app.</p>
+    <p class="text-xs text-[#64748B]" id="deniedReason">Vui lòng liên hệ Admin để được thêm vào danh sách user.</p>
+  </div>
+</div>
+
 <!-- ===== MOBILE OVERLAY ===== -->
 <div id="sidebarOverlay" class="fixed inset-0 bg-black/60 z-20 hidden" onclick="toggleSidebar()"></div>
 
@@ -172,6 +206,7 @@
         <span class="text-xs text-[#64748B]" id="currentTime">--:--</span>
       </div>
       <p id="cacheStatus" class="text-xs text-[#475569] truncate"></p>
+      <p id="currentUserTag" class="mt-1 text-xs text-[#94A3B8] truncate" title=""></p>
     </div>
   </aside>
 
@@ -358,12 +393,22 @@ window.AppCache = {
   isLoaded: false,
   loadedAt: null,
 
+  currentUser: null,
+
   async init() {
     this.updateLoadingStatus('Đang tải dữ liệu từ server...');
     try {
       const result = await this.callServerFunction('initializeAllData');
       if (!result || typeof result !== 'object' || result.error) {
         throw new Error(result ? result.error : 'Server returned invalid data');
+      }
+      if (result.isSetupNeeded) {
+        AuthGate.showSetup(result.email || '');
+        return 'setup';
+      }
+      if (result.denied) {
+        AuthGate.showDenied(result.email || '', result.reason);
+        return 'denied';
       }
       this.data = {
         appointments: Array.isArray(result.appointments) ? result.appointments : [],
@@ -372,6 +417,7 @@ window.AppCache = {
         customers:    Array.isArray(result.customers)    ? result.customers    : [],
         stats: result.stats || {}
       };
+      this.currentUser = result.currentUser || null;
       this.isLoaded = true;
       this.loadedAt = new Date();
       this.updateCacheStatus();
@@ -382,6 +428,9 @@ window.AppCache = {
       return false;
     }
   },
+
+  isAdmin() { return this.currentUser && this.currentUser.role === 'admin'; },
+  isStaff() { return this.currentUser && this.currentUser.role === 'staff'; },
 
   callServerFunction(functionName, ...args) {
     return new Promise((resolve, reject) => {
@@ -578,6 +627,71 @@ function showLoading() { document.getElementById('loadingScreen').classList.remo
 function hideLoading()  { document.getElementById('loadingScreen').classList.add('hidden'); }
 function switchToTab(tabName) { TabManager.switchTo(tabName, document.querySelector(`.nav-item[data-tab="${tabName}"]`)?.dataset.title); }
 
+// ========== AUTH GATE ==========
+window.AuthGate = {
+  showSetup(email) {
+    hideLoading();
+    document.getElementById('setupEmail').textContent = email || '(chưa lấy được — kiểm tra deploy access)';
+    const gate = document.getElementById('setupGate');
+    gate.classList.remove('hidden');
+    gate.classList.add('flex');
+    const btn = document.getElementById('setupSubmitBtn');
+    btn.onclick = async () => {
+      if (!email) { showToast('Cần email Google hợp lệ', 'error'); return; }
+      btn.disabled = true;
+      const original = btn.textContent;
+      btn.textContent = 'Đang tạo...';
+      const staffName = document.getElementById('setupStaffName').value.trim();
+      try {
+        const res = await AppCache.callServerFunction('setupFirstAdmin', staffName);
+        if (!res || !res.success) throw new Error((res && res.error) || 'Setup thất bại');
+        showToast('Đã tạo admin. Đang vào ứng dụng...', 'success');
+        gate.classList.add('hidden');
+        gate.classList.remove('flex');
+        showLoading();
+        await initApp(); // reload
+      } catch (e) {
+        showToast(e.message || String(e), 'error');
+        btn.disabled = false;
+        btn.textContent = original;
+      }
+    };
+  },
+  showDenied(email, reason) {
+    hideLoading();
+    document.getElementById('deniedEmail').textContent = email || '(không xác định)';
+    if (reason) document.getElementById('deniedReason').textContent = reason;
+    const gate = document.getElementById('deniedGate');
+    gate.classList.remove('hidden');
+    gate.classList.add('flex');
+  }
+};
+
+// ========== ROLE-BASED UI ==========
+function applyRoleVisibility() {
+  if (!AppCache.currentUser) return;
+  const isAdmin = AppCache.isAdmin();
+  // Hide tabs nhân viên không được phép
+  const hiddenForStaff = ['customers', 'staff']; // KH, Nhân viên
+  document.querySelectorAll('.nav-item[data-tab]').forEach(btn => {
+    const tab = btn.dataset.tab;
+    if (!isAdmin && hiddenForStaff.includes(tab)) {
+      btn.style.display = 'none';
+    } else {
+      btn.style.display = '';
+    }
+  });
+  // Hiển thị thông tin user trên sidebar (nếu chưa có element thì bỏ qua)
+  const tag = document.getElementById('currentUserTag');
+  if (tag && AppCache.currentUser) {
+    tag.textContent = (AppCache.currentUser.name || AppCache.currentUser.email) + ' · ' + (isAdmin ? 'Admin' : 'Nhân viên');
+  }
+  // Ẩn các nút admin-only theo class
+  document.querySelectorAll('[data-admin-only]').forEach(el => {
+    el.style.display = isAdmin ? '' : 'none';
+  });
+}
+
 // ========== INIT ==========
 async function initApp() {
   setInterval(updateTime, 1000);
@@ -585,15 +699,21 @@ async function initApp() {
   TabManager.init();
 
   const ok = await AppCache.init();
+  if (ok === 'setup' || ok === 'denied') {
+    // Gate đã hiển thị, dừng init phần app
+    hideLoading();
+    return;
+  }
   if (ok) {
+    applyRoleVisibility();
     updateDashboard();
     if (typeof window.initAppointmentManagerTab === 'function') window.initAppointmentManagerTab();
     if (typeof window.initRevenueTab           === 'function') window.initRevenueTab();
-    if (typeof window.initCustomerTab          === 'function') window.initCustomerTab();
-    if (typeof window.initStaffTab             === 'function') window.initStaffTab();
+    if (AppCache.isAdmin() && typeof window.initCustomerTab === 'function') window.initCustomerTab();
+    if (AppCache.isAdmin() && typeof window.initStaffTab    === 'function') window.initStaffTab();
     if (typeof window.initSettingsTab          === 'function') window.initSettingsTab();
     setInterval(() => AppCache.updateCacheStatus(), 30000);
-    showToast('Ứng dụng đã sẵn sàng!', 'success');
+    showToast('Xin chào ' + (AppCache.currentUser?.name || AppCache.currentUser?.email || ''), 'success');
   } else {
     showToast('Lỗi khởi tạo ứng dụng', 'error');
   }

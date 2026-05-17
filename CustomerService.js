@@ -67,6 +67,7 @@ function getCustomerDetails(customerPhone) {
  */
 function createOrUpdateCustomer(customerData) {
   try {
+    assertAdmin_();
     const sheet = getOrCreateSheet(CONFIG.SHEETS.CUSTOMERS, CONFIG.CUSTOMER_HEADERS); // Hàm này nằm trong Code.gs
     const phoneColumn = sheet.getRange("C:C").getValues(); // Giả sử SĐT ở cột C
     let rowIndex = -1;
