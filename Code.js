@@ -89,8 +89,6 @@ function initializeAllData() {
       loadedAt: new Date().toISOString()
     };
 
-    // Cache theo từng user vì data đã filter
-    const userCacheKey = cacheKey + '_' + (currentUser.email || 'anon');
     cache.put(userCacheKey, JSON.stringify(result), CONFIG.CACHE_DURATION_SECONDS);
 
     console.log('✅ All data loaded successfully and cached.');
