@@ -92,8 +92,59 @@
     </div>
   </div>
 
+  <!-- Staff & Service Management -->
+  <div data-permission="manageStaff" class="hidden">
+    <div class="px-5 py-3.5 border-b border-[#2A2A38] flex items-center justify-between">
+      <h3 class="text-sm font-semibold">Nhân viên</h3>
+      <button onclick="showSettingsStaffForm()" class="flex items-center gap-1.5 px-3 py-1.5 bg-[#6366F1] hover:bg-[#4F46E5] text-white text-xs font-medium rounded-lg cursor-pointer transition-colors">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Thêm nhân viên
+      </button>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full">
+        <thead>
+          <tr class="border-b border-[#2A2A38]">
+            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase">ID</th>
+            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase">Tên nhân viên</th>
+            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase">Dịch vụ / chuyên môn</th>
+            <th class="px-5 py-3 text-right text-xs font-medium text-[#64748B] uppercase">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody id="settingsStaffTableBody" class="divide-y divide-[#2A2A38]">
+          <tr><td colspan="4" class="px-5 py-8 text-center text-sm text-[#64748B]">Đang tải...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div data-permission="manageServices" class="bg-[#16161D] border border-[#2A2A38] rounded-xl overflow-hidden">
+    <div class="px-5 py-3.5 border-b border-[#2A2A38] flex items-center justify-between">
+      <h3 class="text-sm font-semibold">Dịch vụ</h3>
+      <button onclick="showSettingsServiceForm()" class="flex items-center gap-1.5 px-3 py-1.5 bg-[#22C55E] hover:bg-[#16A34A] text-white text-xs font-medium rounded-lg cursor-pointer transition-colors">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Thêm dịch vụ
+      </button>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full">
+        <thead>
+          <tr class="border-b border-[#2A2A38]">
+            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase">ID</th>
+            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase">Tên dịch vụ</th>
+            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase">Giá</th>
+            <th class="px-5 py-3 text-right text-xs font-medium text-[#64748B] uppercase">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody id="settingsServiceTableBody" class="divide-y divide-[#2A2A38]">
+          <tr><td colspan="4" class="px-5 py-8 text-center text-sm text-[#64748B]">Đang tải...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- User Management (Admin only) -->
-  <div data-admin-only class="bg-[#16161D] border border-[#2A2A38] rounded-xl overflow-hidden">
+  <div data-permission="manageUsers" class="bg-[#16161D] border border-[#2A2A38] rounded-xl overflow-hidden">
     <div class="px-5 py-3.5 border-b border-[#2A2A38] flex items-center justify-between">
       <h3 class="text-sm font-semibold">Quản lý tài khoản &amp; phân quyền</h3>
       <button onclick="showAddUserForm()" class="flex items-center gap-1.5 px-3 py-1.5 bg-[#6366F1] hover:bg-[#4F46E5] text-white text-xs font-medium rounded-lg cursor-pointer transition-colors">
@@ -108,12 +159,14 @@
             <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase">Email</th>
             <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase">Role</th>
             <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase">NV liên kết</th>
+            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase">Chuyên môn</th>
+            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase">Quyền</th>
             <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase">Trạng thái</th>
             <th class="px-5 py-3 text-right text-xs font-medium text-[#64748B] uppercase">Thao tác</th>
           </tr>
         </thead>
         <tbody id="userTableBody" class="divide-y divide-[#2A2A38]">
-          <tr><td colspan="5" class="px-5 py-8 text-center text-sm text-[#64748B]">Đang tải...</td></tr>
+          <tr><td colspan="7" class="px-5 py-8 text-center text-sm text-[#64748B]">Đang tải...</td></tr>
         </tbody>
       </table>
     </div>
@@ -121,7 +174,7 @@
 
   <!-- ===== ADD/EDIT USER MODAL ===== -->
   <div id="userModal" class="modal fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50">
-    <div class="bg-[#16161D] border border-[#2A2A38] rounded-2xl shadow-2xl p-6 w-full max-w-md mx-4">
+    <div class="bg-[#16161D] border border-[#2A2A38] rounded-2xl shadow-2xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between mb-5">
         <h3 id="userModalTitle" class="text-lg font-bold">Thêm user</h3>
         <button onclick="hideUserModal()" class="w-8 h-8 rounded-lg bg-[#1E1E2A] hover:bg-[#2A2A38] flex items-center justify-center cursor-pointer text-[#94A3B8] hover:text-white">
@@ -145,11 +198,14 @@
         </div>
         <div>
           <label class="block text-xs font-medium text-[#94A3B8] mb-1.5">Tên nhân viên liên kết (bắt buộc với role Nhân viên)</label>
-          <select id="userStaffNameInput"
+          <input type="text" id="userStaffNameInput" list="userStaffNameOptions" placeholder="Nhập tên nhân viên"
             class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none text-[#F1F5F9]">
-            <option value="">(không liên kết)</option>
-          </select>
+          <datalist id="userStaffNameOptions"></datalist>
           <p class="text-xs text-[#64748B] mt-1">Phải khớp với tên ở sheet Nhân viên để filter lịch hẹn cá nhân.</p>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-[#94A3B8] mb-1.5">Dịch vụ / chuyên môn được làm</label>
+          <div id="userSpecialtyList" class="max-h-44 overflow-y-auto bg-[#1E1E2A] border border-[#2A2A38] rounded-lg p-3 space-y-2"></div>
         </div>
         <div>
           <label class="block text-xs font-medium text-[#94A3B8] mb-1.5">Trạng thái</label>
@@ -159,9 +215,72 @@
             <option value="disabled">Disabled</option>
           </select>
         </div>
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="block text-xs font-medium text-[#94A3B8]">Quyền chi tiết</label>
+            <span id="userPermissionHint" class="text-xs text-[#64748B]"></span>
+          </div>
+          <div id="userPermissionsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+        </div>
         <div class="flex gap-3 pt-2">
           <button type="button" onclick="hideUserModal()" class="flex-1 px-4 py-2.5 bg-[#1E1E2A] hover:bg-[#252533] border border-[#2A2A38] text-sm font-medium rounded-lg cursor-pointer">Hủy</button>
           <button type="submit" id="userSubmitBtn" class="flex-1 px-4 py-2.5 bg-[#6366F1] hover:bg-[#4F46E5] text-white text-sm font-bold rounded-lg cursor-pointer">Lưu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== STAFF MODAL ===== -->
+  <div id="settingsStaffModal" class="modal fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50">
+    <div class="bg-[#16161D] border border-[#2A2A38] rounded-2xl shadow-2xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-lg font-bold">Thêm nhân viên</h3>
+        <button onclick="hideSettingsStaffModal()" class="w-8 h-8 rounded-lg bg-[#1E1E2A] hover:bg-[#2A2A38] flex items-center justify-center cursor-pointer text-[#94A3B8] hover:text-white">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form id="settingsStaffForm" class="space-y-4">
+        <input type="hidden" id="settingsStaffId">
+        <div>
+          <label class="block text-xs font-medium text-[#94A3B8] mb-1.5">Tên nhân viên *</label>
+          <input type="text" id="settingsStaffName" required placeholder="Nguyễn Văn A"
+            class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none placeholder-[#475569]">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-[#94A3B8] mb-1.5">Dịch vụ / chuyên môn được làm</label>
+          <div id="settingsStaffSpecialtyList" class="max-h-44 overflow-y-auto bg-[#1E1E2A] border border-[#2A2A38] rounded-lg p-3 space-y-2"></div>
+        </div>
+        <div class="flex gap-3 pt-2">
+          <button type="button" onclick="hideSettingsStaffModal()" class="flex-1 px-4 py-2.5 bg-[#1E1E2A] hover:bg-[#252533] border border-[#2A2A38] text-sm font-medium rounded-lg cursor-pointer">Hủy</button>
+          <button type="submit" class="flex-1 px-4 py-2.5 bg-[#6366F1] hover:bg-[#4F46E5] text-white text-sm font-bold rounded-lg cursor-pointer">Lưu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== SERVICE MODAL ===== -->
+  <div id="settingsServiceModal" class="modal fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50">
+    <div class="bg-[#16161D] border border-[#2A2A38] rounded-2xl shadow-2xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-lg font-bold">Thêm dịch vụ</h3>
+        <button onclick="hideSettingsServiceModal()" class="w-8 h-8 rounded-lg bg-[#1E1E2A] hover:bg-[#2A2A38] flex items-center justify-center cursor-pointer text-[#94A3B8] hover:text-white">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form id="settingsServiceForm" class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-[#94A3B8] mb-1.5">Tên dịch vụ *</label>
+          <input type="text" id="settingsServiceName" required placeholder="Cắt tóc nam"
+            class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#22C55E] rounded-lg text-sm outline-none placeholder-[#475569]">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-[#94A3B8] mb-1.5">Giá (VND) *</label>
+          <input type="number" id="settingsServicePrice" required min="0" placeholder="50000"
+            class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#22C55E] rounded-lg text-sm outline-none placeholder-[#475569]">
+        </div>
+        <div class="flex gap-3 pt-2">
+          <button type="button" onclick="hideSettingsServiceModal()" class="flex-1 px-4 py-2.5 bg-[#1E1E2A] hover:bg-[#252533] border border-[#2A2A38] text-sm font-medium rounded-lg cursor-pointer">Hủy</button>
+          <button type="submit" class="flex-1 px-4 py-2.5 bg-[#22C55E] hover:bg-[#16A34A] text-white text-sm font-bold rounded-lg cursor-pointer">Lưu</button>
         </div>
       </form>
     </div>
@@ -192,10 +311,111 @@ window.initSettingsTab = function() {
   if (window.AppCache && window.AppCache.isLoaded) {
     document.getElementById('totalAppointmentsCount').textContent = window.AppCache.getData('appointments').length;
   }
-  if (window.AppCache && window.AppCache.isAdmin && window.AppCache.isAdmin()) {
+  if (window.AppCache && window.AppCache.hasPermission && window.AppCache.hasPermission('manageStaff')) {
+    loadSettingsStaff();
+  }
+  if (window.AppCache && window.AppCache.hasPermission && window.AppCache.hasPermission('manageServices')) {
+    loadSettingsServices();
+  }
+  if (window.AppCache && window.AppCache.hasPermission && window.AppCache.hasPermission('manageUsers')) {
     loadUsers();
   }
 };
+
+let _settingsUsers = [];
+let _settingsPermissionDefs = [];
+
+function loadSettingsStaff() {
+  const tbody = document.getElementById('settingsStaffTableBody');
+  if (!tbody) return;
+  const staff = (AppCache.getData('staff') || []);
+  const ce = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  if (!staff.length) {
+    tbody.innerHTML = '<tr><td colspan="4" class="px-5 py-8 text-center text-sm text-[#64748B]">Chưa có nhân viên</td></tr>';
+    return;
+  }
+  tbody.innerHTML = staff.map(m => `
+    <tr class="hover:bg-[#1E1E2A]">
+      <td class="px-5 py-3 text-xs text-[#64748B]">${ce(m.id || m[0] || '')}</td>
+      <td class="px-5 py-3 text-sm font-medium">${ce(m.name || m[1] || '')}</td>
+      <td class="px-5 py-3 text-sm text-[#94A3B8]">${ce(m.specialty || m[2] || 'Không xác định')}</td>
+      <td class="px-5 py-3 text-right">
+        <button onclick="editSettingsStaff('${ce(m.id || m[0])}')" class="px-2.5 py-1 text-xs font-medium text-[#818CF8] bg-[#6366F1]/10 hover:bg-[#6366F1]/20 rounded-md cursor-pointer mr-1">Sửa</button>
+        <button onclick="removeSettingsStaff('${ce(m.id || m[0])}')" class="px-2.5 py-1 text-xs font-medium text-[#F87171] bg-[#EF4444]/10 hover:bg-[#EF4444]/20 rounded-md cursor-pointer">Xóa</button>
+      </td>
+    </tr>`).join('');
+}
+
+function loadSettingsServices() {
+  const tbody = document.getElementById('settingsServiceTableBody');
+  if (!tbody) return;
+  const services = (AppCache.getData('services') || []);
+  const ce = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  if (!services.length) {
+    tbody.innerHTML = '<tr><td colspan="4" class="px-5 py-8 text-center text-sm text-[#64748B]">Chưa có dịch vụ</td></tr>';
+    return;
+  }
+  tbody.innerHTML = services.map(s => `
+    <tr class="hover:bg-[#1E1E2A]">
+      <td class="px-5 py-3 text-xs text-[#64748B]">${ce(s.id || s[0] || '')}</td>
+      <td class="px-5 py-3 text-sm font-medium">${ce(s.name || s[1] || '')}</td>
+      <td class="px-5 py-3 text-sm font-semibold text-[#4ADE80]">${Number(s.price || s[2] || 0).toLocaleString('vi-VN')} đ</td>
+      <td class="px-5 py-3 text-right">
+        <button onclick="removeSettingsService('${ce(s.id || s[0])}')" class="px-2.5 py-1 text-xs font-medium text-[#F87171] bg-[#EF4444]/10 hover:bg-[#EF4444]/20 rounded-md cursor-pointer">Xóa</button>
+      </td>
+    </tr>`).join('');
+}
+
+function renderStaffSpecialtyList(selectedText) {
+  const list = document.getElementById('settingsStaffSpecialtyList');
+  if (!list) return;
+  const services = AppCache.getData('services') || [];
+  const selected = String(selectedText || '').split(',').map(s => s.trim()).filter(Boolean);
+  if (!services.length) {
+    list.innerHTML = '<p class="text-xs text-[#64748B]">Chưa có dịch vụ để gán.</p>';
+    return;
+  }
+  const ce = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  list.innerHTML = services.map(s => `
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="checkbox" data-staff-specialty value="${ce(s.name)}" ${selected.includes(s.name) ? 'checked' : ''}
+        class="rounded border-[#2A2A38] bg-[#1E1E2A] text-[#6366F1] w-4 h-4">
+      <span class="text-sm text-[#F1F5F9]">${ce(s.name)}</span>
+    </label>`).join('');
+}
+
+function collectStaffSpecialty() {
+  return Array.from(document.querySelectorAll('[data-staff-specialty]:checked')).map(c => c.value).join(', ');
+}
+
+function getStaffSpecialtyByName(staffName) {
+  const target = String(staffName || '').trim().toLowerCase();
+  if (!target) return '';
+  const staff = (AppCache.getData('staff') || []).find(s => String(s.name || s[1] || '').trim().toLowerCase() === target);
+  return staff ? (staff.specialty || staff[2] || '') : '';
+}
+
+function renderUserSpecialtyList(selectedText) {
+  const list = document.getElementById('userSpecialtyList');
+  if (!list) return;
+  const services = AppCache.getData('services') || [];
+  const selected = String(selectedText || '').split(',').map(s => s.trim()).filter(Boolean);
+  if (!services.length) {
+    list.innerHTML = '<p class="text-xs text-[#64748B]">Chưa có dịch vụ để gán.</p>';
+    return;
+  }
+  const ce = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  list.innerHTML = services.map(s => `
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="checkbox" data-user-specialty value="${ce(s.name)}" ${selected.includes(s.name) ? 'checked' : ''}
+        class="rounded border-[#2A2A38] bg-[#1E1E2A] text-[#6366F1] w-4 h-4">
+      <span class="text-sm text-[#F1F5F9]">${ce(s.name)}</span>
+    </label>`).join('');
+}
+
+function collectUserSpecialty() {
+  return Array.from(document.querySelectorAll('[data-user-specialty]:checked')).map(c => c.value).join(', ');
+}
 
 function loadUsers() {
   const tbody = document.getElementById('userTableBody');
@@ -204,36 +424,73 @@ function loadUsers() {
   google.script.run
     .withSuccessHandler(res => {
       if (!res) {
-        tbody.innerHTML = `<tr><td colspan="5" class="px-5 py-8 text-center text-sm text-[#F87171]">Server không trả dữ liệu. Có thể bạn chưa được cấp quyền admin trong sheet Users hoặc deploy chưa cập nhật.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="px-5 py-8 text-center text-sm text-[#F87171]">Server không trả dữ liệu. Có thể bạn chưa được cấp quyền quản lý user hoặc deploy chưa cập nhật.</td></tr>`;
         return;
       }
       if (!res.success) {
-        tbody.innerHTML = `<tr><td colspan="5" class="px-5 py-8 text-center text-sm text-[#F87171]">${ce(res.error || 'Lỗi không xác định')}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="px-5 py-8 text-center text-sm text-[#F87171]">${ce(res.error || 'Lỗi không xác định')}</td></tr>`;
         return;
       }
+      _settingsUsers = res.data || [];
+      _settingsPermissionDefs = res.permissionDefs || (AppCache.permissionDefs || []);
       const me = (AppCache.currentUser && AppCache.currentUser.email) || '';
-      if (!res.data.length) { tbody.innerHTML = '<tr><td colspan="5" class="px-5 py-8 text-center text-sm text-[#64748B]">Chưa có user</td></tr>'; return; }
-      tbody.innerHTML = res.data.map(u => `
+      if (!_settingsUsers.length) { tbody.innerHTML = '<tr><td colspan="7" class="px-5 py-8 text-center text-sm text-[#64748B]">Chưa có user</td></tr>'; return; }
+      tbody.innerHTML = _settingsUsers.map(u => `
         <tr class="hover:bg-[#1E1E2A]">
           <td class="px-5 py-3 text-sm">${ce(u.email)}${u.email===me?' <span class="text-xs text-[#FBBF24]">(bạn)</span>':''}</td>
           <td class="px-5 py-3 text-sm"><span class="text-xs px-2 py-0.5 rounded-full ${u.role==='admin'?'badge-doing':'badge-pending'}">${ce(u.role)}</span></td>
           <td class="px-5 py-3 text-sm text-[#94A3B8]">${ce(u.staffName || '—')}</td>
+          <td class="px-5 py-3 text-sm text-[#94A3B8]">${ce(u.specialty || getStaffSpecialtyByName(u.staffName) || '—')}</td>
+          <td class="px-5 py-3 text-xs text-[#94A3B8]">${renderUserPermissionSummary(u.permissions)}</td>
           <td class="px-5 py-3 text-sm"><span class="text-xs px-2 py-0.5 rounded-full ${u.status==='disabled'?'badge-canceled':'badge-done'}">${ce(u.status || 'active')}</span></td>
           <td class="px-5 py-3 text-right">
-            <button onclick="editUser('${ce(u.email)}','${ce(u.role)}','${ce(u.staffName||'')}','${ce(u.status||'active')}')" class="px-2.5 py-1 text-xs font-medium text-[#818CF8] bg-[#6366F1]/10 hover:bg-[#6366F1]/20 rounded-md cursor-pointer mr-1">Sửa</button>
+            <button onclick="editUser('${ce(u.email)}')" class="px-2.5 py-1 text-xs font-medium text-[#818CF8] bg-[#6366F1]/10 hover:bg-[#6366F1]/20 rounded-md cursor-pointer mr-1">Sửa</button>
             ${u.email===me ? '' : `<button onclick="removeUser('${ce(u.email)}')" class="px-2.5 py-1 text-xs font-medium text-[#F87171] bg-[#EF4444]/10 hover:bg-[#EF4444]/20 rounded-md cursor-pointer">Xoá</button>`}
           </td>
         </tr>`).join('');
     })
-    .withFailureHandler(err => { tbody.innerHTML = `<tr><td colspan="5" class="px-5 py-8 text-center text-sm text-[#F87171]">${err.message || err}</td></tr>`; })
+    .withFailureHandler(err => { tbody.innerHTML = `<tr><td colspan="7" class="px-5 py-8 text-center text-sm text-[#F87171]">${err.message || err}</td></tr>`; })
     .listUsers();
 }
 
 function _populateStaffSelect(selected) {
-  const sel = document.getElementById('userStaffNameInput');
+  const input = document.getElementById('userStaffNameInput');
+  const options = document.getElementById('userStaffNameOptions');
   const staff = (AppCache.getData('staff') || []);
-  sel.innerHTML = '<option value="">(không liên kết)</option>' +
-    staff.map(s => `<option value="${s.name}" ${s.name===selected?'selected':''}>${s.name}</option>`).join('');
+  const ce = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  input.value = selected || '';
+  options.innerHTML = staff.map(s => `<option value="${ce(s.name || s[1] || '')}"></option>`).join('');
+}
+
+function renderUserPermissionSummary(permissions) {
+  const active = (_settingsPermissionDefs || []).filter(p => permissions && permissions[p.key]).map(p => p.label);
+  if (!active.length) return '—';
+  return active.length > 2 ? active.slice(0, 2).join(', ') + ` +${active.length - 2}` : active.join(', ');
+}
+
+function renderUserPermissionsGrid(role, permissions) {
+  const grid = document.getElementById('userPermissionsGrid');
+  const hint = document.getElementById('userPermissionHint');
+  const defs = _settingsPermissionDefs.length ? _settingsPermissionDefs : (AppCache.permissionDefs || []);
+  const isAdmin = role === 'admin';
+  hint.textContent = isAdmin ? 'Admin luôn có toàn quyền' : '';
+  grid.innerHTML = defs.map(p => {
+    const checked = isAdmin || !!(permissions && permissions[p.key]);
+    return `
+      <label class="flex items-center justify-between gap-3 px-3 py-2 bg-[#1E1E2A] border border-[#2A2A38] rounded-lg text-sm">
+        <span>${p.label}</span>
+        <input type="checkbox" data-user-permission="${p.key}" ${checked ? 'checked' : ''} ${isAdmin ? 'disabled' : ''}
+          class="w-4 h-4 accent-[#6366F1] cursor-pointer">
+      </label>`;
+  }).join('');
+}
+
+function collectUserPermissions() {
+  const permissions = {};
+  document.querySelectorAll('[data-user-permission]').forEach(input => {
+    permissions[input.getAttribute('data-user-permission')] = input.checked;
+  });
+  return permissions;
 }
 
 function showAddUserForm() {
@@ -244,17 +501,23 @@ function showAddUserForm() {
   document.getElementById('userRoleInput').value = 'staff';
   document.getElementById('userStatusInput').value = 'active';
   _populateStaffSelect('');
+  renderUserSpecialtyList('');
+  renderUserPermissionsGrid('staff', { viewRevenue: true });
   const m = document.getElementById('userModal'); m.classList.remove('hidden'); m.classList.add('flex');
 }
 
-function editUser(email, role, staffName, status) {
+function editUser(email) {
+  const user = _settingsUsers.find(u => u.email === email);
+  if (!user) return;
   document.getElementById('userModalTitle').textContent = 'Sửa user';
   document.getElementById('userEditingEmail').value = email;
   document.getElementById('userEmailInput').value = email;
   document.getElementById('userEmailInput').disabled = true; // email là khoá
-  document.getElementById('userRoleInput').value = role;
-  document.getElementById('userStatusInput').value = status || 'active';
-  _populateStaffSelect(staffName);
+  document.getElementById('userRoleInput').value = user.role;
+  document.getElementById('userStatusInput').value = user.status || 'active';
+  _populateStaffSelect(user.staffName);
+  renderUserSpecialtyList(user.specialty || getStaffSpecialtyByName(user.staffName));
+  renderUserPermissionsGrid(user.role, user.permissions || {});
   const m = document.getElementById('userModal'); m.classList.remove('hidden'); m.classList.add('flex');
 }
 
@@ -280,7 +543,9 @@ document.getElementById('userForm').addEventListener('submit', function(e) {
     email: editing || document.getElementById('userEmailInput').value.trim(),
     role: document.getElementById('userRoleInput').value,
     staffName: document.getElementById('userStaffNameInput').value,
-    status: document.getElementById('userStatusInput').value
+    specialty: collectUserSpecialty(),
+    status: document.getElementById('userStatusInput').value,
+    permissions: collectUserPermissions()
   };
   const btn = document.getElementById('userSubmitBtn');
   btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Đang lưu...';
@@ -290,11 +555,123 @@ document.getElementById('userForm').addEventListener('submit', function(e) {
       btn.disabled = false; btn.textContent = orig;
       if (!res || !res.success) { showToast(res ? res.error : 'Lỗi', 'error'); return; }
       showToast(editing ? 'Đã cập nhật user' : 'Đã thêm user', 'success');
-      hideUserModal(); loadUsers();
+      hideUserModal();
+      AppCache.refresh().then(loadUsers);
     })
     .withFailureHandler(err => { btn.disabled = false; btn.textContent = orig; showToast(err.message || err, 'error'); })
     [fn](payload);
 });
+
+document.getElementById('userRoleInput').addEventListener('change', function() {
+  const email = document.getElementById('userEditingEmail').value;
+  const user = _settingsUsers.find(u => u.email === email);
+  renderUserPermissionsGrid(this.value, user ? user.permissions : collectUserPermissions());
+});
+
+document.getElementById('userStaffNameInput').addEventListener('change', function() {
+  renderUserSpecialtyList(getStaffSpecialtyByName(this.value));
+});
+
+function showSettingsStaffForm() {
+  document.querySelector('#settingsStaffModal h3').textContent = 'Thêm nhân viên';
+  document.getElementById('settingsStaffId').value = '';
+  document.getElementById('settingsStaffForm').reset();
+  renderStaffSpecialtyList('');
+  document.getElementById('settingsStaffModal').classList.remove('hidden');
+  document.getElementById('settingsStaffModal').classList.add('flex');
+}
+
+function editSettingsStaff(id) {
+  const staff = (AppCache.getData('staff') || []).find(s => String(s.id || s[0]) === String(id));
+  if (!staff) return;
+  document.querySelector('#settingsStaffModal h3').textContent = 'Sửa nhân viên';
+  document.getElementById('settingsStaffId').value = staff.id || staff[0] || '';
+  document.getElementById('settingsStaffName').value = staff.name || staff[1] || '';
+  renderStaffSpecialtyList(staff.specialty || staff[2] || '');
+  document.getElementById('settingsStaffModal').classList.remove('hidden');
+  document.getElementById('settingsStaffModal').classList.add('flex');
+}
+
+function hideSettingsStaffModal() {
+  document.getElementById('settingsStaffModal').classList.add('hidden');
+  document.getElementById('settingsStaffModal').classList.remove('flex');
+  document.getElementById('settingsStaffForm').reset();
+}
+
+function showSettingsServiceForm() {
+  document.getElementById('settingsServiceModal').classList.remove('hidden');
+  document.getElementById('settingsServiceModal').classList.add('flex');
+}
+
+function hideSettingsServiceModal() {
+  document.getElementById('settingsServiceModal').classList.add('hidden');
+  document.getElementById('settingsServiceModal').classList.remove('flex');
+  document.getElementById('settingsServiceForm').reset();
+}
+
+document.getElementById('settingsStaffForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const btn = e.submitter;
+  const orig = btn.textContent;
+  const staffId = document.getElementById('settingsStaffId').value;
+  btn.disabled = true; btn.textContent = 'Đang lưu...';
+  const payload = { name: document.getElementById('settingsStaffName').value, specialty: collectStaffSpecialty() };
+  const runner = google.script.run
+    .withSuccessHandler(res => {
+      btn.disabled = false; btn.textContent = orig;
+      if (!res || !res.success) { showToast(res ? res.error : 'Lỗi', 'error'); return; }
+      showToast(staffId ? 'Đã cập nhật nhân viên' : 'Đã thêm nhân viên', 'success');
+      hideSettingsStaffModal();
+      AppCache.refresh().then(() => { loadSettingsStaff(); _populateStaffSelect(''); });
+    })
+    .withFailureHandler(err => { btn.disabled = false; btn.textContent = orig; showToast(err.message || err, 'error'); });
+  if (staffId) {
+    runner.updateStaff(staffId, payload);
+    return;
+  }
+  runner.addStaff(payload);
+});
+
+document.getElementById('settingsServiceForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const btn = e.submitter;
+  const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Đang lưu...';
+  google.script.run
+    .withSuccessHandler(res => {
+      btn.disabled = false; btn.textContent = orig;
+      if (!res || !res.success) { showToast(res ? res.error : 'Lỗi', 'error'); return; }
+      showToast('Đã thêm dịch vụ', 'success');
+      hideSettingsServiceModal();
+      AppCache.refresh().then(loadSettingsServices);
+    })
+    .withFailureHandler(err => { btn.disabled = false; btn.textContent = orig; showToast(err.message || err, 'error'); })
+    .addService({ name: document.getElementById('settingsServiceName').value, price: parseInt(document.getElementById('settingsServicePrice').value, 10) || 0 });
+});
+
+function removeSettingsStaff(id) {
+  if (!confirm('Xóa nhân viên này?')) return;
+  google.script.run
+    .withSuccessHandler(res => {
+      if (!res || !res.success) { showToast(res ? res.error : 'Lỗi', 'error'); return; }
+      showToast('Đã xóa nhân viên', 'success');
+      AppCache.refresh().then(loadSettingsStaff);
+    })
+    .withFailureHandler(err => showToast(err.message || err, 'error'))
+    .deleteStaff(id);
+}
+
+function removeSettingsService(id) {
+  if (!confirm('Xóa dịch vụ này?')) return;
+  google.script.run
+    .withSuccessHandler(res => {
+      if (!res || !res.success) { showToast(res ? res.error : 'Lỗi', 'error'); return; }
+      showToast('Đã xóa dịch vụ', 'success');
+      AppCache.refresh().then(loadSettingsServices);
+    })
+    .withFailureHandler(err => showToast(err.message || err, 'error'))
+    .deleteService(id);
+}
 
 function clearCache() {
   if (!confirm('Bạn có chắc muốn làm mới cache? Toàn bộ dữ liệu sẽ được tải lại.')) return;

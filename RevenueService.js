@@ -9,6 +9,7 @@
  */
 function getRevenueReportData() {
   try {
+    assertPermission_('viewRevenue');
     const servicePriceMap = new Map(loadServices().map(s => [s.name, s.price]));
     const allAppointments = getSheetData(CONFIG.SHEETS.APPOINTMENTS);
 

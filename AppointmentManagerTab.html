@@ -161,7 +161,7 @@
 
 <script>
 (function() {
-  const state = { searchQuery: '', dateRange: 'today', currentPage: 1, itemsPerPage: 9 };
+  const state = { searchQuery: '', dateRange: 'today', currentPage: 1, itemsPerPage: 9, selectedServices: new Set() };
 
   const listContainer     = document.getElementById('appointment-list');
   const searchInput       = document.getElementById('search-input');
@@ -180,6 +180,14 @@
   const closeCancelBtn    = document.getElementById('close-cancel-modal-btn');
   const confirmCancelBtn  = document.getElementById('confirm-cancel-btn');
 
+  function localDateISO(date = new Date()) {
+    return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+  }
+
+  function normalizeText(text) {
+    return String(text || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+
   // ── Filter & Render ──────────────────────────────────────────
   function filterAndRender() {
     if (!window.AppCache || !window.AppCache.isLoaded) {
@@ -191,8 +199,7 @@
     if (state.dateRange !== 'all') {
       const today = new Date();
       if (state.dateRange === 'today') {
-        const iso = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-        filtered = filtered.filter(a => a.date === iso);
+        filtered = filtered.filter(a => a.date === localDateISO(today));
       } else if (state.dateRange === 'week') {
         const day = today.getDay();
         const diff = today.getDate() - day + (day === 0 ? -6 : 1);
@@ -294,17 +301,57 @@
   function showCompleteModal(show = true) { completeModal.style.display = show ? 'flex' : 'none'; }
   function showCancelModal(show = true)   { cancelModal.style.display   = show ? 'flex' : 'none'; }
 
-  function populateServicesCheckboxes(listDiv) {
+  function setDateRange(range) {
+    state.dateRange = range;
+    state.currentPage = 1;
+    filterControls.querySelectorAll('.filter-btn').forEach(b => {
+      const active = b.dataset.range === range;
+      b.classList.toggle('bg-[#6366F1]', active);
+      b.classList.toggle('text-white', active);
+      b.classList.toggle('bg-[#1E1E2A]', !active);
+      b.classList.toggle('text-[#94A3B8]', !active);
+      b.classList.toggle('border', !active);
+      b.classList.toggle('border-[#2A2A38]', !active);
+    });
+  }
+
+  function ensureCreatedDateVisible(dateValue) {
+    if (state.dateRange === 'all') return;
+    const today = localDateISO();
+    if (dateValue !== today) setDateRange('all');
+  }
+
+  function getStaffAllowedServices(staffName) {
+    const staff = window.AppCache.getData('staff').find(s => String(s.name || '').trim() === String(staffName || '').trim());
+    const specialty = String(staff && staff.specialty || '').trim();
+    if (!specialty || normalizeText(specialty) === 'chua co') return null;
+
     const services = window.AppCache.getData('services');
+    const specialtyParts = specialty.split(',').map(s => normalizeText(s)).filter(Boolean);
+    const matched = services
+      .filter(service => {
+        const serviceName = normalizeText(service.name);
+        return specialtyParts.some(part => serviceName === part || serviceName.includes(part) || part.includes(serviceName));
+      })
+      .map(service => service.name);
+
+    return matched.length ? matched : null;
+  }
+
+  function populateServicesCheckboxes(listDiv, staffName, selectedServices) {
+    const allowed = getStaffAllowedServices(staffName);
+    const services = window.AppCache.getData('services').filter(s => !allowed || allowed.includes(s.name));
+    const selected = selectedServices || Array.from(state.selectedServices);
+    state.selectedServices = new Set(selected.filter(name => services.some(s => s.name === name)));
     listDiv.innerHTML = '';
     if (!services || !services.length) {
-      listDiv.innerHTML = '<p class="text-xs text-[#64748B]">Không có dịch vụ nào.</p>';
+      listDiv.innerHTML = '<p class="text-xs text-[#64748B]">Nhân viên này chưa được gán dịch vụ/chuyên môn phù hợp.</p>';
       return;
     }
     services.forEach(s => {
       listDiv.innerHTML += `
         <label class="flex items-center gap-2 cursor-pointer">
-          <input type="checkbox" name="services" value="${s.name}" class="rounded border-[#2A2A38] bg-[#1E1E2A] text-[#6366F1] w-4 h-4">
+          <input type="checkbox" name="services" value="${s.name}" ${state.selectedServices.has(s.name) ? 'checked' : ''} class="rounded border-[#2A2A38] bg-[#1E1E2A] text-[#6366F1] w-4 h-4">
           <span class="text-sm text-[#F1F5F9]">${s.name}</span>
           <span class="text-xs text-[#64748B] ml-auto">${formatCurrency(s.price)}</span>
         </label>`;
@@ -312,18 +359,41 @@
   }
 
   function populateStaffDropdown(sel) {
+    const me = window.AppCache && window.AppCache.currentUser ? window.AppCache.currentUser : null;
+    const isAdmin = window.AppCache && window.AppCache.isAdmin && window.AppCache.isAdmin();
     const activeStaff = window.AppCache.getData('staff').filter(s => s.status === 'Đang làm');
     sel.innerHTML = '<option value="">Chọn nhân viên...</option>';
     activeStaff.forEach(s => {
       sel.innerHTML += `<option value="${s.name}">${s.name}</option>`;
     });
+    if (me && me.staffName) {
+      if (![...sel.options].some(o => o.value === me.staffName)) {
+        const opt = document.createElement('option');
+        opt.value = me.staffName;
+        opt.textContent = me.staffName;
+        sel.appendChild(opt);
+      }
+      sel.value = me.staffName;
+    }
+    sel.disabled = !isAdmin;
+  }
+
+  function setScheduleToNow() {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mi = String(now.getMinutes()).padStart(2, '0');
+    document.getElementById('date').value = `${yyyy}-${mm}-${dd}`;
+    document.getElementById('time').value = `${hh}:${mi}`;
   }
 
   // ── Form Handlers ─────────────────────────────────────────────
   async function handleAddFormSubmit(e) {
     e.preventDefault();
     const btn = document.getElementById('save-appointment-btn');
-    const selected = Array.from(addForm.querySelectorAll('input[name="services"]:checked')).map(c => c.value);
+    const selected = Array.from(state.selectedServices);
     if (!selected.length) { showToast('Vui lòng chọn ít nhất một dịch vụ.', 'error'); return; }
     const editingId = document.getElementById('appointment-id').value;
     btn.disabled = true; btn.textContent = 'Đang lưu...';
@@ -343,6 +413,7 @@
       const idx = window.AppCache.data.appointments.findIndex(a => a.id === editingId);
       const original = idx !== -1 ? { ...window.AppCache.data.appointments[idx] } : null;
       if (idx !== -1) window.AppCache.data.appointments[idx] = { ...original, ...data };
+      ensureCreatedDateVisible(data.date);
       filterAndRender();
       showAddModal(false);
       addForm.reset();
@@ -367,6 +438,7 @@
     // === CREATE FLOW ===
     const tempId = 'temp-' + Date.now();
     window.AppCache.data.appointments.unshift({ ...data, id: tempId, status: 'Đang lưu...' });
+    ensureCreatedDateVisible(data.date);
     filterAndRender();
     showAddModal(false);
     addForm.reset();
@@ -376,6 +448,7 @@
       if (!result.success) throw new Error(result.error || 'Lỗi server.');
       const idx = window.AppCache.data.appointments.findIndex(a => a.id === tempId);
       if (idx !== -1) window.AppCache.data.appointments[idx] = result.data;
+      ensureCreatedDateVisible(result.data && result.data.date ? result.data.date : data.date);
       filterAndRender();
       showToast('Tạo lịch hẹn thành công!', 'success');
       if (window.updateDashboard) window.updateDashboard();
@@ -390,6 +463,7 @@
 
   function openEditAppointment(apt) {
     addForm.reset();
+    state.selectedServices.clear();
     phoneDropdown.style.display = 'none';
     document.getElementById('modal-title').textContent = 'Sửa lịch hẹn';
     document.getElementById('appointment-id').value = apt.id;
@@ -398,17 +472,11 @@
     document.getElementById('date').value         = apt.date || '';
     document.getElementById('time').value         = apt.time || '';
     document.getElementById('notes').value        = apt.notes || '';
-    // Services
-    const listDiv = document.getElementById('services-checkbox-list');
-    populateServicesCheckboxes(listDiv);
-    const booked = String(apt.service || '').split(',').map(s => s.trim());
-    listDiv.querySelectorAll('input[name="services"]').forEach(cb => {
-      if (booked.includes(cb.value)) cb.checked = true;
-    });
     // Staff
     const staffSel = document.getElementById('staff');
     populateStaffDropdown(staffSel);
-    if (apt.staff) {
+    const canSelectStaff = window.AppCache && window.AppCache.isAdmin && window.AppCache.isAdmin();
+    if (apt.staff && canSelectStaff) {
       if (![...staffSel.options].some(o => o.value === apt.staff)) {
         const opt = document.createElement('option');
         opt.value = apt.staff; opt.textContent = apt.staff + ' (cũ)';
@@ -416,6 +484,12 @@
       }
       staffSel.value = apt.staff;
     }
+    if (!canSelectStaff && window.AppCache && window.AppCache.currentUser && window.AppCache.currentUser.staffName) {
+      staffSel.value = window.AppCache.currentUser.staffName;
+    }
+    const booked = String(apt.service || '').split(',').map(s => s.trim());
+    state.selectedServices = new Set(booked);
+    populateServicesCheckboxes(document.getElementById('services-checkbox-list'), staffSel.value, booked);
     showAddModal(true);
   }
 
@@ -526,11 +600,13 @@
 
   addBtn.addEventListener('click', () => {
     addForm.reset();
+    state.selectedServices.clear();
     document.getElementById('appointment-id').value = '';
     phoneDropdown.style.display = 'none';
     document.getElementById('modal-title').textContent = 'Thêm lịch hẹn mới';
-    populateServicesCheckboxes(document.getElementById('services-checkbox-list'));
+    setScheduleToNow();
     populateStaffDropdown(document.getElementById('staff'));
+    populateServicesCheckboxes(document.getElementById('services-checkbox-list'), document.getElementById('staff').value);
     showAddModal(true);
     setTimeout(() => phoneInput.focus(), 100);
   });
@@ -538,7 +614,16 @@
   [document.getElementById('close-modal-btn'), document.getElementById('close-modal-btn2')].forEach(b => {
     if (b) b.addEventListener('click', () => showAddModal(false));
   });
+  document.getElementById('services-checkbox-list').addEventListener('change', e => {
+    if (!e.target.matches('input[name="services"]')) return;
+    if (e.target.checked) state.selectedServices.add(e.target.value);
+    else state.selectedServices.delete(e.target.value);
+  });
   addForm.addEventListener('submit', handleAddFormSubmit);
+  document.getElementById('staff').addEventListener('change', () => {
+    const checked = Array.from(state.selectedServices);
+    populateServicesCheckboxes(document.getElementById('services-checkbox-list'), document.getElementById('staff').value, checked);
+  });
   completeForm.addEventListener('submit', handleCompleteFormSubmit);
   cancelCompleteBtn.addEventListener('click', () => showCompleteModal(false));
   confirmCancelBtn.addEventListener('click', handleConfirmCancel);
@@ -559,7 +644,8 @@
       document.getElementById('complete-appointment-id').value = apt.id;
       document.getElementById('complete-customer-info').textContent = `${apt.customerName} — ${apt.phone}`;
       document.getElementById('complete-notes').value = apt.notes || '';
-      const allServices    = window.AppCache.getData('services');
+      const allowed = getStaffAllowedServices(apt.staff);
+      const allServices = window.AppCache.getData('services').filter(s => !allowed || allowed.includes(s.name));
       const bookedServices = apt.service.split(',').map(s => s.trim());
       const listDiv = document.getElementById('complete-services-list');
       listDiv.innerHTML = '';
@@ -595,14 +681,7 @@
   filterControls.addEventListener('click', e => {
     const btn = e.target.closest('.filter-btn');
     if (!btn) return;
-    filterControls.querySelectorAll('.filter-btn').forEach(b => {
-      b.classList.remove('bg-[#6366F1]', 'text-white');
-      b.classList.add('bg-[#1E1E2A]', 'text-[#94A3B8]', 'border', 'border-[#2A2A38]');
-    });
-    btn.classList.add('bg-[#6366F1]', 'text-white');
-    btn.classList.remove('bg-[#1E1E2A]', 'text-[#94A3B8]');
-    state.dateRange = btn.dataset.range;
-    state.currentPage = 1;
+    setDateRange(btn.dataset.range);
     filterAndRender();
   });
 

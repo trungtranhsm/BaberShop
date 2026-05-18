@@ -6,6 +6,7 @@
  */
 function getCustomerDetailsWithStats(customerPhone) {
   try {
+    assertPermission_('viewCustomers');
     const appointments = loadAppointments();
     const services = loadServices();
     const servicePriceMap = new Map(services.map(s => [s.name, s.price]));
@@ -50,6 +51,7 @@ function getCustomerDetailsWithStats(customerPhone) {
  */
 function getCustomerDetails(customerPhone) {
   try {
+    assertPermission_('viewCustomers');
     const appointments = loadAppointments(); // Hàm này nằm trong Code.gs
     const customerAppointments = appointments
       .filter(apt => apt.phone === customerPhone)
@@ -67,7 +69,7 @@ function getCustomerDetails(customerPhone) {
  */
 function createOrUpdateCustomer(customerData) {
   try {
-    assertAdmin_();
+    assertPermission_('viewCustomers');
     const sheet = getOrCreateSheet(CONFIG.SHEETS.CUSTOMERS, CONFIG.CUSTOMER_HEADERS); // Hàm này nằm trong Code.gs
     const phoneColumn = sheet.getRange("C:C").getValues(); // Giả sử SĐT ở cột C
     let rowIndex = -1;

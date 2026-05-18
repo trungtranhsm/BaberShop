@@ -20,7 +20,7 @@ try {
 
 function addStaff(staffData) {
 try {
-  assertAdmin_();
+  assertPermission_('manageStaff');
   // Validate required fields
   const requiredFields = ['name'];
   const errors = validateRequired(staffData, requiredFields);
@@ -52,6 +52,7 @@ try {
 
 function updateStaff(staffId, staffData) {
 try {
+  assertPermission_('manageStaff');
   const sheet = getOrCreateSheet(CONFIG.SHEETS.STAFF, CONFIG.STAFF_HEADERS);
   const data = sheet.getDataRange().getValues();
   const rowIndex = data.findIndex(row => row[0] == staffId);
@@ -76,7 +77,7 @@ try {
 
 function deleteStaff(staffId) {
 try {
-  assertAdmin_();
+  assertPermission_('manageStaff');
   const sheet = getOrCreateSheet(CONFIG.SHEETS.STAFF, CONFIG.STAFF_HEADERS);
   const data = sheet.getDataRange().getValues();
   const rowIndex = data.findIndex(row => row[0] == staffId);
@@ -119,7 +120,7 @@ try {
 
 function addService(serviceData) {
 try {
-  assertAdmin_();
+  assertPermission_('manageServices');
   // Validate required fields
   const requiredFields = ['name', 'price'];
   const errors = validateRequired(serviceData, requiredFields);
@@ -152,6 +153,7 @@ try {
 
 function updateService(serviceId, serviceData) {
 try {
+  assertPermission_('manageServices');
   const sheet = getOrCreateSheet(CONFIG.SHEETS.SERVICES, CONFIG.SERVICE_HEADERS);
   const data = sheet.getDataRange().getValues();
   const rowIndex = data.findIndex(row => row[0] == serviceId);
@@ -177,7 +179,7 @@ try {
 
 function deleteService(serviceId) {
 try {
-  assertAdmin_();
+  assertPermission_('manageServices');
   const sheet = getOrCreateSheet(CONFIG.SHEETS.SERVICES, CONFIG.SERVICE_HEADERS);
   const data = sheet.getDataRange().getValues();
   const rowIndex = data.findIndex(row => row[0] == serviceId);

@@ -126,7 +126,7 @@
   document.getElementById('logSearchInput').addEventListener('input', applyFilter);
 
   window.initLogsTab = function() {
-    if (window.AppCache && window.AppCache.isAdmin && window.AppCache.isAdmin()) loadLogs();
+    if (window.AppCache && window.AppCache.hasPermission && window.AppCache.hasPermission('viewLogs')) loadLogs();
   };
 })();
 </script>
