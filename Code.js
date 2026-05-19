@@ -15,17 +15,30 @@ const CONFIG = {
     STAFF: 'Nhân viên',
     CUSTOMERS: 'Khách hàng',
     SETTINGS: 'Cài Đặt',
-    USERS: 'Users',
+    USERS_LEGACY: 'Users', // chỉ dùng cho migration 1 lần, sau migrate có thể xóa sheet này
     LOGS: 'Logs',
   },
   APPOINTMENT_HEADERS: ['ID', 'Tên khách hàng', 'Số điện thoại', 'Dịch vụ', 'Ngày', 'Giờ', 'Nhân viên', 'Trạng thái', 'Ghi chú'],
   SERVICE_HEADERS: ['ID', 'Tên dịch vụ', 'Giá'],
-  STAFF_HEADERS: ['ID', 'Tên nhân viên', 'Chuyên môn'],
+  // Sheet Nhân viên gộp với Users: cột F-I là tài khoản login
+  STAFF_HEADERS: ['ID', 'Tên nhân viên', 'Chuyên môn', 'SĐT', 'Trạng thái', 'Email', 'Role', 'Quyền', 'Ngày tạo'],
   CUSTOMER_HEADERS: ['Tên', 'Số điện thoại', 'Ngày tạo'],
-  USER_HEADERS: ['Email', 'Role', 'Tên nhân viên liên kết', 'Trạng thái', 'Ngày tạo', 'Quyền'],
   LOG_HEADERS: ['Thời gian', 'Email', 'Role', 'Hành động', 'Chi tiết'],
   LOG_MAX_ROWS: 5000, // tự cắt bớt log cũ khi vượt
   CACHE_DURATION_SECONDS: 300, // Cache tồn tại trong 5 phút
+};
+
+// Index cột (0-based) trong sheet Nhân viên — dùng cho mọi nơi đọc/ghi
+const STAFF_COL = {
+  ID: 0,
+  NAME: 1,
+  SPECIALTY: 2,
+  PHONE: 3,
+  STATUS: 4,  // "Đang làm" / "Đã nghỉ" / "disabled"
+  EMAIL: 5,
+  ROLE: 6,
+  PERMISSIONS: 7,
+  CREATED_AT: 8,
 };
 
 // =================================================================
@@ -156,18 +169,25 @@ function loadServices() {
 }
 
 /**
- * Tải dữ liệu nhân viên.
- * (Cột C: Chuyên môn, Cột D: SĐT, Cột E: Trạng thái).
+ * Tải danh sách nhân viên (thợ cắt) cho FE — scheduling, dropdown.
+ * Loại admin: admin có thể có row trong sheet nhưng không phải thợ cắt nên không hiện trong scheduling.
+ * Không expose email/role/permissions — UI staff list chỉ cần info công việc.
  */
 function loadStaff() {
   const data = getSheetData(CONFIG.SHEETS.STAFF);
-  return data.map(row => ({
-    id: row[0],
-    name: row[1],
-    specialty: row[2] || 'Chưa có',
-    phone: row[3] || '', // Thêm thuộc tính SĐT
-    status: (row[4] || 'Đang làm').trim() // Lấy trạng thái từ cột E (index 4)
-  }));
+  return data
+    .filter(row => {
+      const name = String(row[STAFF_COL.NAME] || '').trim();
+      const role = String(row[STAFF_COL.ROLE] || '').trim().toLowerCase();
+      return name && role !== ROLE.ADMIN;
+    })
+    .map(row => ({
+      id: row[STAFF_COL.ID],
+      name: row[STAFF_COL.NAME],
+      specialty: row[STAFF_COL.SPECIALTY] || 'Chưa có',
+      phone: row[STAFF_COL.PHONE] || '',
+      status: String(row[STAFF_COL.STATUS] || 'Đang làm').trim()
+    }));
 }
 
 /**
@@ -307,12 +327,21 @@ function getActiveUserEmail_() {
   }
 }
 
-function ensureUsersSheetSchema_() {
-  const sheet = getOrCreateSheet(CONFIG.SHEETS.USERS, CONFIG.USER_HEADERS);
-  const headerRange = sheet.getRange(1, 1, 1, CONFIG.USER_HEADERS.length);
+/**
+ * Đảm bảo sheet Nhân viên có đủ 9 cột (mới gộp Users).
+ * Tự nâng cấp sheet cũ (3-5 cột) lên 9 cột nếu cần.
+ */
+function ensureStaffSheetSchema_() {
+  const sheet = getOrCreateSheet(CONFIG.SHEETS.STAFF, CONFIG.STAFF_HEADERS);
+  const lastCol = sheet.getLastColumn();
+  const targetCols = CONFIG.STAFF_HEADERS.length;
+  if (lastCol < targetCols) {
+    sheet.insertColumnsAfter(lastCol || 1, targetCols - (lastCol || 1));
+  }
+  const headerRange = sheet.getRange(1, 1, 1, targetCols);
   const headers = headerRange.getValues()[0];
   let changed = false;
-  CONFIG.USER_HEADERS.forEach((header, index) => {
+  CONFIG.STAFF_HEADERS.forEach((header, index) => {
     if (!String(headers[index] || '').trim()) {
       headers[index] = header;
       changed = true;
@@ -322,13 +351,16 @@ function ensureUsersSheetSchema_() {
   return sheet;
 }
 
+function getStaffSheet_() {
+  return ensureStaffSheetSchema_();
+}
+
 function normalizeUserPermissions_(role, rawPermissions) {
   const normalized = Object.assign({}, DEFAULT_STAFF_PERMISSIONS);
   if (String(role || '').trim().toLowerCase() === ROLE.ADMIN) {
     USER_PERMISSION_KEYS.forEach(key => { normalized[key] = true; });
     return normalized;
   }
-
   if (rawPermissions) {
     try {
       const parsed = typeof rawPermissions === 'string' ? JSON.parse(rawPermissions) : rawPermissions;
@@ -350,76 +382,69 @@ function serializeUserPermissions_(role, permissions) {
   return JSON.stringify(normalizeUserPermissions_(role, permissions || {}));
 }
 
-function getStaffSheet_() {
-  return getOrCreateSheet(CONFIG.SHEETS.STAFF, CONFIG.STAFF_HEADERS);
-}
-
 function getStaffNameIndex_(data, staffName) {
   const target = String(staffName || '').trim().toLowerCase();
   if (!target) return -1;
-  return data.findIndex((row, i) => i > 0 && String(row[1] || '').trim().toLowerCase() === target);
+  return data.findIndex((row, i) => i > 0 && String(row[STAFF_COL.NAME] || '').trim().toLowerCase() === target);
+}
+
+function getStaffEmailIndex_(data, email) {
+  const target = String(email || '').trim().toLowerCase();
+  if (!target) return -1;
+  return data.findIndex((row, i) => i > 0 && String(row[STAFF_COL.EMAIL] || '').trim().toLowerCase() === target);
 }
 
 function getStaffSpecialtyMap_() {
   const data = getSheetData(CONFIG.SHEETS.STAFF);
   return data.reduce((map, row) => {
-    const name = String(row[1] || '').trim();
-    if (name) map[name.toLowerCase()] = String(row[2] || '').trim();
+    const name = String(row[STAFF_COL.NAME] || '').trim();
+    if (name) map[name.toLowerCase()] = String(row[STAFF_COL.SPECIALTY] || '').trim();
     return map;
   }, {});
 }
 
-function upsertStaffForUser_(staffName, specialty, oldStaffName) {
-  const name = String(staffName || '').trim();
-  if (!name) return;
-
-  const sheet = getStaffSheet_();
-  const data = sheet.getDataRange().getValues();
-  let rowIndex = getStaffNameIndex_(data, oldStaffName || name);
-  if (rowIndex === -1 && oldStaffName && oldStaffName !== name) {
-    rowIndex = getStaffNameIndex_(data, name);
-  }
-
-  if (rowIndex === -1) {
-    sheet.appendRow([sheet.getLastRow(), name, String(specialty || '').trim()]);
-  } else {
-    const rowNum = rowIndex + 1;
-    sheet.getRange(rowNum, 2).setValue(name);
-    if (specialty !== undefined) {
-      sheet.getRange(rowNum, 3).setValue(String(specialty || '').trim());
-    }
-  }
-
-  clearCache('staff');
+/**
+ * "Đang làm" hoặc "active" → cho login. "Đã nghỉ"/"disabled" → khóa login.
+ */
+function isLoginActive_(rawStatus) {
+  const s = String(rawStatus || 'active').trim().toLowerCase();
+  if (!s) return true;
+  return !(s === 'disabled' || s === 'đã nghỉ' || s === 'khóa');
 }
 
 /**
- * Đọc Users sheet thô. Trả [{email, role, staffName, status, createdAt}, ...]
+ * Đọc các row trong sheet Nhân viên có Email → tài khoản login.
+ * Trả [{email, role, staffName, specialty, phone, status, createdAt, permissions, rowIndex}, ...]
  */
 function listUsersRaw() {
-  ensureUsersSheetSchema_();
-  const data = getSheetData(CONFIG.SHEETS.USERS);
-  return data.map(row => ({
-    email: String(row[0] || '').trim().toLowerCase(),
-    role: String(row[1] || '').trim().toLowerCase(),
-    staffName: String(row[2] || '').trim(),
-    status: String(row[3] || 'active').trim().toLowerCase(),
-    createdAt: row[4] || '',
-    permissions: normalizeUserPermissions_(row[1], row[5])
-  })).filter(u => u.email);
+  const sheet = ensureStaffSheetSchema_();
+  if (sheet.getLastRow() < 2) return [];
+  const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, CONFIG.STAFF_HEADERS.length).getValues();
+  return data
+    .map((row, i) => ({
+      email: String(row[STAFF_COL.EMAIL] || '').trim().toLowerCase(),
+      role: String(row[STAFF_COL.ROLE] || '').trim().toLowerCase(),
+      staffName: String(row[STAFF_COL.NAME] || '').trim(),
+      specialty: String(row[STAFF_COL.SPECIALTY] || '').trim(),
+      phone: String(row[STAFF_COL.PHONE] || '').trim(),
+      status: String(row[STAFF_COL.STATUS] || 'active').trim(),
+      createdAt: row[STAFF_COL.CREATED_AT] || '',
+      permissions: normalizeUserPermissions_(row[STAFF_COL.ROLE], row[STAFF_COL.PERMISSIONS]),
+      rowIndex: i + 2 // 1-based, +1 cho header
+    }))
+    .filter(u => u.email);
 }
 
 /**
- * Lấy user hiện tại từ session + tra Users sheet.
+ * Lấy user hiện tại từ session + tra sheet Nhân viên.
  * Trả 1 trong các state:
- *   { isSetupNeeded: true, email }  — Users sheet trống, cần setup admin đầu tiên
- *   { denied: true, email }          — email không nằm trong Users
+ *   { isSetupNeeded: true, email }  — chưa có user nào, cần setup admin đầu tiên
+ *   { denied: true, email }          — email không nằm trong sheet
  *   { email, role, staffName, name } — user hợp lệ
  */
 function getCurrentUser() {
   const email = getActiveUserEmail_();
-  // Đảm bảo sheet tồn tại để biết được "có user nào chưa"
-  ensureUsersSheetSchema_();
+  ensureStaffSheetSchema_();
   const users = listUsersRaw();
 
   if (users.length === 0) {
@@ -428,9 +453,15 @@ function getCurrentUser() {
   if (!email) {
     return { denied: true, email: '', reason: 'Không lấy được email Google. Hãy đăng nhập Google trước khi mở app.' };
   }
-  const u = users.find(x => x.email === email && x.status !== 'disabled');
-  if (!u) return { denied: true, email: email, reason: 'Email này chưa có trong sheet Users hoặc user đang bị disabled.' };
-  return { email: u.email, role: u.role || ROLE.STAFF, staffName: u.staffName, name: u.staffName || u.email, permissions: u.permissions };
+  const u = users.find(x => x.email === email && isLoginActive_(x.status));
+  if (!u) return { denied: true, email: email, reason: 'Email này chưa có trong sheet Nhân viên hoặc tài khoản đang bị khóa.' };
+  return {
+    email: u.email,
+    role: u.role || ROLE.STAFF,
+    staffName: u.staffName,
+    name: u.staffName || u.email,
+    permissions: u.permissions
+  };
 }
 
 function assertAdmin_() {
@@ -452,21 +483,61 @@ function assertPermission_(permissionKey) {
   throw new Error('Bạn không có quyền thực hiện thao tác này.');
 }
 
+function nextStaffId_(sheet) {
+  if (sheet.getLastRow() < 2) return 1;
+  const ids = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues().map(r => Number(r[0]) || 0);
+  return Math.max(0, ...ids) + 1;
+}
+
+function buildStaffRow_(payload) {
+  const row = new Array(CONFIG.STAFF_HEADERS.length).fill('');
+  row[STAFF_COL.ID] = payload.id != null ? payload.id : '';
+  row[STAFF_COL.NAME] = String(payload.staffName || '').trim();
+  row[STAFF_COL.SPECIALTY] = String(payload.specialty || '').trim();
+  row[STAFF_COL.PHONE] = String(payload.phone || '').trim();
+  row[STAFF_COL.STATUS] = String(payload.status || 'Đang làm').trim();
+  row[STAFF_COL.EMAIL] = String(payload.email || '').trim().toLowerCase();
+  row[STAFF_COL.ROLE] = String(payload.role || '').trim().toLowerCase();
+  row[STAFF_COL.PERMISSIONS] = payload.role
+    ? serializeUserPermissions_(payload.role, payload.permissions)
+    : '';
+  row[STAFF_COL.CREATED_AT] = payload.createdAt instanceof Date ? payload.createdAt : new Date();
+  return row;
+}
+
 /**
- * Tạo admin đầu tiên — chỉ chạy được khi Users sheet trống.
+ * Tạo admin đầu tiên — chỉ chạy được khi chưa có user nào.
  * Email lấy từ session (không nhận từ client để chống giả mạo).
  */
 function setupFirstAdmin(staffName) {
-  const sheet = ensureUsersSheetSchema_();
-  const existing = listUsersRaw();
-  if (existing.length > 0) {
+  const sheet = ensureStaffSheetSchema_();
+  if (listUsersRaw().length > 0) {
     return { success: false, error: 'Đã có user, không thể setup lần đầu nữa.' };
   }
   const email = getActiveUserEmail_();
   if (!email) {
     return { success: false, error: 'Không lấy được email Google. Hãy đảm bảo đăng nhập Google.' };
   }
-  sheet.appendRow([email, ROLE.ADMIN, String(staffName || '').trim(), 'active', new Date(), serializeUserPermissions_(ROLE.ADMIN)]);
+
+  // Nếu staffName đã tồn tại trong sheet (admin trùng tên nhân viên), update row đó. Ngược lại tạo row mới.
+  const data = sheet.getDataRange().getValues();
+  const idx = getStaffNameIndex_(data, staffName);
+  const newRow = buildStaffRow_({
+    staffName: staffName,
+    email: email,
+    role: ROLE.ADMIN,
+    status: 'Đang làm'
+  });
+
+  if (idx === -1) {
+    newRow[STAFF_COL.ID] = nextStaffId_(sheet);
+    sheet.appendRow(newRow);
+  } else {
+    const rowNum = idx + 1;
+    // Giữ ID gốc nếu có
+    newRow[STAFF_COL.ID] = data[idx][STAFF_COL.ID] || nextStaffId_(sheet);
+    sheet.getRange(rowNum, 1, 1, CONFIG.STAFF_HEADERS.length).setValues([newRow]);
+  }
   clearCache();
   logAction_('auth_setup_first_admin', { email: email });
   return { success: true, email: email };
@@ -476,13 +547,12 @@ function listUsers() {
   try {
     assertPermission_('manageUsers');
     const raw = listUsersRaw();
-    const specialtyMap = getStaffSpecialtyMap_();
-    // Date không serialize ổn định qua google.script.run — chuyển ISO string
     const data = raw.map(u => ({
       email: u.email,
       role: u.role,
       staffName: u.staffName,
-      specialty: specialtyMap[String(u.staffName || '').trim().toLowerCase()] || '',
+      specialty: u.specialty,
+      phone: u.phone,
       status: u.status,
       createdAt: u.createdAt instanceof Date ? u.createdAt.toISOString() : String(u.createdAt || ''),
       permissions: u.permissions
@@ -494,6 +564,11 @@ function listUsers() {
   }
 }
 
+/**
+ * Thêm user mới. 2 trường hợp:
+ *  - role=staff + staffName trùng row có sẵn trong Nhân viên → UPDATE row đó (gán email/role/quyền)
+ *  - admin hoặc staff mới → APPEND row mới
+ */
 function addUser(payload) {
   try {
     assertPermission_('manageUsers');
@@ -501,6 +576,7 @@ function addUser(payload) {
     const role = String(payload && payload.role || '').trim().toLowerCase();
     const staffName = String(payload && payload.staffName || '').trim();
     const specialty = String(payload && payload.specialty || '').trim();
+    const phone = String(payload && payload.phone || '').trim();
     const permissions = payload && payload.permissions;
     if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
       return { success: false, error: 'Email không hợp lệ.' };
@@ -508,15 +584,48 @@ function addUser(payload) {
     if (role !== ROLE.ADMIN && role !== ROLE.STAFF) {
       return { success: false, error: 'Role phải là admin hoặc staff.' };
     }
-    if (role === ROLE.STAFF && !staffName) {
-      return { success: false, error: 'Nhân viên phải gắn tên nhân viên (khớp sheet Nhân viên).' };
+    if (!staffName) {
+      return { success: false, error: 'Phải có Tên (admin: tên hiển thị / staff: tên nhân viên).' };
     }
-    const sheet = ensureUsersSheetSchema_();
+
+    const sheet = ensureStaffSheetSchema_();
     if (listUsersRaw().some(u => u.email === email)) {
       return { success: false, error: 'Email đã tồn tại.' };
     }
-    sheet.appendRow([email, role, staffName, 'active', new Date(), serializeUserPermissions_(role, permissions)]);
-    if (staffName) upsertStaffForUser_(staffName, specialty);
+
+    const data = sheet.getDataRange().getValues();
+    const existingIdx = getStaffNameIndex_(data, staffName);
+
+    if (existingIdx !== -1) {
+      // Có row staff sẵn → gán email/role/permissions vào row đó (giữ specialty/phone cũ nếu không cấp mới)
+      const rowNum = existingIdx + 1;
+      const existing = data[existingIdx];
+      const merged = buildStaffRow_({
+        id: existing[STAFF_COL.ID] || nextStaffId_(sheet),
+        staffName: staffName,
+        specialty: specialty || existing[STAFF_COL.SPECIALTY] || '',
+        phone: phone || existing[STAFF_COL.PHONE] || '',
+        status: existing[STAFF_COL.STATUS] || 'Đang làm',
+        email: email,
+        role: role,
+        permissions: permissions,
+        createdAt: existing[STAFF_COL.CREATED_AT] || new Date()
+      });
+      sheet.getRange(rowNum, 1, 1, CONFIG.STAFF_HEADERS.length).setValues([merged]);
+    } else {
+      const newRow = buildStaffRow_({
+        id: nextStaffId_(sheet),
+        staffName: staffName,
+        specialty: specialty,
+        phone: phone,
+        status: 'Đang làm',
+        email: email,
+        role: role,
+        permissions: permissions
+      });
+      sheet.appendRow(newRow);
+    }
+
     clearCache();
     logAction_('user_add', { email: email, role: role, staffName: staffName });
     return { success: true };
@@ -528,78 +637,193 @@ function addUser(payload) {
 
 function updateUser(payload) {
   try {
-  assertPermission_('manageUsers');
-  const target = String(payload && payload.email || '').trim().toLowerCase();
-  const newRole = String(payload && payload.role || '').trim().toLowerCase();
-  const newStaffName = payload && typeof payload.staffName === 'string' ? payload.staffName.trim() : undefined;
-  const newSpecialty = payload && typeof payload.specialty === 'string' ? payload.specialty.trim() : undefined;
-  const newStatus = String(payload && payload.status || '').trim().toLowerCase();
-  const newPermissions = payload && payload.permissions;
-  if (!target) return { success: false, error: 'Thiếu email.' };
-  if (newRole && newRole !== ROLE.ADMIN && newRole !== ROLE.STAFF) {
-    return { success: false, error: 'Role phải là admin hoặc staff.' };
-  }
+    assertPermission_('manageUsers');
+    const target = String(payload && payload.email || '').trim().toLowerCase();
+    const newRole = String(payload && payload.role || '').trim().toLowerCase();
+    const newStaffName = payload && typeof payload.staffName === 'string' ? payload.staffName.trim() : undefined;
+    const newSpecialty = payload && typeof payload.specialty === 'string' ? payload.specialty.trim() : undefined;
+    const newPhone = payload && typeof payload.phone === 'string' ? payload.phone.trim() : undefined;
+    const newStatus = payload && typeof payload.status === 'string' ? payload.status.trim() : '';
+    const newPermissions = payload && payload.permissions;
+    if (!target) return { success: false, error: 'Thiếu email.' };
+    if (newRole && newRole !== ROLE.ADMIN && newRole !== ROLE.STAFF) {
+      return { success: false, error: 'Role phải là admin hoặc staff.' };
+    }
 
-  const sheet = ensureUsersSheetSchema_();
-  const all = sheet.getDataRange().getValues();
-  const idx = all.findIndex((row, i) => i > 0 && String(row[0] || '').trim().toLowerCase() === target);
-  if (idx === -1) return { success: false, error: 'Không tìm thấy user.' };
-  const rowNum = idx + 1;
-  const oldStaffName = String(all[idx][2] || '').trim();
-  const effectiveRole = newRole || String(all[idx][1] || '').trim().toLowerCase();
-  const effectiveStaffName = newStaffName !== undefined ? newStaffName : oldStaffName;
-  if (effectiveRole === ROLE.STAFF && !effectiveStaffName) {
-    return { success: false, error: 'Nhân viên phải gắn tên nhân viên.' };
-  }
+    const sheet = ensureStaffSheetSchema_();
+    const all = sheet.getDataRange().getValues();
+    const idx = getStaffEmailIndex_(all, target);
+    if (idx === -1) return { success: false, error: 'Không tìm thấy user.' };
+    const rowNum = idx + 1;
+    const row = all[idx];
+    const oldRole = String(row[STAFF_COL.ROLE] || '').trim().toLowerCase();
+    const effectiveRole = newRole || oldRole;
+    const effectiveStaffName = newStaffName !== undefined ? newStaffName : String(row[STAFF_COL.NAME] || '').trim();
+    if (!effectiveStaffName) {
+      return { success: false, error: 'Phải có Tên.' };
+    }
 
-  // Không cho hạ chính mình khỏi admin nếu đang là admin duy nhất
-  const current = getCurrentUser();
-  if (target === current.email && newRole && newRole !== ROLE.ADMIN) {
-    const adminCount = listUsersRaw().filter(u => u.role === ROLE.ADMIN && u.status !== 'disabled').length;
-    if (adminCount <= 1) return { success: false, error: 'Không thể hạ quyền admin duy nhất.' };
-  }
+    // Không cho hạ chính mình khỏi admin nếu đang là admin duy nhất
+    const current = getCurrentUser();
+    if (target === current.email && newRole && newRole !== ROLE.ADMIN) {
+      const adminCount = listUsersRaw().filter(u => u.role === ROLE.ADMIN && isLoginActive_(u.status)).length;
+      if (adminCount <= 1) return { success: false, error: 'Không thể hạ quyền admin duy nhất.' };
+    }
 
-  if (newRole) sheet.getRange(rowNum, 2).setValue(newRole);
-  if (newStaffName !== undefined) sheet.getRange(rowNum, 3).setValue(newStaffName);
-  if (newStatus) sheet.getRange(rowNum, 4).setValue(newStatus);
-  if (newPermissions) sheet.getRange(rowNum, 6).setValue(serializeUserPermissions_(newRole || all[idx][1], newPermissions));
-  if (newStaffName !== undefined && newStaffName) {
-    upsertStaffForUser_(newStaffName, newSpecialty, oldStaffName);
-  }
-  clearCache();
-  logAction_('user_update', { email: target, role: newRole, staffName: newStaffName, status: newStatus, permissions: newPermissions });
-  return { success: true };
+    if (newRole) sheet.getRange(rowNum, STAFF_COL.ROLE + 1).setValue(newRole);
+    if (newStaffName !== undefined) sheet.getRange(rowNum, STAFF_COL.NAME + 1).setValue(newStaffName);
+    if (newSpecialty !== undefined) sheet.getRange(rowNum, STAFF_COL.SPECIALTY + 1).setValue(newSpecialty);
+    if (newPhone !== undefined) sheet.getRange(rowNum, STAFF_COL.PHONE + 1).setValue(newPhone);
+    if (newStatus) sheet.getRange(rowNum, STAFF_COL.STATUS + 1).setValue(newStatus);
+    if (newPermissions) sheet.getRange(rowNum, STAFF_COL.PERMISSIONS + 1).setValue(serializeUserPermissions_(effectiveRole, newPermissions));
+
+    clearCache();
+    logAction_('user_update', { email: target, role: newRole, staffName: newStaffName, status: newStatus, permissions: newPermissions });
+    return { success: true };
   } catch (e) {
     console.error('updateUser error:', e && e.stack || e);
     return { success: false, error: (e && e.message) || String(e) };
   }
 }
 
+/**
+ * Xóa user. Hành vi:
+ *  - Nếu row chỉ là admin (không có Chuyên môn/SĐT → không phải thợ cắt thực) → XÓA row.
+ *  - Nếu row là nhân viên + có dữ liệu lịch hẹn → CHỈ XÓA cột Email/Role/Quyền (giữ row làm thợ cắt).
+ */
 function deleteUser(email) {
   try {
-  assertPermission_('manageUsers');
-  const target = String(email || '').trim().toLowerCase();
-  const current = getCurrentUser();
-  if (target === current.email) return { success: false, error: 'Không thể xoá chính mình.' };
-  const adminCount = listUsersRaw().filter(u => u.role === ROLE.ADMIN && u.status !== 'disabled').length;
-  const targetUser = listUsersRaw().find(u => u.email === target);
-  if (!targetUser) return { success: false, error: 'Không tìm thấy user.' };
-  if (targetUser.role === ROLE.ADMIN && adminCount <= 1) {
-    return { success: false, error: 'Không thể xoá admin duy nhất.' };
-  }
+    assertPermission_('manageUsers');
+    const target = String(email || '').trim().toLowerCase();
+    const current = getCurrentUser();
+    if (target === current.email) return { success: false, error: 'Không thể xoá chính mình.' };
 
-  const sheet = ensureUsersSheetSchema_();
-  const all = sheet.getDataRange().getValues();
-  const idx = all.findIndex((row, i) => i > 0 && String(row[0] || '').trim().toLowerCase() === target);
-  if (idx === -1) return { success: false, error: 'Không tìm thấy user.' };
-  sheet.deleteRow(idx + 1);
-  clearCache();
-  logAction_('user_delete', { email: target });
-  return { success: true };
+    const users = listUsersRaw();
+    const targetUser = users.find(u => u.email === target);
+    if (!targetUser) return { success: false, error: 'Không tìm thấy user.' };
+    const adminCount = users.filter(u => u.role === ROLE.ADMIN && isLoginActive_(u.status)).length;
+    if (targetUser.role === ROLE.ADMIN && adminCount <= 1) {
+      return { success: false, error: 'Không thể xoá admin duy nhất.' };
+    }
+
+    const sheet = ensureStaffSheetSchema_();
+    const all = sheet.getDataRange().getValues();
+    const idx = getStaffEmailIndex_(all, target);
+    if (idx === -1) return { success: false, error: 'Không tìm thấy user.' };
+    const rowNum = idx + 1;
+    const row = all[idx];
+    const isPureAdmin = targetUser.role === ROLE.ADMIN
+      && !String(row[STAFF_COL.SPECIALTY] || '').trim()
+      && !String(row[STAFF_COL.PHONE] || '').trim();
+
+    if (isPureAdmin) {
+      sheet.deleteRow(rowNum);
+    } else {
+      // Giữ row, chỉ xóa thông tin login
+      sheet.getRange(rowNum, STAFF_COL.EMAIL + 1).setValue('');
+      sheet.getRange(rowNum, STAFF_COL.ROLE + 1).setValue('');
+      sheet.getRange(rowNum, STAFF_COL.PERMISSIONS + 1).setValue('');
+    }
+    clearCache();
+    logAction_('user_delete', { email: target, mode: isPureAdmin ? 'row_deleted' : 'login_revoked' });
+    return { success: true };
   } catch (e) {
     console.error('deleteUser error:', e && e.stack || e);
     return { success: false, error: (e && e.message) || String(e) };
   }
+}
+
+/**
+ * MIGRATION 1 LẦN: gộp data từ sheet Users (cũ) vào sheet Nhân viên (mới).
+ * Cách chạy: vào Apps Script editor → chọn function migrateUsersToStaff → Run.
+ *
+ * Logic:
+ *  - Đảm bảo sheet Nhân viên có 9 cột.
+ *  - Đọc tất cả row từ sheet Users (legacy).
+ *  - Mỗi row: nếu staffName khớp 1 row trong Nhân viên → update Email/Role/Quyền vào row đó.
+ *    Nếu không khớp → append row mới (admin không có chuyên môn).
+ *  - KHÔNG xóa sheet Users tự động — bạn tự kiểm tra & xóa tay sau migration.
+ */
+function migrateUsersToStaff() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const usersSheet = ss.getSheetByName(CONFIG.SHEETS.USERS_LEGACY);
+  if (!usersSheet) {
+    return { success: true, migrated: 0, message: 'Không có sheet "Users" để migrate.' };
+  }
+  if (usersSheet.getLastRow() < 2) {
+    return { success: true, migrated: 0, message: 'Sheet Users trống.' };
+  }
+
+  const staffSheet = ensureStaffSheetSchema_();
+  const usersData = usersSheet.getRange(2, 1, usersSheet.getLastRow() - 1, usersSheet.getLastColumn()).getValues();
+  let migrated = 0, updated = 0, appended = 0, skipped = 0;
+  const log = [];
+
+  usersData.forEach(uRow => {
+    // Schema Users cũ: [Email, Role, Tên nhân viên liên kết, Trạng thái, Ngày tạo, Quyền]
+    const email = String(uRow[0] || '').trim().toLowerCase();
+    if (!email) { skipped++; return; }
+    const role = String(uRow[1] || '').trim().toLowerCase();
+    const staffName = String(uRow[2] || '').trim() || email;
+    const status = String(uRow[3] || 'Đang làm').trim();
+    const createdAt = uRow[4] instanceof Date ? uRow[4] : (uRow[4] ? new Date(uRow[4]) : new Date());
+    const permissionsRaw = uRow[5];
+
+    const staffData = staffSheet.getDataRange().getValues();
+    // Skip nếu email đã có sẵn trong staff (đã migrate trước)
+    if (getStaffEmailIndex_(staffData, email) !== -1) { skipped++; log.push(email + ' đã có trong Nhân viên (skip)'); return; }
+
+    const nameIdx = getStaffNameIndex_(staffData, staffName);
+    if (nameIdx !== -1) {
+      // Row staff có sẵn → update email/role/quyền vào row đó (giữ specialty/phone cũ)
+      const rowNum = nameIdx + 1;
+      const existing = staffData[nameIdx];
+      const merged = buildStaffRow_({
+        id: existing[STAFF_COL.ID] || nextStaffId_(staffSheet),
+        staffName: staffName,
+        specialty: existing[STAFF_COL.SPECIALTY] || '',
+        phone: existing[STAFF_COL.PHONE] || '',
+        status: existing[STAFF_COL.STATUS] || (status === 'active' ? 'Đang làm' : status),
+        email: email,
+        role: role,
+        permissions: permissionsRaw,
+        createdAt: existing[STAFF_COL.CREATED_AT] || createdAt
+      });
+      staffSheet.getRange(rowNum, 1, 1, CONFIG.STAFF_HEADERS.length).setValues([merged]);
+      updated++;
+      log.push('UPDATE ' + email + ' → row ' + rowNum + ' (' + staffName + ')');
+    } else {
+      // Không có row khớp → append row mới
+      const newRow = buildStaffRow_({
+        id: nextStaffId_(staffSheet),
+        staffName: staffName,
+        specialty: '',
+        phone: '',
+        status: status === 'active' ? 'Đang làm' : status,
+        email: email,
+        role: role,
+        permissions: permissionsRaw,
+        createdAt: createdAt
+      });
+      staffSheet.appendRow(newRow);
+      appended++;
+      log.push('APPEND ' + email + ' (' + staffName + ')');
+    }
+    migrated++;
+  });
+
+  clearCache();
+  console.log('Migration done:', JSON.stringify({ migrated, updated, appended, skipped }));
+  log.forEach(l => console.log(' - ' + l));
+  return {
+    success: true,
+    migrated,
+    updated,
+    appended,
+    skipped,
+    log,
+    message: 'Migration hoàn tất. Kiểm tra sheet Nhân viên rồi xóa sheet Users tay nếu OK.'
+  };
 }
 
 /**
