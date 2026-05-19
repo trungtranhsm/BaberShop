@@ -321,6 +321,12 @@ const DEFAULT_STAFF_PERMISSIONS = {
 function getActiveUserEmail_() {
   try {
     const email = Session.getActiveUser().getEmail();
+    if (email) return String(email).trim().toLowerCase();
+  } catch (e) {
+    // Continue to owner fallback below.
+  }
+  try {
+    const email = Session.getEffectiveUser().getEmail();
     return email ? String(email).trim().toLowerCase() : '';
   } catch (e) {
     return '';

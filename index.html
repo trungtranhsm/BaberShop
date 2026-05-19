@@ -229,6 +229,25 @@
   </div>
 </div>
 
+<script>
+window.__appBootedAt = Date.now();
+window.addEventListener('error', function(event) {
+  const el = document.getElementById('loadingStatus');
+  if (el) el.textContent = 'Lỗi JS: ' + (event.message || 'Không rõ lỗi');
+});
+window.addEventListener('unhandledrejection', function(event) {
+  const el = document.getElementById('loadingStatus');
+  const reason = event.reason && (event.reason.message || String(event.reason));
+  if (el) el.textContent = 'Lỗi khởi tạo: ' + (reason || 'Không rõ lỗi');
+});
+setTimeout(function() {
+  const el = document.getElementById('loadingStatus');
+  if (el && el.textContent === 'Khởi tạo ứng dụng...') {
+    el.textContent = 'Đang chuẩn bị script...';
+  }
+}, 1000);
+</script>
+
 <!-- ===== TOAST ===== -->
 <div id="toast" class="fixed top-4 right-4 z-50 hidden transition-all duration-300">
   <div id="toastInner" class="flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl border text-sm font-medium min-w-[240px] max-w-sm">
@@ -937,7 +956,11 @@ async function initApp() {
   hideLoading();
 }
 
-document.addEventListener('DOMContentLoaded', initApp);
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
 
 window.AppCache       = AppCache;
 window.TabManager     = TabManager;
