@@ -118,7 +118,7 @@
       .withFailureHandler(err => {
         tbody.innerHTML = `<tr><td colspan="5" class="px-5 py-8 text-center text-sm text-[#F87171]">${_esc(err.message || err)}</td></tr>`;
       })
-      .getLogs(limit);
+      .getLogs(limit, window.AppCache && window.AppCache._emailToken);
   }
 
   document.getElementById('logReloadBtn').addEventListener('click', loadLogs);

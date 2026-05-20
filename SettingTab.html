@@ -450,7 +450,7 @@ function loadUsers() {
         </tr>`).join('');
     })
     .withFailureHandler(err => { tbody.innerHTML = `<tr><td colspan="7" class="px-5 py-8 text-center text-sm text-[#F87171]">${err.message || err}</td></tr>`; })
-    .listUsers();
+    .listUsers(window.AppCache && window.AppCache._emailToken);
 }
 
 function _populateStaffSelect(selected) {
@@ -533,7 +533,7 @@ function removeUser(email) {
       showToast('Đã xoá user', 'success'); loadUsers();
     })
     .withFailureHandler(err => showToast(err.message || err, 'error'))
-    .deleteUser(email);
+    .deleteUser(email, window.AppCache && window.AppCache._emailToken);
 }
 
 document.getElementById('userForm').addEventListener('submit', function(e) {
@@ -547,6 +547,7 @@ document.getElementById('userForm').addEventListener('submit', function(e) {
     status: document.getElementById('userStatusInput').value,
     permissions: collectUserPermissions()
   };
+  const payloadWithToken = Object.assign({}, payload, { _emailToken: window.AppCache && window.AppCache._emailToken });
   const btn = document.getElementById('userSubmitBtn');
   btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Đang lưu...';
   const fn = editing ? 'updateUser' : 'addUser';
@@ -559,7 +560,7 @@ document.getElementById('userForm').addEventListener('submit', function(e) {
       AppCache.refresh().then(loadUsers);
     })
     .withFailureHandler(err => { btn.disabled = false; btn.textContent = orig; showToast(err.message || err, 'error'); })
-    [fn](payload);
+    [fn](payloadWithToken);
 });
 
 document.getElementById('userRoleInput').addEventListener('change', function() {
@@ -625,11 +626,12 @@ document.getElementById('settingsStaffForm').addEventListener('submit', function
       AppCache.refresh().then(() => { loadSettingsStaff(); _populateStaffSelect(''); });
     })
     .withFailureHandler(err => { btn.disabled = false; btn.textContent = orig; showToast(err.message || err, 'error'); });
+  const payloadWithToken = Object.assign({}, payload, { _emailToken: window.AppCache && window.AppCache._emailToken });
   if (staffId) {
-    runner.updateStaff(staffId, payload);
+    runner.updateStaff(staffId, payloadWithToken);
     return;
   }
-  runner.addStaff(payload);
+  runner.addStaff(payloadWithToken);
 });
 
 document.getElementById('settingsServiceForm').addEventListener('submit', function(e) {
@@ -646,7 +648,7 @@ document.getElementById('settingsServiceForm').addEventListener('submit', functi
       AppCache.refresh().then(loadSettingsServices);
     })
     .withFailureHandler(err => { btn.disabled = false; btn.textContent = orig; showToast(err.message || err, 'error'); })
-    .addService({ name: document.getElementById('settingsServiceName').value, price: parseInt(document.getElementById('settingsServicePrice').value, 10) || 0 });
+    .addService({ name: document.getElementById('settingsServiceName').value, price: parseInt(document.getElementById('settingsServicePrice').value, 10) || 0, _emailToken: window.AppCache && window.AppCache._emailToken });
 });
 
 function removeSettingsStaff(id) {
@@ -658,7 +660,7 @@ function removeSettingsStaff(id) {
       AppCache.refresh().then(loadSettingsStaff);
     })
     .withFailureHandler(err => showToast(err.message || err, 'error'))
-    .deleteStaff(id);
+    .deleteStaff(id, window.AppCache && window.AppCache._emailToken);
 }
 
 function removeSettingsService(id) {
@@ -670,7 +672,7 @@ function removeSettingsService(id) {
       AppCache.refresh().then(loadSettingsServices);
     })
     .withFailureHandler(err => showToast(err.message || err, 'error'))
-    .deleteService(id);
+    .deleteService(id, window.AppCache && window.AppCache._emailToken);
 }
 
 function clearCache() {

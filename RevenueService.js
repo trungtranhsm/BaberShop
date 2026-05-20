@@ -7,9 +7,9 @@
  * Lấy toàn bộ dữ liệu giao dịch đã hoàn thành để trình duyệt tự xử lý.
  * Cách này giúp các thao tác lọc, xem báo cáo sau đó nhanh tức thì.
  */
-function getRevenueReportData() {
+function getRevenueReportData(emailToken) {
   try {
-    assertPermission_('viewRevenue');
+    assertPermission_(emailToken, 'viewRevenue');
     const servicePriceMap = new Map(loadServices().map(s => [s.name, s.price]));
     const allAppointments = getSheetData(CONFIG.SHEETS.APPOINTMENTS);
 

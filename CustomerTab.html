@@ -156,7 +156,7 @@
     detailsModal.style.display = 'flex';
 
     try {
-      const result = await AppCache.callServerFunction('getCustomerDetailsWithStats', phone);
+      const result = await AppCache.callServerFunction('getCustomerDetailsWithStats', phone, AppCache._emailToken);
       if (!result.success) throw new Error(result.error);
       const d = result.data;
       document.getElementById('details-totalSpend').textContent = formatCurrency(d.totalSpend);

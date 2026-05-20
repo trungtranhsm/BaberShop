@@ -1,14 +1,9 @@
 // ========== STAFF MANAGEMENT ==========
-// Quản lý nhân viên (thợ cắt) và dịch vụ.
-// Các hàm đọc (loadStaff, loadServices) nằm trong Code.js.
 
-/**
- * Thêm nhân viên mới (thợ cắt, không có tài khoản login).
- * payload: { name, specialty }
- */
 function addStaff(payload) {
   try {
-    assertPermission_('manageStaff');
+    const emailToken = payload && payload._emailToken;
+    assertPermission_(emailToken, 'manageStaff');
     const name = String(payload && payload.name || '').trim();
     const specialty = String(payload && payload.specialty || '').trim();
     if (!name) return { success: false, error: 'Thiếu tên nhân viên.' };
@@ -31,7 +26,7 @@ function addStaff(payload) {
     sheet.appendRow(row);
 
     clearCache();
-    logAction_('staff_add', { id: id, name: name, specialty: specialty });
+    logAction_('staff_add', { id: id, name: name, specialty: specialty }, emailToken);
     return { success: true, id: id };
   } catch (e) {
     console.error('addStaff error:', e && e.stack || e);
@@ -39,13 +34,10 @@ function addStaff(payload) {
   }
 }
 
-/**
- * Cập nhật thông tin nhân viên.
- * payload: { name?, specialty?, status? }
- */
 function updateStaff(staffId, payload) {
   try {
-    assertPermission_('manageStaff');
+    const emailToken = payload && payload._emailToken;
+    assertPermission_(emailToken, 'manageStaff');
     const sheet = ensureStaffSheetSchema_();
     if (sheet.getLastRow() < 2) return { success: false, error: 'Không tìm thấy nhân viên.' };
 
@@ -65,7 +57,7 @@ function updateStaff(staffId, payload) {
     }
 
     clearCache();
-    logAction_('staff_update', { id: staffId, name: payload.name, specialty: payload.specialty });
+    logAction_('staff_update', { id: staffId, name: payload.name, specialty: payload.specialty }, emailToken);
     return { success: true };
   } catch (e) {
     console.error('updateStaff error:', e && e.stack || e);
@@ -73,12 +65,9 @@ function updateStaff(staffId, payload) {
   }
 }
 
-/**
- * Xóa nhân viên. Không cho xóa nếu nhân viên có tài khoản login.
- */
-function deleteStaff(staffId) {
+function deleteStaff(staffId, emailToken) {
   try {
-    assertPermission_('manageStaff');
+    assertPermission_(emailToken, 'manageStaff');
     const sheet = ensureStaffSheetSchema_();
     if (sheet.getLastRow() < 2) return { success: false, error: 'Không tìm thấy nhân viên.' };
 
@@ -88,12 +77,12 @@ function deleteStaff(staffId) {
 
     const row = data[idx];
     if (String(row[STAFF_COL.EMAIL] || '').trim()) {
-      return { success: false, error: 'Nhân viên này có tài khoản đăng nhập. Hãy xoá tài khoản user trước trong phần Quản lý user.' };
+      return { success: false, error: 'Nhân viên này có tài khoản đăng nhập. Hãy xoá tài khoản user trước.' };
     }
 
     sheet.deleteRow(idx + 2);
     clearCache();
-    logAction_('staff_delete', { id: staffId, name: row[STAFF_COL.NAME] });
+    logAction_('staff_delete', { id: staffId, name: row[STAFF_COL.NAME] }, emailToken);
     return { success: true };
   } catch (e) {
     console.error('deleteStaff error:', e && e.stack || e);
@@ -103,9 +92,6 @@ function deleteStaff(staffId) {
 
 // ========== SERVICE MANAGEMENT ==========
 
-/**
- * Tính ID tiếp theo cho dịch vụ.
- */
 function nextServiceId_() {
   const sheet = getOrCreateSheet(CONFIG.SHEETS.SERVICES);
   if (sheet.getLastRow() < 2) return 1;
@@ -113,13 +99,10 @@ function nextServiceId_() {
   return Math.max(0, ...ids) + 1;
 }
 
-/**
- * Thêm dịch vụ mới.
- * payload: { name, price }
- */
 function addService(payload) {
   try {
-    assertPermission_('manageServices');
+    const emailToken = payload && payload._emailToken;
+    assertPermission_(emailToken, 'manageServices');
     const name = String(payload && payload.name || '').trim();
     const price = Number(payload && payload.price) || 0;
     if (!name) return { success: false, error: 'Thiếu tên dịch vụ.' };
@@ -135,7 +118,7 @@ function addService(payload) {
     const id = nextServiceId_();
     sheet.appendRow([id, name, price]);
     clearCache();
-    logAction_('service_add', { id: id, name: name, price: price });
+    logAction_('service_add', { id: id, name: name, price: price }, emailToken);
     return { success: true, id: id };
   } catch (e) {
     console.error('addService error:', e && e.stack || e);
@@ -143,12 +126,9 @@ function addService(payload) {
   }
 }
 
-/**
- * Xóa dịch vụ theo ID.
- */
-function deleteService(serviceId) {
+function deleteService(serviceId, emailToken) {
   try {
-    assertPermission_('manageServices');
+    assertPermission_(emailToken, 'manageServices');
     const sheet = getOrCreateSheet(CONFIG.SHEETS.SERVICES);
     if (sheet.getLastRow() < 2) return { success: false, error: 'Không tìm thấy dịch vụ.' };
 
@@ -158,7 +138,7 @@ function deleteService(serviceId) {
 
     sheet.deleteRow(idx + 2);
     clearCache();
-    logAction_('service_delete', { id: serviceId });
+    logAction_('service_delete', { id: serviceId }, emailToken);
     return { success: true };
   } catch (e) {
     console.error('deleteService error:', e && e.stack || e);

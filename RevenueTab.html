@@ -245,7 +245,7 @@
         if (resp.success) { allTransactions = resp.data; updateView(); }
         else { showToast(resp.error, 'error'); }
       })
-      .getRevenueReportData();
+      .getRevenueReportData(window.AppCache && window.AppCache._emailToken);
   };
 })();
 </script>

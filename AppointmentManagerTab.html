@@ -419,7 +419,8 @@
       addForm.reset();
       document.getElementById('appointment-id').value = '';
       try {
-        const result = await window.AppCache.callServerFunction('updateAppointment', editingId, data);
+        const data2 = Object.assign({}, data, { _emailToken: window.AppCache._emailToken });
+        const result = await window.AppCache.callServerFunction('updateAppointment', editingId, data2);
         if (!result.success) throw new Error(result.error || 'Lỗi server.');
         if (idx !== -1) window.AppCache.data.appointments[idx] = result.data;
         filterAndRender();
@@ -444,7 +445,8 @@
     addForm.reset();
 
     try {
-      const result = await window.AppCache.callServerFunction('createAppointment', data);
+      const dataToSend = Object.assign({}, data, { _emailToken: window.AppCache._emailToken });
+      const result = await window.AppCache.callServerFunction('createAppointment', dataToSend);
       if (!result.success) throw new Error(result.error || 'Lỗi server.');
       const idx = window.AppCache.data.appointments.findIndex(a => a.id === tempId);
       if (idx !== -1) window.AppCache.data.appointments[idx] = result.data;
@@ -510,7 +512,7 @@
     showCompleteModal(false);
 
     try {
-      const result = await window.AppCache.callServerFunction('completeAppointment', id, { services: finalServices, notes: finalNotes });
+      const result = await window.AppCache.callServerFunction('completeAppointment', id, { services: finalServices, notes: finalNotes, _emailToken: window.AppCache._emailToken });
       if (!result.success) throw new Error(result.error);
       showToast('Đã hoàn thành lịch hẹn!', 'success');
       if (window.updateDashboard) window.updateDashboard();
@@ -534,7 +536,7 @@
     showCancelModal(false);
 
     try {
-      const result = await window.AppCache.callServerFunction('cancelAppointment', id);
+      const result = await window.AppCache.callServerFunction('cancelAppointment', id, window.AppCache._emailToken);
       if (!result.success) throw new Error(result.error);
       showToast('Đã hủy lịch hẹn!', 'success');
       if (window.updateDashboard) window.updateDashboard();
