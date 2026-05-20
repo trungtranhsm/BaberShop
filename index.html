@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BarberShop Manager</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<?!= include('i18n'); ?>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -208,6 +209,126 @@
   .badge-done     { background: #22C55E22; color: #4ADE80; border: 1px solid #22C55E44; }
   .badge-canceled { background: #EF444422; color: #F87171; border: 1px solid #EF444444; }
   .badge-doing    { background: #6366F122; color: #818CF8; border: 1px solid #6366F144; }
+
+  /* Theme Variables */
+  :root {
+    --bg-main: #0B0B0F;
+    --bg-sidebar: #111116;
+    --bg-card: #16161D;
+    --bg-input: #1E1E2A;
+    --border-color: #2A2A38;
+    --border-hover: #3A3A50;
+    --text-main: #F1F5F9;
+    --text-muted: #94A3B8;
+    --text-secondary: #64748B;
+    --card-gradient: linear-gradient(135deg, #16161D 0%, #1E1E2A 100%);
+  }
+
+  /* Light Theme Variables */
+  .light-mode {
+    --bg-main: #F8FAFC;
+    --bg-sidebar: #FFFFFF;
+    --bg-card: #FFFFFF;
+    --bg-input: #F1F5F9;
+    --border-color: #E2E8F0;
+    --border-hover: #CBD5E1;
+    --text-main: #0F172A;
+    --text-muted: #475569;
+    --text-secondary: #64748B;
+    --card-gradient: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+  }
+
+  /* Override hardcoded dark Tailwind colors when in light mode */
+  .light-mode body {
+    background-color: var(--bg-main) !important;
+    color: var(--text-main) !important;
+  }
+  .light-mode #sidebar {
+    background-color: var(--bg-sidebar) !important;
+    border-color: var(--border-color) !important;
+  }
+  .light-mode #main-content {
+    background-color: var(--bg-main) !important;
+  }
+  .light-mode header {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    border-color: var(--border-color) !important;
+  }
+  
+  .light-mode .bg-\[\#0B0B0F\] { background-color: var(--bg-main) !important; }
+  .light-mode .bg-\[\#111116\] { background-color: var(--bg-sidebar) !important; }
+  .light-mode .bg-\[\#16161D\] { background-color: var(--bg-card) !important; }
+  .light-mode .bg-\[\#1E1E2A\] { background-color: var(--bg-input) !important; }
+  
+  .light-mode .modal > div,
+  .light-mode [id$="-modal"] > div,
+  .light-mode #userModal > div,
+  .light-mode #settingsStaffModal > div,
+  .light-mode #settingsServiceModal > div,
+  .light-mode #changePasswordModal > div {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border-color) !important;
+  }
+
+  .light-mode .text-\[\#F1F5F9\] { color: var(--text-main) !important; }
+  .light-mode .text-\[\#94A3B8\] { color: var(--text-muted) !important; }
+  .light-mode .text-\[\#64748B\] { color: var(--text-muted) !important; }
+  .light-mode .text-\[\#475569\] { color: var(--text-muted) !important; }
+  
+  .light-mode .border-\[\#2A2A38\] { border-color: var(--border-color) !important; }
+  .light-mode .divide-\[\#2A2A38\] > * + * { border-color: var(--border-color) !important; }
+  .light-mode .divide-y.divide-\[\#2A2A38\] > :not([hidden]) ~ :not([hidden]) { border-color: var(--border-color) !important; }
+  .light-mode .border-r.border-\[\#2A2A38\] { border-right-color: var(--border-color) !important; }
+  .light-mode .border-b.border-\[\#2A2A38\] { border-bottom-color: var(--border-color) !important; }
+  .light-mode .border-t.border-\[\#2A2A38\] { border-top-color: var(--border-color) !important; }
+  
+  .light-mode input,
+  .light-mode select,
+  .light-mode textarea {
+    background-color: var(--bg-input) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-main) !important;
+  }
+  .light-mode input::placeholder,
+  .light-mode textarea::placeholder {
+    color: #94A3B8 !important;
+  }
+
+  .light-mode .nav-item {
+    color: var(--text-muted) !important;
+  }
+  .light-mode .nav-item.active {
+    background-color: #FEF3C7 !important;
+    color: #B45309 !important;
+    border-left-color: #D97706 !important;
+  }
+  .light-mode .nav-item:not(.active):hover {
+    background-color: var(--bg-input) !important;
+    color: var(--text-main) !important;
+  }
+
+  .light-mode .stat-card {
+    background: var(--card-gradient) !important;
+    border-color: var(--border-color) !important;
+  }
+  .light-mode .stat-card:hover {
+    border-color: var(--border-hover) !important;
+  }
+  
+  .light-mode .hover\:bg-\[\#1E1E2A\]:hover {
+    background-color: var(--bg-input) !important;
+  }
+  .light-mode .hover\:bg-\[\#2A2A38\]:hover {
+    background-color: var(--bg-input) !important;
+  }
+  .light-mode .hover\:bg-\[\#252533\]:hover {
+    background-color: var(--bg-input) !important;
+  }
+  
+  /* Scrollbar overrides */
+  .light-mode ::-webkit-scrollbar-track { background: var(--bg-main); }
+  .light-mode ::-webkit-scrollbar-thumb { background: var(--border-color); }
+  .light-mode ::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
 </style>
 </head>
 
@@ -225,7 +346,7 @@
       </div>
     </div>
     <p class="font-bold text-[#F1F5F9] text-lg tracking-wide">BarberShop Manager</p>
-    <p id="loadingStatus" class="mt-1 text-sm text-[#64748B]">Khởi tạo ứng dụng...</p>
+    <p id="loadingStatus" class="mt-1 text-sm text-[#64748B]" data-i18n="common.loading">Khởi tạo ứng dụng...</p>
   </div>
 </div>
 
@@ -262,30 +383,30 @@ setTimeout(function() {
 <!-- ===== AUTH GATE: SETUP WIZARD ===== -->
 <div id="setupGate" class="fixed inset-0 bg-[#0B0B0F]/95 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
   <div class="bg-[#16161D] border border-[#2A2A38] rounded-2xl shadow-2xl p-7 w-full max-w-md">
-    <h2 class="text-xl font-bold mb-1">Thiết lập Admin đầu tiên</h2>
-    <p class="text-sm text-[#94A3B8] mb-5">Chưa có tài khoản nào. Hãy điền thông tin để tạo Admin.</p>
+    <h2 class="text-xl font-bold mb-1" data-i18n="auth.setupTitle">Thiết lập Admin đầu tiên</h2>
+    <p class="text-sm text-[#94A3B8] mb-5" data-i18n="auth.setupDesc">Chưa có tài khoản nào. Hãy điền thông tin để tạo Admin.</p>
     <div class="mb-3">
-      <label for="setupEmailInput" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Email của bạn</label>
+      <label for="setupEmailInput" class="block text-xs font-medium text-[#94A3B8] mb-1.5" data-i18n="auth.emailLabel">Email của bạn</label>
       <input type="email" id="setupEmailInput" placeholder="example@gmail.com" autocomplete="email"
         class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#D97706] rounded-lg text-sm outline-none transition-colors placeholder-[#475569] text-[#F1F5F9]">
     </div>
     <div class="mb-3">
-      <label for="setupStaffName" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Tên hiển thị</label>
-      <input type="text" id="setupStaffName" placeholder="VD: Chủ shop"
+      <label for="setupStaffName" class="block text-xs font-medium text-[#94A3B8] mb-1.5" data-i18n="auth.displayName">Tên hiển thị</label>
+      <input type="text" id="setupStaffName" placeholder="VD: Chủ shop" data-i18n-placeholder="auth.displayNamePlaceholder"
         class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#D97706] rounded-lg text-sm outline-none transition-colors placeholder-[#475569] text-[#F1F5F9]">
     </div>
     <div class="mb-3">
-      <label for="setupPasswordInput" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Mật khẩu (ít nhất 6 ký tự)</label>
-      <input type="password" id="setupPasswordInput" placeholder="Nhập mật khẩu" autocomplete="new-password"
+      <label for="setupPasswordInput" class="block text-xs font-medium text-[#94A3B8] mb-1.5" data-i18n="auth.passwordMinLength">Mật khẩu (ít nhất 6 ký tự)</label>
+      <input type="password" id="setupPasswordInput" placeholder="Nhập mật khẩu" data-i18n-placeholder="auth.passwordPlaceholder" autocomplete="new-password"
         class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#D97706] rounded-lg text-sm outline-none transition-colors placeholder-[#475569] text-[#F1F5F9]">
     </div>
     <div class="mb-5">
-      <label for="setupPasswordConfirm" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Xác nhận mật khẩu</label>
-      <input type="password" id="setupPasswordConfirm" placeholder="Nhập lại mật khẩu" autocomplete="new-password"
+      <label for="setupPasswordConfirm" class="block text-xs font-medium text-[#94A3B8] mb-1.5" data-i18n="auth.confirmPassword">Xác nhận mật khẩu</label>
+      <input type="password" id="setupPasswordConfirm" placeholder="Nhập lại mật khẩu" data-i18n-placeholder="auth.confirmPasswordPlaceholder" autocomplete="new-password"
         class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#D97706] rounded-lg text-sm outline-none transition-colors placeholder-[#475569] text-[#F1F5F9]">
     </div>
     <p id="setupError" class="text-xs text-[#F87171] mb-3 hidden"></p>
-    <button id="setupSubmitBtn" class="w-full px-4 py-2.5 bg-[#D97706] hover:bg-[#B45309] text-white text-sm font-bold rounded-lg cursor-pointer transition-colors">
+    <button id="setupSubmitBtn" class="w-full px-4 py-2.5 bg-[#D97706] hover:bg-[#B45309] text-white text-sm font-bold rounded-lg cursor-pointer transition-colors" data-i18n="auth.createAdminBtn">
       Tạo tài khoản Admin
     </button>
   </div>
@@ -299,10 +420,10 @@ setTimeout(function() {
         <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
       </svg>
     </div>
-    <h2 class="text-xl font-bold mb-1">Truy cập bị từ chối</h2>
-    <p class="text-sm text-[#94A3B8] mb-2">Email <span id="deniedEmail" class="text-[#F1F5F9] font-medium">—</span> chưa được cấp quyền truy cập.</p>
-    <p class="text-xs text-[#64748B] mb-5" id="deniedReason">Vui lòng liên hệ Admin để được thêm vào danh sách nhân viên.</p>
-    <button onclick="AuthGate.showLogin()" class="px-4 py-2 text-sm font-medium text-[#818CF8] bg-[#6366F1]/10 hover:bg-[#6366F1]/20 rounded-lg cursor-pointer transition-colors">
+    <h2 class="text-xl font-bold mb-1" data-i18n="auth.deniedTitle">Truy cập bị từ chối</h2>
+    <p class="text-sm text-[#94A3B8] mb-2"><span data-i18n="auth.deniedEmail">Email</span> <span id="deniedEmail" class="text-[#F1F5F9] font-medium">—</span> <span data-i18n="auth.deniedDescSuffix">chưa được cấp quyền truy cập.</span></p>
+    <p class="text-xs text-[#64748B] mb-5" id="deniedReason" data-i18n="auth.deniedDesc">Vui lòng liên hệ Admin để được thêm vào danh sách nhân viên.</p>
+    <button onclick="AuthGate.showLogin()" class="px-4 py-2 text-sm font-medium text-[#818CF8] bg-[#6366F1]/10 hover:bg-[#6366F1]/20 rounded-lg cursor-pointer transition-colors" data-i18n="auth.backToLogin">
       Quay lại đăng nhập
     </button>
   </div>
@@ -320,27 +441,27 @@ setTimeout(function() {
       </div>
       <div>
         <p class="font-bold text-[#F1F5F9] text-base leading-tight">BarberShop Manager</p>
-        <p class="text-[#64748B] text-xs">Hệ thống quản lý tiệm tóc</p>
+        <p class="text-[#64748B] text-xs" data-i18n="auth.subtitle">Hệ thống quản lý tiệm tóc</p>
       </div>
     </div>
-    <h2 class="text-lg font-bold mb-1 text-[#F1F5F9]">Đăng nhập</h2>
-    <p class="text-sm text-[#64748B] mb-5">Nhập email và mật khẩu của bạn.</p>
+    <h2 class="text-lg font-bold mb-1 text-[#F1F5F9]" data-i18n="auth.login">Đăng nhập</h2>
+    <p class="text-sm text-[#64748B] mb-5" data-i18n="auth.loginDesc">Nhập email và mật khẩu của bạn.</p>
     <form id="loginForm" onsubmit="AuthGate.submitLogin(event)">
       <div class="mb-3">
-        <label for="loginEmailInput" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Email</label>
+        <label for="loginEmailInput" class="block text-xs font-medium text-[#94A3B8] mb-1.5" data-i18n="auth.emailLabel">Email</label>
         <input type="email" id="loginEmailInput" placeholder="example@gmail.com" autocomplete="email" required
           class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#D97706] rounded-lg text-sm outline-none transition-colors placeholder-[#475569] text-[#F1F5F9]">
       </div>
       <div class="mb-4">
-        <label for="loginPasswordInput" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Mật khẩu</label>
-        <input type="password" id="loginPasswordInput" placeholder="Nhập mật khẩu" autocomplete="current-password" required
+        <label for="loginPasswordInput" class="block text-xs font-medium text-[#94A3B8] mb-1.5" data-i18n="auth.passwordLabel">Mật khẩu</label>
+        <input type="password" id="loginPasswordInput" placeholder="Nhập mật khẩu" data-i18n-placeholder="auth.passwordPlaceholder" autocomplete="current-password" required
           class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#D97706] rounded-lg text-sm outline-none transition-colors placeholder-[#475569] text-[#F1F5F9]">
       </div>
       <p id="loginError" class="text-xs text-[#F87171] mb-3 hidden"></p>
-      <button type="submit" id="loginSubmitBtn" class="w-full px-4 py-2.5 bg-[#D97706] hover:bg-[#B45309] text-white text-sm font-bold rounded-lg cursor-pointer transition-colors mb-3">
+      <button type="submit" id="loginSubmitBtn" class="w-full px-4 py-2.5 bg-[#D97706] hover:bg-[#B45309] text-white text-sm font-bold rounded-lg cursor-pointer transition-colors mb-3" data-i18n="auth.login">
         Đăng nhập
       </button>
-      <p class="text-center text-xs text-[#64748B]">Quên mật khẩu? <button type="button" onclick="AuthGate.showForgotInfo()" class="text-[#818CF8] hover:underline cursor-pointer bg-transparent border-none p-0">Liên hệ Admin reset</button></p>
+      <p class="text-center text-xs text-[#64748B]"><span data-i18n="auth.forgotPassword">Quên mật khẩu?</span> <button type="button" onclick="AuthGate.showForgotInfo()" class="text-[#818CF8] hover:underline cursor-pointer bg-transparent border-none p-0" data-i18n="auth.forgotDesc">Liên hệ Admin reset</button></p>
     </form>
   </div>
 </div>
@@ -353,20 +474,20 @@ setTimeout(function() {
         <rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
       </svg>
     </div>
-    <h2 class="text-lg font-bold mb-1 text-center">Tạo mật khẩu</h2>
-    <p class="text-sm text-[#94A3B8] mb-5 text-center">Tài khoản <span id="setPasswordEmail" class="text-[#F1F5F9] font-medium"></span> chưa có mật khẩu. Hãy tạo ngay.</p>
+    <h2 class="text-lg font-bold mb-1 text-center" data-i18n="auth.setPasswordTitle">Tạo mật khẩu</h2>
+    <p class="text-sm text-[#94A3B8] mb-5 text-center"><span data-i18n="auth.setPasswordDescPrefix">Tài khoản</span> <span id="setPasswordEmail" class="text-[#F1F5F9] font-medium"></span> <span data-i18n="auth.setPasswordDescSuffix">chưa có mật khẩu. Hãy tạo ngay.</span></p>
     <div class="mb-3">
-      <label for="setPasswordNew" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Mật khẩu mới (ít nhất 6 ký tự)</label>
-      <input type="password" id="setPasswordNew" placeholder="Nhập mật khẩu" autocomplete="new-password"
+      <label for="setPasswordNew" class="block text-xs font-medium text-[#94A3B8] mb-1.5" data-i18n="auth.passwordMinLength">Mật khẩu mới (ít nhất 6 ký tự)</label>
+      <input type="password" id="setPasswordNew" placeholder="Nhập mật khẩu" data-i18n-placeholder="auth.passwordPlaceholder" autocomplete="new-password"
         class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#D97706] rounded-lg text-sm outline-none transition-colors placeholder-[#475569] text-[#F1F5F9]">
     </div>
     <div class="mb-5">
-      <label for="setPasswordConfirm" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Xác nhận mật khẩu</label>
-      <input type="password" id="setPasswordConfirm" placeholder="Nhập lại" autocomplete="new-password"
+      <label for="setPasswordConfirm" class="block text-xs font-medium text-[#94A3B8] mb-1.5" data-i18n="auth.confirmPassword">Xác nhận mật khẩu</label>
+      <input type="password" id="setPasswordConfirm" placeholder="Nhập lại" data-i18n-placeholder="auth.cpConfirmPlaceholder" autocomplete="new-password"
         class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#D97706] rounded-lg text-sm outline-none transition-colors placeholder-[#475569] text-[#F1F5F9]">
     </div>
     <p id="setPasswordError" class="text-xs text-[#F87171] mb-3 hidden"></p>
-    <button onclick="AuthGate.submitSetPassword()" id="setPasswordBtn" class="w-full px-4 py-2.5 bg-[#D97706] hover:bg-[#B45309] text-white text-sm font-bold rounded-lg cursor-pointer transition-colors">
+    <button onclick="AuthGate.submitSetPassword()" id="setPasswordBtn" class="w-full px-4 py-2.5 bg-[#D97706] hover:bg-[#B45309] text-white text-sm font-bold rounded-lg cursor-pointer transition-colors" data-i18n="auth.setPasswordBtn">
       Tạo mật khẩu
     </button>
   </div>
@@ -376,30 +497,30 @@ setTimeout(function() {
 <div id="changePasswordModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
   <div class="bg-[#16161D] border border-[#2A2A38] rounded-2xl shadow-2xl p-7 w-full max-w-sm">
     <div class="flex items-center justify-between mb-5">
-      <h3 class="text-lg font-bold">Đổi mật khẩu</h3>
+      <h3 class="text-lg font-bold" data-i18n="common.changePassword">Đổi mật khẩu</h3>
       <button onclick="AuthGate.hideChangePassword()" class="w-8 h-8 rounded-lg bg-[#1E1E2A] hover:bg-[#2A2A38] flex items-center justify-center cursor-pointer text-[#94A3B8] hover:text-white">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
     <div class="mb-3">
-      <label for="cpOldPassword" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Mật khẩu hiện tại</label>
-      <input type="password" id="cpOldPassword" placeholder="Nhập mật khẩu cũ" autocomplete="current-password"
+      <label for="cpOldPassword" class="block text-xs font-medium text-[#94A3B8] mb-1.5" data-i18n="auth.cpOldPassword">Mật khẩu hiện tại</label>
+      <input type="password" id="cpOldPassword" placeholder="Nhập mật khẩu cũ" data-i18n-placeholder="auth.cpOldPasswordPlaceholder" autocomplete="current-password"
         class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none transition-colors placeholder-[#475569] text-[#F1F5F9]">
     </div>
     <div class="mb-3">
-      <label for="cpNewPassword" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Mật khẩu mới</label>
-      <input type="password" id="cpNewPassword" placeholder="ít nhất 6 ký tự" autocomplete="new-password"
+      <label for="cpNewPassword" class="block text-xs font-medium text-[#94A3B8] mb-1.5" data-i18n="auth.cpNewPassword">Mật khẩu mới</label>
+      <input type="password" id="cpNewPassword" placeholder="ít nhất 6 ký tự" data-i18n-placeholder="auth.cpNewPasswordPlaceholder" autocomplete="new-password"
         class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none transition-colors placeholder-[#475569] text-[#F1F5F9]">
     </div>
     <div class="mb-5">
-      <label for="cpConfirmPassword" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Xác nhận mật khẩu mới</label>
-      <input type="password" id="cpConfirmPassword" placeholder="Nhập lại" autocomplete="new-password"
+      <label for="cpConfirmPassword" class="block text-xs font-medium text-[#94A3B8] mb-1.5" data-i18n="auth.cpConfirmPassword">Xác nhận mật khẩu mới</label>
+      <input type="password" id="cpConfirmPassword" placeholder="Nhập lại" data-i18n-placeholder="auth.cpConfirmPlaceholder" autocomplete="new-password"
         class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none transition-colors placeholder-[#475569] text-[#F1F5F9]">
     </div>
     <p id="cpError" class="text-xs text-[#F87171] mb-3 hidden"></p>
     <div class="flex gap-3">
-      <button onclick="AuthGate.hideChangePassword()" class="flex-1 px-4 py-2.5 bg-[#1E1E2A] hover:bg-[#252533] border border-[#2A2A38] text-sm font-medium rounded-lg cursor-pointer">Hủy</button>
-      <button onclick="AuthGate.submitChangePassword()" id="cpSubmitBtn" class="flex-1 px-4 py-2.5 bg-[#6366F1] hover:bg-[#4F46E5] text-white text-sm font-bold rounded-lg cursor-pointer">Đổi mật khẩu</button>
+      <button onclick="AuthGate.hideChangePassword()" class="flex-1 px-4 py-2.5 bg-[#1E1E2A] hover:bg-[#252533] border border-[#2A2A38] text-sm font-medium rounded-lg cursor-pointer" data-i18n="common.cancel">Hủy</button>
+      <button onclick="AuthGate.submitChangePassword()" id="cpSubmitBtn" class="flex-1 px-4 py-2.5 bg-[#6366F1] hover:bg-[#4F46E5] text-white text-sm font-bold rounded-lg cursor-pointer" data-i18n="auth.cpSubmitBtn">Đổi mật khẩu</button>
     </div>
   </div>
 </div>
@@ -500,7 +621,7 @@ setTimeout(function() {
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
           <rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
         </svg>
-        <span>Đổi mật khẩu</span>
+        <span data-i18n="common.changePassword">Đổi mật khẩu</span>
       </button>
       <button id="logoutBtn" onclick="logoutAccount()"
         class="hidden mt-2 w-full items-center justify-center gap-2 px-3 py-2 text-xs font-medium text-[#F87171] bg-[#EF4444]/10 hover:bg-[#EF4444]/20 border border-[#EF4444]/20 rounded-lg transition-colors cursor-pointer">
@@ -509,8 +630,28 @@ setTimeout(function() {
           <polyline points="16 17 21 12 16 7"/>
           <line x1="21" y1="12" x2="9" y2="12"/>
         </svg>
-        <span>Đăng xuất</span>
+        <span data-i18n="common.logout">Đăng xuất</span>
       </button>
+
+      <!-- Theme & Language Switchers -->
+      <div class="flex items-center justify-between mt-3 pt-3 border-t border-[#2A2A38]/60">
+        <!-- Theme Toggle Button -->
+        <button id="sidebarThemeToggle" onclick="window.toggleTheme()" class="w-8 h-8 rounded-lg bg-[#1E1E2A] hover:bg-[#252533] border border-[#2A2A38] flex items-center justify-center cursor-pointer transition-colors text-[#94A3B8] hover:text-white" title="Toggle Theme">
+          <svg id="themeIcon" class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+        <!-- Language Selector Dropdown -->
+        <div class="relative">
+          <select id="languageSelect" onchange="window.setAppLanguage(this.value)" class="bg-[#1E1E2A] hover:bg-[#252533] border border-[#2A2A38] text-xs text-[#94A3B8] hover:text-white rounded-lg pl-2 pr-6 py-1 outline-none transition-colors cursor-pointer appearance-none">
+            <option value="vi">VI 🇻🇳</option>
+            <option value="en">EN 🇬🇧</option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-[#94A3B8]">
+            <svg class="fill-current h-3 w-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+          </div>
+        </div>
+      </div>
     </div>
   </aside>
 
@@ -526,13 +667,13 @@ setTimeout(function() {
         </button>
         <h2 id="pageTitle" class="text-base font-semibold text-[#F1F5F9]">Trang chủ</h2>
       </div>
-      <button onclick="AppCache.refresh().then(() => { updateDashboard(); showToast('Đã làm mới dữ liệu', 'success'); })"
+      <button onclick="AppCache.refresh().then(() => { updateDashboard(); showToast(window.t('toast.refreshed'), 'success'); })"
         class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#94A3B8] hover:text-white border border-[#2A2A38] hover:border-[#3A3A50] rounded-lg transition-all cursor-pointer">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
           <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>
           <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>
         </svg>
-        <span>Làm mới</span>
+        <span data-i18n="common.refresh">Làm mới</span>
       </button>
     </header>
 
@@ -738,7 +879,7 @@ window.AppCache = {
       return true;
     } catch (error) {
       this.updateLoadingStatus('Lỗi: ' + error.message);
-      showToast('Lỗi tải dữ liệu: ' + error.message, 'error');
+      showToast(window.t('toast.loadError') + error.message, 'error');
       return false;
     }
   },
@@ -789,7 +930,10 @@ const TabManager = {
     document.querySelectorAll('.nav-item[data-tab]').forEach(btn => {
       btn.addEventListener('click', () => {
         const tabId = btn.dataset.tab;
-        this.switchTo(tabId, btn.dataset.title || tabId);
+        const titleKey = btn.dataset.titleKey || '';
+        const defaultTitle = btn.dataset.title || tabId;
+        const title = titleKey && typeof window.t === 'function' ? window.t(titleKey) : defaultTitle;
+        this.switchTo(tabId, title);
         // close mobile sidebar
         document.getElementById('sidebar').classList.remove('open');
         document.getElementById('sidebarOverlay').classList.add('hidden');
@@ -821,7 +965,15 @@ const TabManager = {
     }
 
     const pageTitle = document.getElementById('pageTitle');
-    if (pageTitle && title) pageTitle.textContent = title;
+    if (pageTitle) {
+      if (activeBtn && activeBtn.dataset.titleKey) {
+        pageTitle.textContent = window.t(activeBtn.dataset.titleKey);
+        pageTitle.setAttribute('data-i18n', activeBtn.dataset.titleKey);
+      } else {
+        pageTitle.textContent = title;
+        pageTitle.removeAttribute('data-i18n');
+      }
+    }
 
     this.currentTab = tabName;
   }
@@ -945,7 +1097,7 @@ function hideLoading()  { document.getElementById('loadingScreen').classList.add
 function switchToTab(tabName) {
   const btn = document.querySelector(`.nav-item[data-tab="${tabName}"]`);
   if (btn && btn.style.display === 'none') {
-    showToast('Bạn chưa có quyền mở mục này.', 'error');
+    showToast(window.t('toast.noPermission'), 'error');
     return;
   }
   TabManager.switchTo(tabName, btn ? btn.dataset.title : tabName);
@@ -1038,16 +1190,16 @@ window.AuthGate = {
     var errEl = document.getElementById('setPasswordError');
     var btn = document.getElementById('setPasswordBtn');
     errEl.classList.add('hidden');
-    if (!pw || pw.length < 6) { errEl.textContent = 'Mật khẩu phải từ 6 ký tự.'; errEl.classList.remove('hidden'); return; }
-    if (pw !== pw2) { errEl.textContent = 'Xác nhận mật khẩu không khớp.'; errEl.classList.remove('hidden'); return; }
-    btn.disabled = true; btn.textContent = 'Đang lưu...';
+    if (!pw || pw.length < 6) { errEl.textContent = window.currentLanguage === 'vi' ? 'Mật khẩu phải từ 6 ký tự.' : 'Password must be at least 6 characters.'; errEl.classList.remove('hidden'); return; }
+    if (pw !== pw2) { errEl.textContent = window.currentLanguage === 'vi' ? 'Xác nhận mật khẩu không khớp.' : 'Password confirmation does not match.'; errEl.classList.remove('hidden'); return; }
+    btn.disabled = true; btn.textContent = window.currentLanguage === 'vi' ? 'Đang lưu...' : 'Saving...';
     try {
       var res = await new Promise(function(resolve, reject) {
         google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)
           .setFirstPassword(email, pw);
       });
-      if (!res || !res.success) throw new Error((res && res.error) || 'Lỗi tạo mật khẩu');
-      showToast('Đã tạo mật khẩu thành công! Đang vào ứng dụng...', 'success');
+      if (!res || !res.success) throw new Error((res && res.error) || (window.currentLanguage === 'vi' ? 'Lỗi tạo mật khẩu' : 'Password creation failed'));
+      showToast(window.t('toast.setPasswordSuccess'), 'success');
       try { sessionStorage.setItem('__emailToken', email); } catch(e) {}
       AppCache._emailToken = email;
       document.getElementById('setPasswordGate').classList.add('hidden');
@@ -1057,7 +1209,7 @@ window.AuthGate = {
     } catch(e) {
       errEl.textContent = e.message || String(e);
       errEl.classList.remove('hidden');
-      btn.disabled = false; btn.textContent = 'Tạo mật khẩu';
+      btn.disabled = false; btn.textContent = window.currentLanguage === 'vi' ? 'Tạo mật khẩu' : 'Set Password';
     }
   },
 
@@ -1080,14 +1232,14 @@ window.AuthGate = {
       var errEl = document.getElementById('setupError');
       var btn = document.getElementById('setupSubmitBtn');
       errEl.classList.add('hidden');
-      if (!email) { errEl.textContent = 'Vui lòng nhập email.'; errEl.classList.remove('hidden'); return; }
-      if (!pw || pw.length < 6) { errEl.textContent = 'Mật khẩu phải từ 6 ký tự.'; errEl.classList.remove('hidden'); return; }
-      if (pw !== pw2) { errEl.textContent = 'Xác nhận mật khẩu không khớp.'; errEl.classList.remove('hidden'); return; }
-      btn.disabled = true; btn.textContent = 'Đang tạo...';
+      if (!email) { errEl.textContent = window.currentLanguage === 'vi' ? 'Vui lòng nhập email.' : 'Please enter email.'; errEl.classList.remove('hidden'); return; }
+      if (!pw || pw.length < 6) { errEl.textContent = window.currentLanguage === 'vi' ? 'Mật khẩu phải từ 6 ký tự.' : 'Password must be at least 6 characters.'; errEl.classList.remove('hidden'); return; }
+      if (pw !== pw2) { errEl.textContent = window.currentLanguage === 'vi' ? 'Xác nhận mật khẩu không khớp.' : 'Password confirmation does not match.'; errEl.classList.remove('hidden'); return; }
+      btn.disabled = true; btn.textContent = window.currentLanguage === 'vi' ? 'Đang tạo...' : 'Creating...';
       try {
         var res = await AppCache.callServerFunction('setupFirstAdmin', staffName || email, email, pw);
-        if (!res || !res.success) throw new Error((res && res.error) || 'Setup thất bại');
-        showToast('Đã tạo Admin. Đang vào ứng dụng...', 'success');
+        if (!res || !res.success) throw new Error((res && res.error) || (window.currentLanguage === 'vi' ? 'Setup thất bại' : 'Setup failed'));
+        showToast(window.t('toast.adminCreated'), 'success');
         try { sessionStorage.setItem('__emailToken', email); } catch(e) {}
         AppCache._emailToken = email;
         gate.classList.add('hidden'); gate.classList.remove('flex');
@@ -1096,7 +1248,7 @@ window.AuthGate = {
       } catch(e) {
         errEl.textContent = e.message || String(e);
         errEl.classList.remove('hidden');
-        btn.disabled = false; btn.textContent = 'Tạo tài khoản Admin';
+        btn.disabled = false; btn.textContent = window.currentLanguage === 'vi' ? 'Tạo tài khoản Admin' : 'Create Admin Account';
       }
     };
   },
@@ -1132,28 +1284,28 @@ window.AuthGate = {
     var errEl = document.getElementById('cpError');
     var btn = document.getElementById('cpSubmitBtn');
     errEl.classList.add('hidden');
-    if (!old) { errEl.textContent = 'Nhập mật khẩu hiện tại.'; errEl.classList.remove('hidden'); return; }
-    if (!pw || pw.length < 6) { errEl.textContent = 'Mật khẩu mới phải từ 6 ký tự.'; errEl.classList.remove('hidden'); return; }
-    if (pw !== pw2) { errEl.textContent = 'Xác nhận mật khẩu không khớp.'; errEl.classList.remove('hidden'); return; }
-    btn.disabled = true; btn.textContent = 'Đang lưu...';
+    if (!old) { errEl.textContent = window.currentLanguage === 'vi' ? 'Nhập mật khẩu hiện tại.' : 'Enter current password.'; errEl.classList.remove('hidden'); return; }
+    if (!pw || pw.length < 6) { errEl.textContent = window.currentLanguage === 'vi' ? 'Mật khẩu mới phải từ 6 ký tự.' : 'New password must be at least 6 characters.'; errEl.classList.remove('hidden'); return; }
+    if (pw !== pw2) { errEl.textContent = window.currentLanguage === 'vi' ? 'Xác nhận mật khẩu không khớp.' : 'Password confirmation does not match.'; errEl.classList.remove('hidden'); return; }
+    btn.disabled = true; btn.textContent = window.currentLanguage === 'vi' ? 'Đang lưu...' : 'Saving...';
     try {
       var res = await new Promise(function(resolve, reject) {
         google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)
           .changePassword(AppCache._emailToken, old, pw);
       });
-      if (!res || !res.success) throw new Error((res && res.error) || 'Đổi mật khẩu thất bại');
+      if (!res || !res.success) throw new Error((res && res.error) || (window.currentLanguage === 'vi' ? 'Đổi mật khẩu thất bại' : 'Password change failed'));
       AuthGate.hideChangePassword();
-      showToast('Đổi mật khẩu thành công!', 'success');
+      showToast(window.t('toast.changePasswordSuccess'), 'success');
     } catch(e) {
       errEl.textContent = e.message || String(e);
       errEl.classList.remove('hidden');
     } finally {
-      btn.disabled = false; btn.textContent = 'Đổi mật khẩu';
+      btn.disabled = false; btn.textContent = window.currentLanguage === 'vi' ? 'Đổi mật khẩu' : 'Change Password';
     }
   },
 
   showForgotInfo: function() {
-    showToast('Liên hệ Admin để được reset mật khẩu. Admin vào Cài đặt → Quản lý tài khoản → Reset mật khẩu.', 'info');
+    showToast(window.t('toast.contactAdminReset'), 'info');
   }
 };
 
@@ -1222,6 +1374,10 @@ function logoutAccount() {
 
 // ========== INIT ==========
 async function initApp() {
+  // Initialize Theme and Language
+  if (typeof window.setAppTheme === 'function') window.setAppTheme(window.currentTheme);
+  if (typeof window.setAppLanguage === 'function') window.setAppLanguage(window.currentLanguage);
+
   setInterval(updateTime, 1000);
   updateTime();
   TabManager.init();
@@ -1255,9 +1411,9 @@ async function initApp() {
     if (typeof window.initSettingsTab === 'function') window.initSettingsTab();
     setInterval(function() { AppCache.updateCacheStatus(); }, 30000);
     const displayName = AppCache.currentUser ? (AppCache.currentUser.name || AppCache.currentUser.email || '') : '';
-    showToast('Xin chào ' + displayName, 'success');
+    showToast(window.t('toast.hello') + ' ' + displayName, 'success');
   } else {
-    showToast('Lỗi khởi tạo ứng dụng', 'error');
+    showToast(window.t('toast.initError'), 'error');
   }
   hideLoading();
 }

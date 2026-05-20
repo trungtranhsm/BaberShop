@@ -2,46 +2,46 @@
   <!-- Header Bar -->
   <div class="bg-[#16161D] border border-[#2A2A38] rounded-xl p-4">
     <div class="flex flex-col md:flex-row items-start md:items-center gap-3">
-      <h2 class="text-base font-semibold flex-shrink-0">Quản lý lịch hẹn</h2>
+      <h2 class="text-base font-semibold flex-shrink-0" data-i18n="booking.managerTitle">Quản lý lịch hẹn</h2>
       <div class="flex-1 flex flex-wrap items-center gap-2">
         <button id="add-appointment-btn"
           class="flex items-center gap-2 px-4 py-2 bg-[#6366F1] hover:bg-[#4F46E5] text-white text-sm font-medium rounded-lg transition-colors cursor-pointer">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Thêm lịch hẹn
+          <span data-i18n="booking.addBtn">Thêm lịch hẹn</span>
         </button>
         <div class="relative flex-1 min-w-[200px]">
           <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748B] pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
-          <input type="search" id="search-input" placeholder="Tìm theo tên hoặc SĐT..."
+          <input type="search" id="search-input" placeholder="Tìm theo tên hoặc SĐT..." data-i18n-placeholder="booking.searchPlaceholder"
             class="w-full pl-9 pr-4 py-2 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm text-[#F1F5F9] placeholder-[#475569] outline-none transition-colors">
         </div>
       </div>
     </div>
     <!-- Filter Pills -->
     <div id="filter-controls" class="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-[#2A2A38]">
-      <span class="text-xs text-[#64748B]">Lọc:</span>
-      <button data-range="today"  class="filter-btn text-xs px-3 py-1.5 rounded-full font-medium bg-[#6366F1] text-white cursor-pointer transition-all">Hôm nay</button>
-      <button data-range="week"   class="filter-btn text-xs px-3 py-1.5 rounded-full font-medium bg-[#1E1E2A] text-[#94A3B8] border border-[#2A2A38] hover:border-[#3A3A50] cursor-pointer transition-all">Tuần này</button>
-      <button data-range="month"  class="filter-btn text-xs px-3 py-1.5 rounded-full font-medium bg-[#1E1E2A] text-[#94A3B8] border border-[#2A2A38] hover:border-[#3A3A50] cursor-pointer transition-all">Tháng này</button>
-      <button data-range="all"    class="filter-btn text-xs px-3 py-1.5 rounded-full font-medium bg-[#1E1E2A] text-[#94A3B8] border border-[#2A2A38] hover:border-[#3A3A50] cursor-pointer transition-all">Tất cả</button>
+      <span class="text-xs text-[#64748B]" data-i18n="common.filter">Lọc:</span>
+      <button data-range="today"  class="filter-btn text-xs px-3 py-1.5 rounded-full font-medium bg-[#6366F1] text-white cursor-pointer transition-all" data-i18n="booking.filterToday">Hôm nay</button>
+      <button data-range="week"   class="filter-btn text-xs px-3 py-1.5 rounded-full font-medium bg-[#1E1E2A] text-[#94A3B8] border border-[#2A2A38] hover:border-[#3A3A50] cursor-pointer transition-all" data-i18n="booking.filterWeek">Tuần này</button>
+      <button data-range="month"  class="filter-btn text-xs px-3 py-1.5 rounded-full font-medium bg-[#1E1E2A] text-[#94A3B8] border border-[#2A2A38] hover:border-[#3A3A50] cursor-pointer transition-all" data-i18n="booking.filterMonth">Tháng này</button>
+      <button data-range="all"    class="filter-btn text-xs px-3 py-1.5 rounded-full font-medium bg-[#1E1E2A] text-[#94A3B8] border border-[#2A2A38] hover:border-[#3A3A50] cursor-pointer transition-all" data-i18n="booking.filterAll">Tất cả</button>
     </div>
   </div>
 
   <!-- Appointment Cards -->
   <div id="appointment-list" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 min-h-[200px]">
-    <div class="col-span-full text-center py-10 text-[#64748B] text-sm">Đang tải dữ liệu...</div>
+    <div class="col-span-full text-center py-10 text-[#64748B] text-sm" data-i18n="common.loading">Đang tải dữ liệu...</div>
   </div>
 
   <!-- Pagination -->
   <div id="pagination-controls" class="hidden justify-center items-center gap-3">
     <button id="prev-page-btn" class="flex items-center gap-1.5 px-4 py-2 bg-[#16161D] border border-[#2A2A38] hover:border-[#3A3A50] rounded-lg text-sm text-[#94A3B8] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors" disabled>
       <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-      Trước
+      <span data-i18n="common.prev">Trước</span>
     </button>
     <span id="page-info" class="text-sm text-[#64748B]">Trang 1 / 1</span>
     <button id="next-page-btn" class="flex items-center gap-1.5 px-4 py-2 bg-[#16161D] border border-[#2A2A38] hover:border-[#3A3A50] rounded-lg text-sm text-[#94A3B8] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors" disabled>
-      Sau
+      <span data-i18n="common.next">Sau</span>
       <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
     </button>
   </div>
@@ -51,7 +51,7 @@
 <div id="add-edit-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50" style="display:none;">
   <div class="bg-[#16161D] border border-[#2A2A38] rounded-2xl shadow-2xl p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between mb-5">
-      <h3 id="modal-title" class="text-lg font-bold">Thêm lịch hẹn mới</h3>
+      <h3 id="modal-title" class="text-lg font-bold" data-i18n="booking.modalAddTitle">Thêm lịch hẹn mới</h3>
       <button id="close-modal-btn" class="w-8 h-8 rounded-lg bg-[#1E1E2A] hover:bg-[#2A2A38] flex items-center justify-center cursor-pointer transition-colors text-[#94A3B8] hover:text-white">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
@@ -60,7 +60,7 @@
       <input type="hidden" id="appointment-id">
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label for="phone" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Số điện thoại</label>
+          <label for="phone" class="block text-xs font-medium text-[#94A3B8] mb-1.5" data-i18n="booking.phoneLabel">Số điện thoại</label>
           <div class="relative">
             <input type="tel" id="phone" required placeholder="0901..." autocomplete="off"
               class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none transition-colors placeholder-[#475569]">
@@ -70,39 +70,39 @@
           </div>
         </div>
         <div>
-          <label for="customerName" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Tên khách hàng</label>
+          <label for="customerName" class="block text-xs font-medium text-[#94A3B8] mb-1.5" data-i18n="booking.customerNameLabel">Tên khách hàng</label>
           <input type="text" id="customerName" required placeholder="Nguyễn Văn A"
             class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none transition-colors placeholder-[#475569]">
         </div>
       </div>
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label for="date" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Ngày</label>
+          <label for="date" class="block text-xs font-medium text-[#94A3B8] mb-1.5" data-i18n="booking.dateLabel">Ngày</label>
           <input type="date" id="date" required
             class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none transition-colors text-[#F1F5F9]">
         </div>
         <div>
-          <label for="time" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Giờ</label>
+          <label for="time" class="block text-xs font-medium text-[#94A3B8] mb-1.5" data-i18n="booking.timeLabel">Giờ</label>
           <input type="time" id="time" required
             class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none transition-colors text-[#F1F5F9]">
         </div>
       </div>
       <div>
-        <label class="block text-xs font-medium text-[#94A3B8] mb-1.5">Dịch vụ</label>
+        <label class="block text-xs font-medium text-[#94A3B8] mb-1.5" data-i18n="booking.serviceLabel">Dịch vụ</label>
         <div id="services-checkbox-list" class="max-h-36 overflow-y-auto bg-[#1E1E2A] border border-[#2A2A38] rounded-lg p-3 space-y-2"></div>
       </div>
       <div>
-        <label for="staff" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Nhân viên thực hiện</label>
+        <label for="staff" class="block text-xs font-medium text-[#94A3B8] mb-1.5" data-i18n="booking.staffLabel">Nhân viên thực hiện</label>
         <select id="staff" class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none transition-colors text-[#F1F5F9]"></select>
       </div>
       <div>
-        <label for="notes" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Ghi chú</label>
-        <textarea id="notes" rows="2" placeholder="Ghi chú thêm..."
+        <label for="notes" class="block text-xs font-medium text-[#94A3B8] mb-1.5" data-i18n="booking.notesLabel">Ghi chú</label>
+        <textarea id="notes" rows="2" placeholder="Ghi chú thêm..." data-i18n-placeholder="booking.notesPlaceholder"
           class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none transition-colors resize-none placeholder-[#475569]"></textarea>
       </div>
       <div class="flex gap-3 pt-2">
-        <button type="button" id="close-modal-btn2" class="flex-1 px-4 py-2.5 bg-[#1E1E2A] hover:bg-[#252533] border border-[#2A2A38] text-sm font-medium rounded-lg cursor-pointer transition-colors">Hủy</button>
-        <button type="submit" id="save-appointment-btn" class="flex-1 px-4 py-2.5 bg-[#6366F1] hover:bg-[#4F46E5] disabled:opacity-60 text-white text-sm font-medium rounded-lg cursor-pointer transition-colors">Lưu lịch hẹn</button>
+        <button type="button" id="close-modal-btn2" class="flex-1 px-4 py-2.5 bg-[#1E1E2A] hover:bg-[#252533] border border-[#2A2A38] text-sm font-medium rounded-lg cursor-pointer transition-colors" data-i18n="common.cancel">Hủy</button>
+        <button type="submit" id="save-appointment-btn" class="flex-1 px-4 py-2.5 bg-[#6366F1] hover:bg-[#4F46E5] disabled:opacity-60 text-white text-sm font-medium rounded-lg cursor-pointer transition-colors" data-i18n="booking.saveBtn">Lưu lịch hẹn</button>
       </div>
     </form>
   </div>
@@ -115,25 +115,25 @@
       <div class="w-9 h-9 rounded-xl bg-[#22C55E]/15 flex items-center justify-center">
         <svg class="w-5 h-5 text-[#22C55E]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
-      <h3 class="text-lg font-bold">Xác nhận hoàn thành</h3>
+      <h3 class="text-lg font-bold" data-i18n="booking.modalCompleteTitle">Xác nhận hoàn thành</h3>
     </div>
     <form id="complete-appointment-form" class="space-y-4">
       <input type="hidden" id="complete-appointment-id">
       <div class="bg-[#1E1E2A] border border-[#2A2A38] rounded-xl p-4">
-        <p class="text-xs text-[#64748B] mb-1">Khách hàng</p>
+        <p class="text-xs text-[#64748B] mb-1" data-i18n="booking.completeCustomer">Khách hàng</p>
         <p id="complete-customer-info" class="font-semibold"></p>
       </div>
       <div>
-        <label class="block text-xs font-medium text-[#94A3B8] mb-1.5">Dịch vụ thực tế</label>
+        <label class="block text-xs font-medium text-[#94A3B8] mb-1.5" data-i18n="booking.completeServices">Dịch vụ thực tế</label>
         <div id="complete-services-list" class="max-h-36 overflow-y-auto bg-[#1E1E2A] border border-[#2A2A38] rounded-lg p-3 space-y-2"></div>
       </div>
       <div>
-        <label for="complete-notes" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Ghi chú hoàn thành</label>
+        <label for="complete-notes" class="block text-xs font-medium text-[#94A3B8] mb-1.5" data-i18n="booking.completeNotes">Ghi chú hoàn thành</label>
         <textarea id="complete-notes" rows="2" class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#22C55E] rounded-lg text-sm outline-none transition-colors resize-none"></textarea>
       </div>
       <div class="flex gap-3 pt-2">
-        <button type="button" id="cancel-complete-btn" class="flex-1 px-4 py-2.5 bg-[#1E1E2A] hover:bg-[#252533] border border-[#2A2A38] text-sm font-medium rounded-lg cursor-pointer transition-colors">Hủy bỏ</button>
-        <button type="submit" id="confirm-complete-btn" class="flex-1 px-4 py-2.5 bg-[#22C55E] hover:bg-[#16A34A] disabled:opacity-60 text-white text-sm font-bold rounded-lg cursor-pointer transition-colors">Xác nhận hoàn thành</button>
+        <button type="button" id="cancel-complete-btn" class="flex-1 px-4 py-2.5 bg-[#1E1E2A] hover:bg-[#252533] border border-[#2A2A38] text-sm font-medium rounded-lg cursor-pointer transition-colors" data-i18n="common.cancel">Hủy bỏ</button>
+        <button type="submit" id="confirm-complete-btn" class="flex-1 px-4 py-2.5 bg-[#22C55E] hover:bg-[#16A34A] disabled:opacity-60 text-white text-sm font-bold rounded-lg cursor-pointer transition-colors" data-i18n="booking.confirmCompleteBtn">Xác nhận hoàn thành</button>
       </div>
     </form>
   </div>
@@ -148,13 +148,13 @@
           <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
         </svg>
       </div>
-      <h3 class="text-lg font-bold text-[#F87171]">Xác nhận hủy lịch hẹn</h3>
+      <h3 class="text-lg font-bold text-[#F87171]" data-i18n="booking.modalCancelTitle">Xác nhận hủy lịch hẹn</h3>
     </div>
     <input type="hidden" id="cancel-appointment-id">
-    <p id="cancel-confirmation-text" class="text-sm text-[#94A3B8] mb-6">Bạn có chắc chắn muốn hủy lịch hẹn này?</p>
+    <p id="cancel-confirmation-text" class="text-sm text-[#94A3B8] mb-6" data-i18n="booking.cancelConfirmText">Bạn có chắc chắn muốn hủy lịch hẹn này?</p>
     <div class="flex gap-3">
-      <button type="button" id="close-cancel-modal-btn" class="flex-1 px-4 py-2.5 bg-[#1E1E2A] hover:bg-[#252533] border border-[#2A2A38] text-sm font-medium rounded-lg cursor-pointer transition-colors">Không, quay lại</button>
-      <button type="button" id="confirm-cancel-btn" class="flex-1 px-4 py-2.5 bg-[#EF4444] hover:bg-[#DC2626] text-white text-sm font-bold rounded-lg cursor-pointer transition-colors">Có, hủy lịch hẹn</button>
+      <button type="button" id="close-cancel-modal-btn" class="flex-1 px-4 py-2.5 bg-[#1E1E2A] hover:bg-[#252533] border border-[#2A2A38] text-sm font-medium rounded-lg cursor-pointer transition-colors" data-i18n="booking.cancelBackBtn">Không, quay lại</button>
+      <button type="button" id="confirm-cancel-btn" class="flex-1 px-4 py-2.5 bg-[#EF4444] hover:bg-[#DC2626] text-white text-sm font-bold rounded-lg cursor-pointer transition-colors" data-i18n="booking.confirmCancelBtn">Có, hủy lịch hẹn</button>
     </div>
   </div>
 </div>
@@ -191,7 +191,8 @@
   // ── Filter & Render ──────────────────────────────────────────
   function filterAndRender() {
     if (!window.AppCache || !window.AppCache.isLoaded) {
-      listContainer.innerHTML = '<div class="col-span-full text-center py-10 text-[#64748B] text-sm">Dữ liệu chưa sẵn sàng...</div>';
+      const notReadyMsg = window.currentLanguage === 'vi' ? 'Dữ liệu chưa sẵn sàng...' : 'Data not ready...';
+      listContainer.innerHTML = `<div class="col-span-full text-center py-10 text-[#64748B] text-sm">${notReadyMsg}</div>`;
       return;
     }
     let filtered = [...window.AppCache.getData('appointments')];
@@ -230,38 +231,48 @@
 
   function renderAppointments(apts) {
     if (!apts || !apts.length) {
-      listContainer.innerHTML = '<div class="col-span-full text-center py-10 text-[#64748B] text-sm">Không có lịch hẹn nào phù hợp.</div>';
+      const noAptsMsg = window.currentLanguage === 'vi' ? 'Không có lịch hẹn nào phù hợp.' : 'No matching appointments.';
+      listContainer.innerHTML = `<div class="col-span-full text-center py-10 text-[#64748B] text-sm">${noAptsMsg}</div>`;
       return;
     }
 
     const statusMap = {
-      'Hoàn thành':     { border: 'border-[#22C55E]/50', badge: 'badge-done',     label: 'Hoàn thành' },
-      'Đã hủy':        { border: 'border-[#EF4444]/50', badge: 'badge-canceled',  label: 'Đã hủy' },
-      'Đang thực hiện': { border: 'border-[#6366F1]/50', badge: 'badge-doing',     label: 'Đang thực hiện' },
+      'Hoàn thành':     { border: 'border-[#22C55E]/50', badge: 'badge-done',     label: window.currentLanguage === 'vi' ? 'Hoàn thành' : 'Completed' },
+      'Đã hủy':        { border: 'border-[#EF4444]/50', badge: 'badge-canceled',  label: window.currentLanguage === 'vi' ? 'Đã hủy' : 'Canceled' },
+      'Đang thực hiện': { border: 'border-[#6366F1]/50', badge: 'badge-doing',     label: window.currentLanguage === 'vi' ? 'Đang thực hiện' : 'In Progress' },
     };
 
     listContainer.innerHTML = '';
     apts.forEach(apt => {
-      const sm = statusMap[apt.status] || { border: 'border-[#F59E0B]/50', badge: 'badge-pending', label: apt.status || 'Đã đặt' };
+      const sm = statusMap[apt.status] || { border: 'border-[#F59E0B]/50', badge: 'badge-pending', label: apt.status === 'Đang lưu...' ? (window.currentLanguage === 'vi' ? 'Đang lưu...' : 'Saving...') : (window.currentLanguage === 'vi' ? 'Đã đặt' : 'Booked') };
       const canAct = !['Hoàn thành','Đã hủy'].includes(apt.status);
+      const labelEdit = window.currentLanguage === 'vi' ? 'Sửa' : 'Edit';
+      const labelComplete = window.currentLanguage === 'vi' ? 'Hoàn thành' : 'Complete';
+      const labelCancel = window.currentLanguage === 'vi' ? 'Hủy' : 'Cancel';
+      const labelUnassigned = window.currentLanguage === 'vi' ? 'Chưa chỉ định' : 'Unassigned';
+
       const actions = canAct ? `
         <button data-id="${apt.id}" class="edit-btn flex items-center gap-1.5 px-3 py-1.5 bg-[#6366F1]/15 hover:bg-[#6366F1]/25 text-[#818CF8] text-xs font-medium rounded-lg cursor-pointer transition-colors">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          Sửa
+          ${labelEdit}
         </button>
         <button data-id="${apt.id}" class="complete-btn flex items-center gap-1.5 px-3 py-1.5 bg-[#22C55E]/15 hover:bg-[#22C55E]/25 text-[#4ADE80] text-xs font-medium rounded-lg cursor-pointer transition-colors">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-          Hoàn thành
+          ${labelComplete}
         </button>
         <button data-id="${apt.id}" class="cancel-btn flex items-center gap-1.5 px-3 py-1.5 bg-[#EF4444]/15 hover:bg-[#EF4444]/25 text-[#F87171] text-xs font-medium rounded-lg cursor-pointer transition-colors">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          Hủy
+          ${labelCancel}
         </button>` : '';
 
       const card = document.createElement('div');
       card.id = `appointment-card-${apt.id}`;
       card.className = `bg-[#16161D] border border-l-2 ${sm.border} border-[#2A2A38] rounded-xl p-4 flex flex-col gap-3 hover:border-[#3A3A50] transition-colors`;
       const e = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      
+      const labelServices = window.currentLanguage === 'vi' ? 'Dịch vụ' : 'Services';
+      const labelStaff = window.currentLanguage === 'vi' ? 'Nhân viên' : 'Staff';
+
       card.innerHTML = `
         <div class="flex items-start justify-between gap-2">
           <div class="min-w-0">
@@ -274,8 +285,8 @@
           </div>
         </div>
         <div class="space-y-1">
-          <p class="text-xs text-[#64748B]">Dịch vụ: <span class="text-[#F1F5F9] font-medium">${e(apt.service)}</span></p>
-          <p class="text-xs text-[#64748B]">Nhân viên: <span class="text-[#F1F5F9]">${e(apt.staff) || 'Chưa chỉ định'}</span></p>
+          <p class="text-xs text-[#64748B]">${labelServices}: <span class="text-[#F1F5F9] font-medium">${e(apt.service)}</span></p>
+          <p class="text-xs text-[#64748B]">${labelStaff}: <span class="text-[#F1F5F9]">${e(apt.staff) || labelUnassigned}</span></p>
         </div>
         <div class="flex items-center justify-between gap-2 pt-1 border-t border-[#2A2A38]">
           <span class="text-xs font-medium px-2.5 py-1 rounded-full ${sm.badge}">${sm.label}</span>
@@ -288,7 +299,8 @@
   function updatePagination(totalPages, hasItems) {
     if (hasItems) {
       paginationCtrls.style.display = 'flex';
-      pageInfo.textContent = `Trang ${state.currentPage} / ${totalPages}`;
+      const pagePrefix = window.currentLanguage === 'vi' ? 'Trang ' : 'Page ';
+      pageInfo.textContent = `${pagePrefix}${state.currentPage} / ${totalPages}`;
       prevPageBtn.disabled = state.currentPage === 1;
       nextPageBtn.disabled = state.currentPage === totalPages;
     } else {
@@ -345,7 +357,10 @@
     state.selectedServices = new Set(selected.filter(name => services.some(s => s.name === name)));
     listDiv.innerHTML = '';
     if (!services || !services.length) {
-      listDiv.innerHTML = '<p class="text-xs text-[#64748B]">Nhân viên này chưa được gán dịch vụ/chuyên môn phù hợp.</p>';
+      const noAssignedMsg = window.currentLanguage === 'vi' 
+        ? 'Nhân viên này chưa được gán dịch vụ/chuyên môn phù hợp.' 
+        : 'This staff member is not assigned any matching services/specialties.';
+      listDiv.innerHTML = `<p class="text-xs text-[#64748B]">${noAssignedMsg}</p>`;
       return;
     }
     services.forEach(s => {
@@ -362,7 +377,10 @@
     const me = window.AppCache && window.AppCache.currentUser ? window.AppCache.currentUser : null;
     const isAdmin = window.AppCache && window.AppCache.isAdmin && window.AppCache.isAdmin();
     const activeStaff = window.AppCache.getData('staff').filter(s => s.status === 'Đang làm');
-    sel.innerHTML = '<option value="">Chọn nhân viên...</option>';
+    
+    const defaultSelectMsg = window.currentLanguage === 'vi' ? 'Chọn nhân viên...' : 'Select staff...';
+    sel.innerHTML = `<option value="">${defaultSelectMsg}</option>`;
+    
     activeStaff.forEach(s => {
       sel.innerHTML += `<option value="${s.name}">${s.name}</option>`;
     });
@@ -394,9 +412,14 @@
     e.preventDefault();
     const btn = document.getElementById('save-appointment-btn');
     const selected = Array.from(state.selectedServices);
-    if (!selected.length) { showToast('Vui lòng chọn ít nhất một dịch vụ.', 'error'); return; }
+    if (!selected.length) {
+      const selectOneMsg = window.currentLanguage === 'vi' ? 'Vui lòng chọn ít nhất một dịch vụ.' : 'Please select at least one service.';
+      showToast(selectOneMsg, 'error'); 
+      return; 
+    }
     const editingId = document.getElementById('appointment-id').value;
-    btn.disabled = true; btn.textContent = 'Đang lưu...';
+    btn.disabled = true; 
+    btn.textContent = window.currentLanguage === 'vi' ? 'Đang lưu...' : 'Saving...';
 
     const data = {
       customerName: document.getElementById('customerName').value.trim(),
@@ -421,17 +444,24 @@
       try {
         const data2 = Object.assign({}, data, { _emailToken: window.AppCache._emailToken });
         const result = await window.AppCache.callServerFunction('updateAppointment', editingId, data2);
-        if (!result.success) throw new Error(result.error || 'Lỗi server.');
+        
+        const serverErrorMsg = window.currentLanguage === 'vi' ? 'Lỗi server.' : 'Server error.';
+        if (!result.success) throw new Error(result.error || serverErrorMsg);
+        
         if (idx !== -1) window.AppCache.data.appointments[idx] = result.data;
         filterAndRender();
-        showToast('Đã cập nhật lịch hẹn!', 'success');
+        
+        const successMsg = window.currentLanguage === 'vi' ? 'Đã cập nhật lịch hẹn!' : 'Appointment updated!';
+        showToast(successMsg, 'success');
         if (window.updateDashboard) window.updateDashboard();
       } catch (err) {
-        showToast('Lỗi: ' + err.message, 'error');
+        const errorPrefix = window.currentLanguage === 'vi' ? 'Lỗi: ' : 'Error: ';
+        showToast(errorPrefix + err.message, 'error');
         if (idx !== -1 && original) window.AppCache.data.appointments[idx] = original;
         filterAndRender();
       } finally {
-        btn.disabled = false; btn.textContent = 'Lưu lịch hẹn';
+        btn.disabled = false; 
+        btn.textContent = window.currentLanguage === 'vi' ? 'Lưu lịch hẹn' : 'Save Appointment';
       }
       return;
     }
@@ -447,19 +477,26 @@
     try {
       const dataToSend = Object.assign({}, data, { _emailToken: window.AppCache._emailToken });
       const result = await window.AppCache.callServerFunction('createAppointment', dataToSend);
-      if (!result.success) throw new Error(result.error || 'Lỗi server.');
+      
+      const serverErrorMsg = window.currentLanguage === 'vi' ? 'Lỗi server.' : 'Server error.';
+      if (!result.success) throw new Error(result.error || serverErrorMsg);
+      
       const idx = window.AppCache.data.appointments.findIndex(a => a.id === tempId);
       if (idx !== -1) window.AppCache.data.appointments[idx] = result.data;
       ensureCreatedDateVisible(result.data && result.data.date ? result.data.date : data.date);
       filterAndRender();
-      showToast('Tạo lịch hẹn thành công!', 'success');
+      
+      const successMsg = window.currentLanguage === 'vi' ? 'Tạo lịch hẹn thành công!' : 'Appointment created successfully!';
+      showToast(successMsg, 'success');
       if (window.updateDashboard) window.updateDashboard();
     } catch (err) {
-      showToast('Lỗi: ' + err.message, 'error');
+      const errorPrefix = window.currentLanguage === 'vi' ? 'Lỗi: ' : 'Error: ';
+      showToast(errorPrefix + err.message, 'error');
       window.AppCache.data.appointments = window.AppCache.data.appointments.filter(a => a.id !== tempId);
       filterAndRender();
     } finally {
-      btn.disabled = false; btn.textContent = 'Lưu lịch hẹn';
+      btn.disabled = false; 
+      btn.textContent = window.currentLanguage === 'vi' ? 'Lưu lịch hẹn' : 'Save Appointment';
     }
   }
 
@@ -467,7 +504,8 @@
     addForm.reset();
     state.selectedServices.clear();
     phoneDropdown.style.display = 'none';
-    document.getElementById('modal-title').textContent = 'Sửa lịch hẹn';
+    
+    document.getElementById('modal-title').textContent = window.currentLanguage === 'vi' ? 'Sửa lịch hẹn' : 'Edit Appointment';
     document.getElementById('appointment-id').value = apt.id;
     document.getElementById('customerName').value = apt.customerName || '';
     document.getElementById('phone').value        = apt.phone || '';
@@ -481,7 +519,8 @@
     if (apt.staff && canSelectStaff) {
       if (![...staffSel.options].some(o => o.value === apt.staff)) {
         const opt = document.createElement('option');
-        opt.value = apt.staff; opt.textContent = apt.staff + ' (cũ)';
+        opt.value = apt.staff; 
+        opt.textContent = apt.staff + (window.currentLanguage === 'vi' ? ' (cũ)' : ' (old)');
         staffSel.appendChild(opt);
       }
       staffSel.value = apt.staff;
@@ -498,14 +537,22 @@
   async function handleCompleteFormSubmit(e) {
     e.preventDefault();
     const btn = document.getElementById('confirm-complete-btn');
-    btn.disabled = true; btn.textContent = 'Đang xử lý...';
+    btn.disabled = true; 
+    btn.textContent = window.currentLanguage === 'vi' ? 'Đang xử lý...' : 'Processing...';
 
     const id = document.getElementById('complete-appointment-id').value;
     const finalServices = Array.from(completeForm.querySelectorAll('input[name="complete_services"]:checked')).map(c => c.value);
     const finalNotes    = document.getElementById('complete-notes').value;
 
     const idx = window.AppCache.data.appointments.findIndex(a => a.id === id);
-    if (idx === -1) { showToast('Không tìm thấy lịch hẹn.', 'error'); btn.disabled = false; btn.textContent = 'Xác nhận hoàn thành'; return; }
+    if (idx === -1) { 
+      const notFoundMsg = window.currentLanguage === 'vi' ? 'Không tìm thấy lịch hẹn.' : 'Appointment not found.';
+      showToast(notFoundMsg, 'error'); 
+      btn.disabled = false; 
+      btn.textContent = window.currentLanguage === 'vi' ? 'Xác nhận hoàn thành' : 'Confirm Completion'; 
+      return; 
+    }
+    
     const original = { ...window.AppCache.data.appointments[idx] };
     window.AppCache.data.appointments[idx] = { ...original, status: 'Hoàn thành', service: finalServices.join(', '), notes: finalNotes };
     filterAndRender();
@@ -514,14 +561,18 @@
     try {
       const result = await window.AppCache.callServerFunction('completeAppointment', id, { services: finalServices, notes: finalNotes, _emailToken: window.AppCache._emailToken });
       if (!result.success) throw new Error(result.error);
-      showToast('Đã hoàn thành lịch hẹn!', 'success');
+      
+      const successMsg = window.currentLanguage === 'vi' ? 'Đã hoàn thành lịch hẹn!' : 'Appointment completed!';
+      showToast(successMsg, 'success');
       if (window.updateDashboard) window.updateDashboard();
     } catch (err) {
-      showToast('Lỗi: ' + err.message, 'error');
+      const errorPrefix = window.currentLanguage === 'vi' ? 'Lỗi: ' : 'Error: ';
+      showToast(errorPrefix + err.message, 'error');
       window.AppCache.data.appointments[idx] = original;
       filterAndRender();
     } finally {
-      btn.disabled = false; btn.textContent = 'Xác nhận hoàn thành';
+      btn.disabled = false; 
+      btn.textContent = window.currentLanguage === 'vi' ? 'Xác nhận hoàn thành' : 'Confirm Completion';
     }
   }
 
@@ -538,10 +589,13 @@
     try {
       const result = await window.AppCache.callServerFunction('cancelAppointment', id, window.AppCache._emailToken);
       if (!result.success) throw new Error(result.error);
-      showToast('Đã hủy lịch hẹn!', 'success');
+      
+      const successMsg = window.currentLanguage === 'vi' ? 'Đã hủy lịch hẹn!' : 'Appointment canceled!';
+      showToast(successMsg, 'success');
       if (window.updateDashboard) window.updateDashboard();
     } catch (err) {
-      showToast('Lỗi: ' + err.message, 'error');
+      const errorPrefix = window.currentLanguage === 'vi' ? 'Lỗi: ' : 'Error: ';
+      showToast(errorPrefix + err.message, 'error');
       window.AppCache.data.appointments[idx] = original;
       filterAndRender();
     }
@@ -568,7 +622,7 @@
     phoneDropdown.innerHTML = matches.map(c => `
       <div class="phone-suggest-item flex items-center justify-between px-3 py-2.5 hover:bg-[#2A2A38] cursor-pointer transition-colors gap-3"
            data-phone="${ce(c.phone)}" data-name="${ce(c.name)}">
-        <div class="flex items-center gap-2 min-w-0">
+         <div class="flex items-center gap-2 min-w-0">
           <div class="w-6 h-6 rounded-full bg-[#6366F1]/20 flex items-center justify-center flex-shrink-0">
             <svg class="w-3 h-3 text-[#6366F1]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
@@ -605,7 +659,7 @@
     state.selectedServices.clear();
     document.getElementById('appointment-id').value = '';
     phoneDropdown.style.display = 'none';
-    document.getElementById('modal-title').textContent = 'Thêm lịch hẹn mới';
+    document.getElementById('modal-title').textContent = window.currentLanguage === 'vi' ? 'Thêm lịch hẹn mới' : 'Add New Appointment';
     setScheduleToNow();
     populateStaffDropdown(document.getElementById('staff'));
     populateServicesCheckboxes(document.getElementById('services-checkbox-list'), document.getElementById('staff').value);
@@ -636,7 +690,11 @@
     if (!btn) return;
     const id  = btn.dataset.id;
     const apt = window.AppCache.getData('appointments').find(a => a.id === id);
-    if (!apt) { showToast('Không tìm thấy lịch hẹn!', 'error'); return; }
+    if (!apt) { 
+      const notFoundMsg = window.currentLanguage === 'vi' ? 'Không tìm thấy lịch hẹn!' : 'Appointment not found!';
+      showToast(notFoundMsg, 'error'); 
+      return; 
+    }
 
     if (btn.classList.contains('edit-btn')) {
       openEditAppointment(apt);
@@ -664,7 +722,12 @@
     if (btn.classList.contains('cancel-btn')) {
       document.getElementById('cancel-appointment-id').value = apt.id;
       const ce = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      document.getElementById('cancel-confirmation-text').innerHTML = `Bạn có chắc muốn hủy lịch hẹn của <strong>${ce(apt.customerName)}</strong> vào lúc <strong>${ce(apt.time)} ngày ${ce(apt.date)}</strong>?`;
+      
+      const confirmQuestionHtml = window.currentLanguage === 'vi'
+        ? `Bạn có chắc muốn hủy lịch hẹn của <strong>${ce(apt.customerName)}</strong> vào lúc <strong>${ce(apt.time)} ngày ${ce(apt.date)}</strong>?`
+        : `Are you sure you want to cancel the appointment for <strong>${ce(apt.customerName)}</strong> at <strong>${ce(apt.time)} on ${ce(apt.date)}</strong>?`;
+      
+      document.getElementById('cancel-confirmation-text').innerHTML = confirmQuestionHtml;
       showCancelModal(true);
     }
   });

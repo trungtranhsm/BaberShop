@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="bg-[#16161D] border border-[#2A2A38] rounded-xl p-4">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-      <h2 class="text-base font-semibold">Báo cáo doanh thu</h2>
+      <h2 class="text-base font-semibold" data-i18n="rev.managerTitle">Báo cáo doanh thu</h2>
       <div class="flex items-center gap-2">
         <button id="prevPeriodBtn" class="w-8 h-8 flex items-center justify-center bg-[#1E1E2A] border border-[#2A2A38] hover:border-[#3A3A50] rounded-lg cursor-pointer transition-colors text-[#94A3B8] hover:text-white">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
@@ -19,7 +19,7 @@
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
     <div class="bg-[#16161D] border border-[#2A2A38] rounded-xl p-5">
       <div class="flex items-center justify-between mb-3">
-        <span class="text-xs font-medium text-[#64748B] uppercase tracking-wider">Tổng doanh thu</span>
+        <span class="text-xs font-medium text-[#64748B] uppercase tracking-wider" data-i18n="rev.totalRevenue">Tổng doanh thu</span>
         <div class="w-8 h-8 rounded-lg bg-[#22C55E]/15 flex items-center justify-center">
           <svg class="w-4 h-4 text-[#22C55E]" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
             <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
@@ -30,7 +30,7 @@
     </div>
     <div class="bg-[#16161D] border border-[#2A2A38] rounded-xl p-5">
       <div class="flex items-center justify-between mb-3">
-        <span class="text-xs font-medium text-[#64748B] uppercase tracking-wider">Lịch hẹn hoàn thành</span>
+        <span class="text-xs font-medium text-[#64748B] uppercase tracking-wider" data-i18n="rev.completedAppointments">Lịch hẹn hoàn thành</span>
         <div class="w-8 h-8 rounded-lg bg-[#6366F1]/15 flex items-center justify-center">
           <svg class="w-4 h-4 text-[#6366F1]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
@@ -39,7 +39,7 @@
     </div>
     <div class="bg-[#16161D] border border-[#2A2A38] rounded-xl p-5">
       <div class="flex items-center justify-between mb-3">
-        <span class="text-xs font-medium text-[#64748B] uppercase tracking-wider">Trung bình / lịch hẹn</span>
+        <span class="text-xs font-medium text-[#64748B] uppercase tracking-wider" data-i18n="rev.averageRevenue">Trung bình / lịch hẹn</span>
         <div class="w-8 h-8 rounded-lg bg-[#D97706]/15 flex items-center justify-center">
           <svg class="w-4 h-4 text-[#D97706]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
@@ -52,7 +52,7 @@
 
   <!-- Chart -->
   <div class="bg-[#16161D] border border-[#2A2A38] rounded-xl p-5">
-    <h3 id="chartTitle" class="text-sm font-semibold mb-4">Biểu đồ doanh thu</h3>
+    <h3 id="chartTitle" class="text-sm font-semibold mb-4" data-i18n="rev.chartTitle">Biểu đồ doanh thu</h3>
     <div id="timeSeriesChartContainer" style="height:300px; position:relative;">
       <canvas id="revenueTimeSeriesChart"></canvas>
     </div>
@@ -61,20 +61,20 @@
   <!-- Transactions Table -->
   <div class="bg-[#16161D] border border-[#2A2A38] rounded-xl overflow-hidden">
     <div class="px-5 py-3.5 border-b border-[#2A2A38]">
-      <h3 class="text-sm font-semibold">Chi tiết giao dịch trong kỳ</h3>
+      <h3 class="text-sm font-semibold" data-i18n="rev.detailsTitle">Chi tiết giao dịch trong kỳ</h3>
     </div>
     <div class="overflow-x-auto">
       <table class="min-w-full">
         <thead>
           <tr class="border-b border-[#2A2A38]">
-            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase tracking-wider">Khách hàng</th>
-            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase tracking-wider">Dịch vụ</th>
-            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase tracking-wider">Nhân viên</th>
-            <th class="px-5 py-3 text-right text-xs font-medium text-[#64748B] uppercase tracking-wider">Doanh thu</th>
+            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase tracking-wider" data-i18n="rev.thCustomer">Khách hàng</th>
+            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase tracking-wider" data-i18n="rev.thService">Dịch vụ</th>
+            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase tracking-wider" data-i18n="rev.thStaff">Nhân viên</th>
+            <th class="px-5 py-3 text-right text-xs font-medium text-[#64748B] uppercase tracking-wider" data-i18n="rev.thRevenue">Doanh thu</th>
           </tr>
         </thead>
         <tbody id="revenueTableBody" class="divide-y divide-[#2A2A38]">
-          <tr><td colspan="4" class="px-5 py-8 text-center text-sm text-[#64748B]">Đang tải dữ liệu...</td></tr>
+          <tr><td colspan="4" class="px-5 py-8 text-center text-sm text-[#64748B]" data-i18n="common.loading">Đang tải dữ liệu...</td></tr>
         </tbody>
       </table>
     </div>
@@ -104,11 +104,16 @@
   };
 
   function updateView() {
+    const isVi = window.currentLanguage === 'vi';
+    const weekNum = getWeekNumber(state.refDate);
+    const yearVal = state.refDate.getFullYear();
+    const monthVal = state.refDate.getMonth() + 1;
+
     dom.select.innerHTML = `
-      <option value="week">Tuần ${getWeekNumber(state.refDate)} (${state.refDate.getFullYear()})</option>
-      <option value="month">Tháng ${state.refDate.getMonth()+1}, ${state.refDate.getFullYear()}</option>
-      <option value="year">Năm ${state.refDate.getFullYear()}</option>
-      <option value="all">Tất cả thời gian</option>`;
+      <option value="week">${isVi ? `Tuần ${weekNum} (${yearVal})` : `Week ${weekNum} (${yearVal})`}</option>
+      <option value="month">${isVi ? `Tháng ${monthVal}, ${yearVal}` : `Month ${monthVal}, ${yearVal}`}</option>
+      <option value="year">${isVi ? `Năm ${yearVal}` : `Year ${yearVal}`}</option>
+      <option value="all">${isVi ? 'Tất cả thời gian' : 'All Time'}</option>`;
     dom.select.value = state.viewMode;
     dom.prevBtn.style.display = state.viewMode === 'all' ? 'none' : '';
     dom.nextBtn.style.display = state.viewMode === 'all' ? 'none' : '';
@@ -117,19 +122,19 @@
     if (state.viewMode === 'week') {
       ({ startDate: kpiStart, endDate: kpiEnd } = DateHelpers.getWeekRange(state.refDate));
       chartStart = kpiStart; chartEnd = kpiEnd; unit = 'dayOfWeek';
-      dom.chartTitle.textContent = 'Doanh thu các ngày trong tuần';
+      dom.chartTitle.textContent = isVi ? 'Doanh thu các ngày trong tuần' : 'Daily Revenue (This Week)';
     } else if (state.viewMode === 'month') {
       ({ startDate: kpiStart, endDate: kpiEnd } = DateHelpers.getMonthRange(state.refDate));
       chartStart = kpiStart; chartEnd = kpiEnd; unit = 'dayOfMonth';
-      dom.chartTitle.textContent = 'Doanh thu các ngày trong tháng';
+      dom.chartTitle.textContent = isVi ? 'Doanh thu các ngày trong tháng' : 'Daily Revenue (This Month)';
     } else if (state.viewMode === 'year') {
       ({ startDate: kpiStart, endDate: kpiEnd } = DateHelpers.getYearRange(state.refDate));
       chartStart = kpiStart; chartEnd = kpiEnd; unit = 'month';
-      dom.chartTitle.textContent = 'Doanh thu các tháng trong năm';
+      dom.chartTitle.textContent = isVi ? 'Doanh thu các tháng trong năm' : 'Monthly Revenue (This Year)';
     } else {
       kpiStart = new Date(1970,0,1); kpiEnd = new Date(3000,0,1);
       chartStart = kpiStart; chartEnd = kpiEnd; unit = 'year';
-      dom.chartTitle.textContent = 'Tổng doanh thu qua các năm';
+      dom.chartTitle.textContent = isVi ? 'Tổng doanh thu qua các năm' : 'Yearly Revenue';
     }
 
     const period = allTransactions.filter(t => { const d = new Date(t.date); return d >= kpiStart && d <= kpiEnd; });
@@ -151,13 +156,18 @@
       groups[k] = (groups[k] || 0) + t.revenue;
     });
     const cd = { labels: [], data: [] };
+    const isVi = window.currentLanguage === 'vi';
     if (unit==='dayOfWeek') {
-      ['CN','T2','T3','T4','T5','T6','T7'].forEach((l,i) => { cd.labels.push(l); cd.data.push(groups[i]||0); });
+      const days = isVi ? ['CN','T2','T3','T4','T5','T6','T7'] : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      days.forEach((l,i) => { cd.labels.push(l); cd.data.push(groups[i]||0); });
     } else if (unit==='dayOfMonth') {
       const days = new Date(startDate.getFullYear(), startDate.getMonth()+1, 0).getDate();
       for (let i=1; i<=days; i++) { cd.labels.push(`${i}`); cd.data.push(groups[i]||0); }
     } else if (unit==='month') {
-      for (let i=0; i<12; i++) { cd.labels.push(`T${i+1}`); cd.data.push(groups[i]||0); }
+      const months = isVi 
+        ? ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12']
+        : ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      months.forEach((l,i) => { cd.labels.push(l); cd.data.push(groups[i]||0); });
     } else {
       [...new Set(transactions.map(t => new Date(t.date).getFullYear()))].sort().forEach(y => { cd.labels.push(y); cd.data.push(groups[y]||0); });
     }
@@ -167,17 +177,27 @@
   function renderChart({ labels, data }) {
     if (revenueChartInstance) revenueChartInstance.destroy();
     const ctx = document.getElementById('revenueTimeSeriesChart').getContext('2d');
+    
+    const isLight = document.body.classList.contains('light-mode');
+    const gridColor = isLight ? '#E2E8F0' : '#2A2A38';
+    const textColor = isLight ? '#64748B' : '#94A3B8';
+    const cardBgColor = isLight ? '#FFFFFF' : '#16161D';
+    const tooltipBg = isLight ? '#FFFFFF' : '#1E1E2A';
+    const tooltipBorder = isLight ? '#E2E8F0' : '#2A2A38';
+    const tooltipTitle = isLight ? '#0F172A' : '#F1F5F9';
+    const tooltipBody = isLight ? '#475569' : '#94A3B8';
+
     revenueChartInstance = new Chart(ctx, {
       type: 'line',
       data: {
         labels,
         datasets: [{
-          label: 'Doanh thu',
+          label: window.currentLanguage === 'vi' ? 'Doanh thu' : 'Revenue',
           data,
           borderColor: '#6366F1',
           backgroundColor: 'rgba(99,102,241,0.08)',
           pointBackgroundColor: '#6366F1',
-          pointBorderColor: '#16161D',
+          pointBorderColor: cardBgColor,
           pointBorderWidth: 2,
           pointRadius: 4,
           fill: true,
@@ -190,17 +210,17 @@
         plugins: {
           legend: { display: false },
           tooltip: {
-            backgroundColor: '#1E1E2A',
-            borderColor: '#2A2A38',
+            backgroundColor: tooltipBg,
+            borderColor: tooltipBorder,
             borderWidth: 1,
-            titleColor: '#F1F5F9',
-            bodyColor: '#94A3B8',
+            titleColor: tooltipTitle,
+            bodyColor: tooltipBody,
             callbacks: { label: ctx => ' ' + formatCurrency(ctx.parsed.y) }
           }
         },
         scales: {
-          x: { grid: { color: '#2A2A38' }, ticks: { color: '#64748B', font: { size: 11 } } },
-          y: { beginAtZero: true, grid: { color: '#2A2A38' }, ticks: { color: '#64748B', font: { size: 11 }, callback: v => (v/1000000 >= 1 ? (v/1000000).toFixed(1)+'M' : v/1000 >= 1 ? (v/1000).toFixed(0)+'K' : v) } }
+          x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 11 } } },
+          y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor, font: { size: 11 }, callback: v => (v/1000000 >= 1 ? (v/1000000).toFixed(1)+'M' : v/1000 >= 1 ? (v/1000).toFixed(0)+'K' : v) } }
         }
       }
     });
@@ -209,7 +229,8 @@
   function updateTable(transactions) {
     const tbody = document.getElementById('revenueTableBody');
     if (!transactions || !transactions.length) {
-      tbody.innerHTML = '<tr><td colspan="4" class="px-5 py-8 text-center text-sm text-[#64748B]">Không có dữ liệu trong kỳ này</td></tr>';
+      const emptyMsg = window.currentLanguage === 'vi' ? 'Không có dữ liệu trong kỳ này' : 'No data available for this period';
+      tbody.innerHTML = `<tr><td colspan="4" class="px-5 py-8 text-center text-sm text-[#64748B]">${emptyMsg}</td></tr>`;
       return;
     }
     const re = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -247,5 +268,6 @@
       })
       .getRevenueReportData(window.AppCache && window.AppCache._emailToken);
   };
+  window.updateRevenueView = updateView;
 })();
 </script>

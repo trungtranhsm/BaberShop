@@ -2,12 +2,12 @@
   <!-- Header -->
   <div class="bg-[#16161D] border border-[#2A2A38] rounded-xl p-4">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-      <h2 class="text-base font-semibold">Quản lý khách hàng</h2>
+      <h2 class="text-base font-semibold" data-i18n="cust.title">Quản lý khách hàng</h2>
       <div class="relative w-full md:w-72">
         <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748B] pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
-        <input type="search" id="customer-search-input" placeholder="Tìm theo tên hoặc SĐT..."
+        <input type="search" id="customer-search-input" placeholder="Tìm theo tên hoặc SĐT..." data-i18n-placeholder="cust.searchPlaceholder"
           class="w-full pl-9 pr-4 py-2 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm text-[#F1F5F9] placeholder-[#475569] outline-none transition-colors">
       </div>
     </div>
@@ -22,8 +22,8 @@
         </svg>
       </div>
       <div>
-        <p class="text-sm font-semibold">Tra cứu lịch sử theo SĐT</p>
-        <p class="text-xs text-[#64748B]">Nhập số điện thoại để xem toàn bộ lịch sử đặt lịch</p>
+        <p class="text-sm font-semibold" data-i18n="cust.lookupTitle">Tra cứu lịch sử theo SĐT</p>
+        <p class="text-xs text-[#64748B]" data-i18n="cust.lookupDesc">Nhập số điện thoại để xem toàn bộ lịch sử đặt lịch</p>
       </div>
     </div>
     <div class="relative">
@@ -32,7 +32,7 @@
           <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748B] pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
-          <input type="tel" id="phone-lookup-input" placeholder="VD: 0901234567"
+          <input type="tel" id="phone-lookup-input" placeholder="VD: 0901234567" data-i18n-placeholder="cust.phonePlaceholder"
             autocomplete="off"
             class="w-full pl-9 pr-4 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm text-[#F1F5F9] placeholder-[#475569] outline-none transition-colors">
           <!-- Autocomplete dropdown -->
@@ -43,7 +43,7 @@
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
-          Tra cứu
+          <span data-i18n="cust.lookupBtn">Tra cứu</span>
         </button>
       </div>
     </div>
@@ -55,14 +55,14 @@
       <table class="min-w-full">
         <thead>
           <tr class="border-b border-[#2A2A38]">
-            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase tracking-wider">Tên khách hàng</th>
-            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase tracking-wider">Số điện thoại</th>
-            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase tracking-wider">Ngày tham gia</th>
-            <th class="px-5 py-3 text-right text-xs font-medium text-[#64748B] uppercase tracking-wider">Hành động</th>
+            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase tracking-wider" data-i18n="booking.customerNameLabel">Tên khách hàng</th>
+            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase tracking-wider" data-i18n="booking.phoneLabel">Số điện thoại</th>
+            <th class="px-5 py-3 text-left text-xs font-medium text-[#64748B] uppercase tracking-wider" data-i18n="cust.joinedDate">Ngày tham gia</th>
+            <th class="px-5 py-3 text-right text-xs font-medium text-[#64748B] uppercase tracking-wider" data-i18n="common.actions">Hành động</th>
           </tr>
         </thead>
         <tbody id="customer-list-body" class="divide-y divide-[#2A2A38]">
-          <tr><td colspan="4" class="px-5 py-8 text-center text-sm text-[#64748B]">Đang tải...</td></tr>
+          <tr><td colspan="4" class="px-5 py-8 text-center text-sm text-[#64748B]" data-i18n="common.loading">Đang tải...</td></tr>
         </tbody>
       </table>
     </div>
@@ -80,7 +80,7 @@
           </svg>
         </div>
         <div>
-          <h3 id="details-modal-title" class="text-lg font-bold">Chi tiết khách hàng</h3>
+          <h3 id="details-modal-title" class="text-lg font-bold" data-i18n="cust.detailsTitle">Chi tiết khách hàng</h3>
           <p id="details-phone" class="text-xs text-[#64748B]"></p>
         </div>
       </div>
@@ -92,20 +92,20 @@
     <!-- Stats -->
     <div class="grid grid-cols-2 gap-3 mb-5 flex-shrink-0">
       <div class="bg-[#1E1E2A] border border-[#2A2A38] rounded-xl p-4">
-        <p class="text-xs text-[#64748B] mb-1">Tổng chi tiêu</p>
-        <p id="details-totalSpend" class="text-xl font-bold text-[#4ADE80]">Đang tính...</p>
+        <p class="text-xs text-[#64748B] mb-1" data-i18n="cust.totalSpend">Tổng chi tiêu</p>
+        <p id="details-totalSpend" class="text-xl font-bold text-[#4ADE80]" data-i18n="cust.calculating">Đang tính...</p>
       </div>
       <div class="bg-[#1E1E2A] border border-[#2A2A38] rounded-xl p-4">
-        <p class="text-xs text-[#64748B] mb-1">Lần ghé cuối</p>
-        <p id="details-lastVisit" class="text-xl font-bold">Đang tải...</p>
+        <p class="text-xs text-[#64748B] mb-1" data-i18n="cust.lastVisit">Lần ghé cuối</p>
+        <p id="details-lastVisit" class="text-xl font-bold" data-i18n="common.loading">Đang tải...</p>
       </div>
     </div>
 
     <!-- History -->
     <div class="flex-1 overflow-hidden flex flex-col">
-      <h4 class="text-sm font-semibold mb-3 flex-shrink-0">Lịch sử lịch hẹn</h4>
+      <h4 class="text-sm font-semibold mb-3 flex-shrink-0" data-i18n="cust.bookingHistory">Lịch sử lịch hẹn</h4>
       <div id="details-history-container" class="flex-1 overflow-y-auto bg-[#1E1E2A] border border-[#2A2A38] rounded-xl">
-        <p class="p-4 text-center text-sm text-[#64748B]">Đang tải lịch sử...</p>
+        <p class="p-4 text-center text-sm text-[#64748B]" data-i18n="cust.loadingHistory">Đang tải lịch sử...</p>
       </div>
     </div>
   </div>
@@ -121,9 +121,11 @@
 
   function renderCustomers(customers) {
     if (!customers || !customers.length) {
-      listBody.innerHTML = '<tr><td colspan="4" class="px-5 py-8 text-center text-sm text-[#64748B]">Không có khách hàng nào.</td></tr>';
+      const msg = window.currentLanguage === 'vi' ? 'Không có khách hàng nào.' : 'No customers found.';
+      listBody.innerHTML = `<tr><td colspan="4" class="px-5 py-8 text-center text-sm text-[#64748B]">${msg}</td></tr>`;
       return;
     }
+    const labelDetails = window.currentLanguage === 'vi' ? 'Xem chi tiết' : 'View details';
     const ce = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     listBody.innerHTML = customers.map(c => `
       <tr class="hover:bg-[#1E1E2A] transition-colors">
@@ -136,7 +138,7 @@
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
             </svg>
-            Xem chi tiết
+            ${labelDetails}
           </button>
         </td>
       </tr>`).join('');
@@ -150,9 +152,11 @@
   async function showDetailsModal(phone, name) {
     document.getElementById('details-modal-title').textContent = name;
     document.getElementById('details-phone').textContent = phone;
-    document.getElementById('details-totalSpend').textContent = 'Đang tính...';
-    document.getElementById('details-lastVisit').textContent  = 'Đang tải...';
-    document.getElementById('details-history-container').innerHTML = '<p class="p-4 text-center text-sm text-[#64748B]">Đang tải lịch sử...</p>';
+    document.getElementById('details-totalSpend').textContent = window.currentLanguage === 'vi' ? 'Đang tính...' : 'Calculating...';
+    document.getElementById('details-lastVisit').textContent  = window.currentLanguage === 'vi' ? 'Đang tải...' : 'Loading...';
+    
+    const loadingHistoryMsg = window.currentLanguage === 'vi' ? 'Đang tải lịch sử...' : 'Loading history...';
+    document.getElementById('details-history-container').innerHTML = `<p class="p-4 text-center text-sm text-[#64748B]">${loadingHistoryMsg}</p>`;
     detailsModal.style.display = 'flex';
 
     try {
@@ -160,20 +164,24 @@
       if (!result.success) throw new Error(result.error);
       const d = result.data;
       document.getElementById('details-totalSpend').textContent = formatCurrency(d.totalSpend);
-      document.getElementById('details-lastVisit').textContent  = d.lastVisit || 'Chưa có';
+      document.getElementById('details-lastVisit').textContent  = d.lastVisit || (window.currentLanguage === 'vi' ? 'Chưa có' : 'None');
 
       const hist = document.getElementById('details-history-container');
       if (!d.appointmentHistory || !d.appointmentHistory.length) {
-        hist.innerHTML = '<p class="p-4 text-center text-sm text-[#64748B]">Không có lịch sử.</p>';
+        const noHistoryMsg = window.currentLanguage === 'vi' ? 'Không có lịch sử.' : 'No history.';
+        hist.innerHTML = `<p class="p-4 text-center text-sm text-[#64748B]">${noHistoryMsg}</p>`;
       } else {
         const statusMap = { 'Hoàn thành': 'badge-done', 'Đã hủy': 'badge-canceled' };
+        const labelDate = window.currentLanguage === 'vi' ? 'Ngày' : 'Date';
+        const labelService = window.currentLanguage === 'vi' ? 'Dịch vụ' : 'Service';
+        const labelStatus = window.currentLanguage === 'vi' ? 'Trạng thái' : 'Status';
         hist.innerHTML = `
           <table class="min-w-full">
             <thead class="border-b border-[#2A2A38] sticky top-0 bg-[#1E1E2A]">
               <tr>
-                <th class="px-4 py-2.5 text-left text-xs font-medium text-[#64748B]">Ngày</th>
-                <th class="px-4 py-2.5 text-left text-xs font-medium text-[#64748B]">Dịch vụ</th>
-                <th class="px-4 py-2.5 text-left text-xs font-medium text-[#64748B]">Trạng thái</th>
+                <th class="px-4 py-2.5 text-left text-xs font-medium text-[#64748B]">${labelDate}</th>
+                <th class="px-4 py-2.5 text-left text-xs font-medium text-[#64748B]">${labelService}</th>
+                <th class="px-4 py-2.5 text-left text-xs font-medium text-[#64748B]">${labelStatus}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-[#2A2A38]">
@@ -191,8 +199,10 @@
           </table>`;
       }
     } catch (err) {
-      showToast('Lỗi tải chi tiết: ' + err.message, 'error');
-      document.getElementById('details-history-container').innerHTML = '<p class="p-4 text-center text-sm text-[#F87171]">Lỗi tải lịch sử.</p>';
+      const loadErrorMsg = window.currentLanguage === 'vi' ? 'Lỗi tải chi tiết: ' : 'Error loading details: ';
+      showToast(loadErrorMsg + err.message, 'error');
+      const errHistMsg = window.currentLanguage === 'vi' ? 'Lỗi tải lịch sử.' : 'Error loading history.';
+      document.getElementById('details-history-container').innerHTML = `<p class="p-4 text-center text-sm text-[#F87171]">${errHistMsg}</p>`;
     }
   }
 
@@ -219,10 +229,15 @@
 
   function doPhoneLookup() {
     const phone = phoneLookupInput.value.trim();
-    if (!phone) { showToast('Vui lòng nhập số điện thoại', 'error'); return; }
+    if (!phone) {
+      const enterPhoneMsg = window.currentLanguage === 'vi' ? 'Vui lòng nhập số điện thoại' : 'Please enter phone number';
+      showToast(enterPhoneMsg, 'error');
+      return;
+    }
     phoneSuggestions.style.display = 'none';
     const matched = allCustomers.find(c => String(c.phone).replace(/\s/g,'') === phone.replace(/\s/g,''));
-    showDetailsModal(phone, matched ? matched.name : 'Khách vãng lai');
+    const guestLabel = window.currentLanguage === 'vi' ? 'Khách vãng lai' : 'Walk-in Customer';
+    showDetailsModal(phone, matched ? matched.name : guestLabel);
   }
 
   window.initCustomerTab = function() {

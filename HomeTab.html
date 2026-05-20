@@ -1,50 +1,59 @@
 <div class="space-y-6">
-  <div class="bg-white rounded-lg shadow-sm p-6">
-    <h2 class="text-xl font-semibold text-gray-800 mb-4">Tạo lịch hẹn mới</h2>
+  <div class="bg-[#16161D] border border-[#2A2A38] rounded-xl p-6 max-w-2xl mx-auto">
+    <h2 class="text-base font-semibold mb-4 text-[#F1F5F9]" data-i18n="home.createBooking">Tạo lịch hẹn mới</h2>
     <form id="bookingForm" class="space-y-4">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label for="customerName" class="block text-sm font-medium text-gray-700">Tên khách hàng</label>
-          <input type="text" id="customerName" name="customerName" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+          <label for="customerName" class="block text-xs font-medium text-[#94A3B8] mb-1.5" data-i18n="booking.customerNameLabel">Tên khách hàng</label>
+          <input type="text" id="customerName" name="customerName" required placeholder="Nguyễn Văn A" data-i18n-placeholder="booking.customerNameLabel"
+            class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm text-[#F1F5F9] placeholder-[#475569] outline-none transition-colors">
         </div>
         <div>
-          <label for="phone" class="block text-sm font-medium text-gray-700">Số điện thoại</label>
-          <input type="tel" id="phone" name="phone" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+          <label for="phone" class="block text-xs font-medium text-[#94A3B8] mb-1.5" data-i18n="booking.phoneLabel">Số điện thoại</label>
+          <input type="tel" id="phone" name="phone" required placeholder="0901..." data-i18n-placeholder="booking.phoneLabel"
+            class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm text-[#F1F5F9] placeholder-[#475569] outline-none transition-colors">
         </div>
       </div>
       
       <div>
-        <label for="service" class="block text-sm font-medium text-gray-700">Dịch vụ</label>
-        <select id="service" name="service" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-          <option value="">Chọn dịch vụ...</option>
+        <label for="service" class="block text-xs font-medium text-[#94A3B8] mb-1.5" data-i18n="booking.serviceLabel">Dịch vụ</label>
+        <select id="service" name="service" required
+          class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm text-[#F1F5F9] outline-none transition-colors">
+          <option value="" data-i18n="booking.selectService">Chọn dịch vụ...</option>
         </select>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label for="date" class="block text-sm font-medium text-gray-700">Ngày</label>
-          <input type="date" id="date" name="date" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+          <label for="date" class="block text-xs font-medium text-[#94A3B8] mb-1.5" data-i18n="booking.dateLabel">Ngày</label>
+          <input type="date" id="date" name="date" required
+            class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm text-[#F1F5F9] outline-none transition-colors">
         </div>
         <div>
-          <label for="time" class="block text-sm font-medium text-gray-700">Giờ</habel>
-          <input type="time" id="time" name="time" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+          <label for="time" class="block text-xs font-medium text-[#94A3B8] mb-1.5" data-i18n="booking.timeLabel">Giờ</label>
+          <input type="time" id="time" name="time" required
+            class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm text-[#F1F5F9] outline-none transition-colors">
         </div>
       </div>
 
       <div>
-        <label for="staff" class="block text-sm font-medium text-gray-700">Nhân viên thực hiện</label>
-        <select id="staff" name="staff" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-          <option value="">Tự động chọn</option>
+        <label for="staff" class="block text-xs font-medium text-[#94A3B8] mb-1.5" data-i18n="booking.staffLabel">Nhân viên thực hiện</label>
+        <select id="staff" name="staff"
+          class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm text-[#F1F5F9] outline-none transition-colors">
+          <option value="" data-i18n="booking.autoStaff">Tự động chọn</option>
         </select>
       </div>
 
       <div>
-        <label for="notes" class="block text-sm font-medium text-gray-700">Ghi chú</label>
-        <textarea id="notes" name="notes" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+        <label for="notes" class="block text-xs font-medium text-[#94A3B8] mb-1.5" data-i18n="booking.notesLabel">Ghi chú</label>
+        <textarea id="notes" name="notes" rows="3" placeholder="..." data-i18n-placeholder="booking.notesPlaceholder"
+          class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-[#F1F5F9] placeholder-[#475569] outline-none transition-colors resize-none"></textarea>
       </div>
 
       <div>
-        <button type="submit" id="submitBookingBtn" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <button type="submit" id="submitBookingBtn"
+          class="w-full py-2.5 px-4 bg-[#6366F1] hover:bg-[#4F46E5] text-white text-sm font-medium rounded-lg transition-colors cursor-pointer"
+          data-i18n="booking.submitBtn">
           Xác nhận đặt lịch
         </button>
       </div>
@@ -53,39 +62,27 @@
 </div>
 
 <script>
-  /**
-   * Điền danh sách dịch vụ vào dropdown.
-   * Dữ liệu giờ đây là một mảng các OBJECT, không phải mảng của mảng.
-   */
   function populateServices(services) {
     const select = document.getElementById('service');
     if (!select) return;
     
-    // Xóa các lựa chọn cũ
-    select.innerHTML = '<option value="">Chọn dịch vụ...</option>';
+    select.innerHTML = '<option value="">' + (window.currentLanguage === 'vi' ? 'Chọn dịch vụ...' : 'Select service...') + '</option>';
     
     services.forEach(service => {
-      // Thay vì service[1], giờ chúng ta dùng service.name
-      // Thay vì service[2], giờ chúng ta dùng service.price
       const option = document.createElement('option');
-      option.value = service.name; // Gửi tên dịch vụ về server
-      option.textContent = `${service.name} - ${service.price.toLocaleString('vi-VN')} VND`;
+      option.value = service.name;
+      option.textContent = `${service.name} - ${service.price.toLocaleString(window.currentLanguage === 'vi' ? 'vi-VN' : 'en-US')} VND`;
       select.appendChild(option);
     });
   }
 
-  /**
-   * Điền danh sách nhân viên vào dropdown.
-   * Dữ liệu giờ đây là một mảng các OBJECT.
-   */
   function populateStaff(staff) {
     const select = document.getElementById('staff');
     if (!select) return;
     
-    select.innerHTML = '<option value="">Tự động chọn</option>';
+    select.innerHTML = '<option value="">' + (window.currentLanguage === 'vi' ? 'Tự động chọn' : 'Auto assign') + '</option>';
 
     staff.forEach(s => {
-      // Thay vì s[1], giờ chúng ta dùng s.name
       const option = document.createElement('option');
       option.value = s.name;
       option.textContent = s.name;
@@ -93,14 +90,11 @@
     });
   }
 
-  /**
-   * Xử lý việc gửi form đặt lịch.
-   */
   function handleBookingSubmit(event) {
     event.preventDefault();
     const btn = document.getElementById('submitBookingBtn');
     btn.disabled = true;
-    btn.textContent = 'Đang xử lý...';
+    btn.textContent = window.currentLanguage === 'vi' ? 'Đang xử lý...' : 'Processing...';
 
     const formData = {
       customerName: document.getElementById('customerName').value,
@@ -115,34 +109,36 @@
     google.script.run
       .withSuccessHandler(function(response) {
         btn.disabled = false;
-        btn.textContent = 'Xác nhận đặt lịch';
+        btn.textContent = window.currentLanguage === 'vi' ? 'Xác nhận đặt lịch' : 'Confirm Booking';
         if (response.success) {
-          alert('Đặt lịch thành công! ID: ' + response.id);
+          const successMsg = window.currentLanguage === 'vi' 
+            ? 'Đặt lịch thành công! ID: ' + response.id
+            : 'Booking successful! ID: ' + response.id;
+          showToast(successMsg, 'success');
           document.getElementById('bookingForm').reset();
-          // Sau khi đặt lịch thành công, yêu cầu AppCache tải lại dữ liệu mới
           if (window.AppCache && typeof window.AppCache.refresh === 'function') {
             window.AppCache.refresh();
           }
         } else {
-          alert('Lỗi khi đặt lịch: ' + response.error);
+          const errorMsg = window.currentLanguage === 'vi'
+            ? 'Lỗi khi đặt lịch: ' + response.error
+            : 'Booking error: ' + response.error;
+          showToast(errorMsg, 'error');
         }
       })
       .withFailureHandler(function(error) {
         btn.disabled = false;
-        btn.textContent = 'Xác nhận đặt lịch';
-        alert('Lỗi hệ thống: ' + error.message);
+        btn.textContent = window.currentLanguage === 'vi' ? 'Xác nhận đặt lịch' : 'Confirm Booking';
+        const errorMsg = window.currentLanguage === 'vi'
+          ? 'Lỗi hệ thống: ' + error.message
+          : 'System error: ' + error.message;
+        showToast(errorMsg, 'error');
       })
       .createAppointment(formData);
   }
 
-  /**
-   * Hàm khởi tạo cho tab này.
-   * Được gọi ngay khi tab được tải lên.
-   */
-  (function initializeBookingTab() {
-    console.log("🚀 Initializing Booking Tab...");
-    
-    // Lấy dữ liệu đã được tải sẵn từ AppCache của index.html
+  window.initHomeTab = function() {
+    console.log("🚀 Initializing Booking/Home Tab...");
     const appData = window.AppCache ? window.AppCache.getData() : null;
 
     if (appData) {
@@ -151,9 +147,14 @@
       populateStaff(appData.staff || []);
     } else {
       console.error("❌ Could not get data from AppCache. Form fields will be empty.");
-      alert("Không thể tải dữ liệu Dịch vụ và Nhân viên. Vui lòng thử tải lại trang.");
+      const errorMsg = window.currentLanguage === 'vi'
+        ? 'Không thể tải dữ liệu Dịch vụ và Nhân viên. Vui lòng thử tải lại trang.'
+        : 'Failed to load Services and Staff data. Please try refreshing the page.';
+      showToast(errorMsg, 'error');
     }
-    
+  };
+
+  (function() {
     const form = document.getElementById('bookingForm');
     if (form) {
       form.addEventListener('submit', handleBookingSubmit);

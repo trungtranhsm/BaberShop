@@ -68,8 +68,23 @@ function loginWithEmailAndPassword(email, password) {
       return { needSetPassword: true, email: normalizedEmail };
     }
 
+    var isPasswordCorrect = false;
     var inputHash = hashPassword_(password);
-    if (inputHash !== storedHash) {
+
+    if (storedHash.length !== 64) {
+      // Nếu mật khẩu trong sheet là text thường (chưa hash, vd: 123456 do tự điền tay)
+      if (storedHash === String(password || '')) {
+        isPasswordCorrect = true;
+        // Tự động chuyển đổi và lưu lại dưới dạng hash SHA-256 an toàn
+        setUserPassword_(normalizedEmail, password, ensureStaffSheetSchema_());
+      }
+    } else {
+      if (storedHash === inputHash) {
+        isPasswordCorrect = true;
+      }
+    }
+
+    if (!isPasswordCorrect) {
       return { denied: true, email: normalizedEmail, reason: 'Mật khẩu không đúng.' };
     }
 
@@ -129,8 +144,20 @@ function changePassword(emailToken, oldPassword, newPassword) {
     var storedHash = getUserPasswordHash_(email);
     if (!storedHash) return { success: false, error: 'Tài khoản chưa có mật khẩu. Đặt mật khẩu mới từ màn hình đăng nhập.' };
 
+    var isOldPasswordCorrect = false;
     var oldHash = hashPassword_(oldPassword);
-    if (oldHash !== storedHash) return { success: false, error: 'Mật khẩu cũ không đúng.' };
+
+    if (storedHash.length !== 64) {
+      if (storedHash === String(oldPassword || '')) {
+        isOldPasswordCorrect = true;
+      }
+    } else {
+      if (storedHash === oldHash) {
+        isOldPasswordCorrect = true;
+      }
+    }
+
+    if (!isOldPasswordCorrect) return { success: false, error: 'Mật khẩu cũ không đúng.' };
 
     var sheet = ensureStaffSheetSchema_();
     setUserPassword_(email, newPassword, sheet);
