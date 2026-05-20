@@ -445,6 +445,7 @@ function loadUsers() {
           <td class="px-5 py-3 text-sm"><span class="text-xs px-2 py-0.5 rounded-full ${u.status==='disabled'?'badge-canceled':'badge-done'}">${ce(u.status || 'active')}</span></td>
           <td class="px-5 py-3 text-right">
             <button onclick="editUser('${ce(u.email)}')" class="px-2.5 py-1 text-xs font-medium text-[#818CF8] bg-[#6366F1]/10 hover:bg-[#6366F1]/20 rounded-md cursor-pointer mr-1">Sửa</button>
+            <button onclick="resetUserPassword('${ce(u.email)}')" class="px-2.5 py-1 text-xs font-medium text-[#FBBF24] bg-[#D97706]/10 hover:bg-[#D97706]/20 rounded-md cursor-pointer mr-1">Reset pass</button>
             ${u.email===me ? '' : `<button onclick="removeUser('${ce(u.email)}')" class="px-2.5 py-1 text-xs font-medium text-[#F87171] bg-[#EF4444]/10 hover:bg-[#EF4444]/20 rounded-md cursor-pointer">Xoá</button>`}
           </td>
         </tr>`).join('');
@@ -534,6 +535,17 @@ function removeUser(email) {
     })
     .withFailureHandler(err => showToast(err.message || err, 'error'))
     .deleteUser(email, window.AppCache && window.AppCache._emailToken);
+}
+
+function resetUserPassword(email) {
+  if (!confirm('Reset mật khẩu của ' + email + '?\nUser sẽ phải tạo mật khẩu mới khi đăng nhập lần sau.')) return;
+  google.script.run
+    .withSuccessHandler(function(res) {
+      if (!res || !res.success) { showToast(res ? res.error : 'Lỗi', 'error'); return; }
+      showToast('Đã reset mật khẩu của ' + email + '. User cần tạo mật khẩu mới khi đăng nhập.', 'success');
+    })
+    .withFailureHandler(function(err) { showToast(err.message || err, 'error'); })
+    .adminResetPassword(email, window.AppCache && window.AppCache._emailToken);
 }
 
 document.getElementById('userForm').addEventListener('submit', function(e) {

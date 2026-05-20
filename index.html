@@ -262,16 +262,26 @@ setTimeout(function() {
 <!-- ===== AUTH GATE: SETUP WIZARD ===== -->
 <div id="setupGate" class="fixed inset-0 bg-[#0B0B0F]/95 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
   <div class="bg-[#16161D] border border-[#2A2A38] rounded-2xl shadow-2xl p-7 w-full max-w-md">
-    <h2 class="text-xl font-bold mb-1">Thiết lập tài khoản Admin</h2>
-    <p class="text-sm text-[#94A3B8] mb-5">Chưa có tài khoản nào. Hãy nhập email và tên để tạo Admin đầu tiên.</p>
-    <div class="mb-4">
+    <h2 class="text-xl font-bold mb-1">Thiết lập Admin đầu tiên</h2>
+    <p class="text-sm text-[#94A3B8] mb-5">Chưa có tài khoản nào. Hãy điền thông tin để tạo Admin.</p>
+    <div class="mb-3">
       <label for="setupEmailInput" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Email của bạn</label>
       <input type="email" id="setupEmailInput" placeholder="example@gmail.com" autocomplete="email"
         class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#D97706] rounded-lg text-sm outline-none transition-colors placeholder-[#475569] text-[#F1F5F9]">
     </div>
-    <div class="mb-5">
-      <label for="setupStaffName" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Tên hiển thị (tuỳ chọn)</label>
+    <div class="mb-3">
+      <label for="setupStaffName" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Tên hiển thị</label>
       <input type="text" id="setupStaffName" placeholder="VD: Chủ shop"
+        class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#D97706] rounded-lg text-sm outline-none transition-colors placeholder-[#475569] text-[#F1F5F9]">
+    </div>
+    <div class="mb-3">
+      <label for="setupPasswordInput" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Mật khẩu (ít nhất 6 ký tự)</label>
+      <input type="password" id="setupPasswordInput" placeholder="Nhập mật khẩu" autocomplete="new-password"
+        class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#D97706] rounded-lg text-sm outline-none transition-colors placeholder-[#475569] text-[#F1F5F9]">
+    </div>
+    <div class="mb-5">
+      <label for="setupPasswordConfirm" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Xác nhận mật khẩu</label>
+      <input type="password" id="setupPasswordConfirm" placeholder="Nhập lại mật khẩu" autocomplete="new-password"
         class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#D97706] rounded-lg text-sm outline-none transition-colors placeholder-[#475569] text-[#F1F5F9]">
     </div>
     <p id="setupError" class="text-xs text-[#F87171] mb-3 hidden"></p>
@@ -293,12 +303,12 @@ setTimeout(function() {
     <p class="text-sm text-[#94A3B8] mb-2">Email <span id="deniedEmail" class="text-[#F1F5F9] font-medium">—</span> chưa được cấp quyền truy cập.</p>
     <p class="text-xs text-[#64748B] mb-5" id="deniedReason">Vui lòng liên hệ Admin để được thêm vào danh sách nhân viên.</p>
     <button onclick="AuthGate.showLogin()" class="px-4 py-2 text-sm font-medium text-[#818CF8] bg-[#6366F1]/10 hover:bg-[#6366F1]/20 rounded-lg cursor-pointer transition-colors">
-      Thử email khác
+      Quay lại đăng nhập
     </button>
   </div>
 </div>
 
-<!-- ===== AUTH GATE: EMAIL LOGIN ===== -->
+<!-- ===== AUTH GATE: EMAIL + PASSWORD LOGIN ===== -->
 <div id="loginGate" class="fixed inset-0 bg-[#0B0B0F] z-50 flex items-center justify-center p-4">
   <div class="bg-[#16161D] border border-[#2A2A38] rounded-2xl shadow-2xl p-8 w-full max-w-sm">
     <div class="flex items-center gap-3 mb-6">
@@ -314,18 +324,83 @@ setTimeout(function() {
       </div>
     </div>
     <h2 class="text-lg font-bold mb-1 text-[#F1F5F9]">Đăng nhập</h2>
-    <p class="text-sm text-[#64748B] mb-5">Nhập email đã được Admin đăng ký trong hệ thống.</p>
+    <p class="text-sm text-[#64748B] mb-5">Nhập email và mật khẩu của bạn.</p>
     <form id="loginForm" onsubmit="AuthGate.submitLogin(event)">
-      <div class="mb-4">
+      <div class="mb-3">
         <label for="loginEmailInput" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Email</label>
         <input type="email" id="loginEmailInput" placeholder="example@gmail.com" autocomplete="email" required
           class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#D97706] rounded-lg text-sm outline-none transition-colors placeholder-[#475569] text-[#F1F5F9]">
       </div>
+      <div class="mb-4">
+        <label for="loginPasswordInput" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Mật khẩu</label>
+        <input type="password" id="loginPasswordInput" placeholder="Nhập mật khẩu" autocomplete="current-password" required
+          class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#D97706] rounded-lg text-sm outline-none transition-colors placeholder-[#475569] text-[#F1F5F9]">
+      </div>
       <p id="loginError" class="text-xs text-[#F87171] mb-3 hidden"></p>
-      <button type="submit" id="loginSubmitBtn" class="w-full px-4 py-2.5 bg-[#D97706] hover:bg-[#B45309] text-white text-sm font-bold rounded-lg cursor-pointer transition-colors">
+      <button type="submit" id="loginSubmitBtn" class="w-full px-4 py-2.5 bg-[#D97706] hover:bg-[#B45309] text-white text-sm font-bold rounded-lg cursor-pointer transition-colors mb-3">
         Đăng nhập
       </button>
+      <p class="text-center text-xs text-[#64748B]">Quên mật khẩu? <button type="button" onclick="AuthGate.showForgotInfo()" class="text-[#818CF8] hover:underline cursor-pointer bg-transparent border-none p-0">Liên hệ Admin reset</button></p>
     </form>
+  </div>
+</div>
+
+<!-- ===== SET FIRST PASSWORD GATE ===== -->
+<div id="setPasswordGate" class="fixed inset-0 bg-[#0B0B0F]/95 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+  <div class="bg-[#16161D] border border-[#2A2A38] rounded-2xl shadow-2xl p-7 w-full max-w-sm">
+    <div class="w-12 h-12 mx-auto mb-4 rounded-xl bg-[#D97706]/15 flex items-center justify-center">
+      <svg class="w-6 h-6 text-[#D97706]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+    </div>
+    <h2 class="text-lg font-bold mb-1 text-center">Tạo mật khẩu</h2>
+    <p class="text-sm text-[#94A3B8] mb-5 text-center">Tài khoản <span id="setPasswordEmail" class="text-[#F1F5F9] font-medium"></span> chưa có mật khẩu. Hãy tạo ngay.</p>
+    <div class="mb-3">
+      <label for="setPasswordNew" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Mật khẩu mới (ít nhất 6 ký tự)</label>
+      <input type="password" id="setPasswordNew" placeholder="Nhập mật khẩu" autocomplete="new-password"
+        class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#D97706] rounded-lg text-sm outline-none transition-colors placeholder-[#475569] text-[#F1F5F9]">
+    </div>
+    <div class="mb-5">
+      <label for="setPasswordConfirm" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Xác nhận mật khẩu</label>
+      <input type="password" id="setPasswordConfirm" placeholder="Nhập lại" autocomplete="new-password"
+        class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#D97706] rounded-lg text-sm outline-none transition-colors placeholder-[#475569] text-[#F1F5F9]">
+    </div>
+    <p id="setPasswordError" class="text-xs text-[#F87171] mb-3 hidden"></p>
+    <button onclick="AuthGate.submitSetPassword()" id="setPasswordBtn" class="w-full px-4 py-2.5 bg-[#D97706] hover:bg-[#B45309] text-white text-sm font-bold rounded-lg cursor-pointer transition-colors">
+      Tạo mật khẩu
+    </button>
+  </div>
+</div>
+
+<!-- ===== CHANGE PASSWORD MODAL ===== -->
+<div id="changePasswordModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+  <div class="bg-[#16161D] border border-[#2A2A38] rounded-2xl shadow-2xl p-7 w-full max-w-sm">
+    <div class="flex items-center justify-between mb-5">
+      <h3 class="text-lg font-bold">Đổi mật khẩu</h3>
+      <button onclick="AuthGate.hideChangePassword()" class="w-8 h-8 rounded-lg bg-[#1E1E2A] hover:bg-[#2A2A38] flex items-center justify-center cursor-pointer text-[#94A3B8] hover:text-white">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="mb-3">
+      <label for="cpOldPassword" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Mật khẩu hiện tại</label>
+      <input type="password" id="cpOldPassword" placeholder="Nhập mật khẩu cũ" autocomplete="current-password"
+        class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none transition-colors placeholder-[#475569] text-[#F1F5F9]">
+    </div>
+    <div class="mb-3">
+      <label for="cpNewPassword" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Mật khẩu mới</label>
+      <input type="password" id="cpNewPassword" placeholder="ít nhất 6 ký tự" autocomplete="new-password"
+        class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none transition-colors placeholder-[#475569] text-[#F1F5F9]">
+    </div>
+    <div class="mb-5">
+      <label for="cpConfirmPassword" class="block text-xs font-medium text-[#94A3B8] mb-1.5">Xác nhận mật khẩu mới</label>
+      <input type="password" id="cpConfirmPassword" placeholder="Nhập lại" autocomplete="new-password"
+        class="w-full px-3 py-2.5 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none transition-colors placeholder-[#475569] text-[#F1F5F9]">
+    </div>
+    <p id="cpError" class="text-xs text-[#F87171] mb-3 hidden"></p>
+    <div class="flex gap-3">
+      <button onclick="AuthGate.hideChangePassword()" class="flex-1 px-4 py-2.5 bg-[#1E1E2A] hover:bg-[#252533] border border-[#2A2A38] text-sm font-medium rounded-lg cursor-pointer">Hủy</button>
+      <button onclick="AuthGate.submitChangePassword()" id="cpSubmitBtn" class="flex-1 px-4 py-2.5 bg-[#6366F1] hover:bg-[#4F46E5] text-white text-sm font-bold rounded-lg cursor-pointer">Đổi mật khẩu</button>
+    </div>
   </div>
 </div>
 
@@ -420,8 +495,15 @@ setTimeout(function() {
       </div>
       <p id="cacheStatus" class="text-xs text-[#475569] truncate"></p>
       <p id="currentUserTag" class="mt-1 text-xs text-[#94A3B8] truncate" title=""></p>
+      <button onclick="AuthGate.showChangePassword()" id="changePasswordBtn"
+        class="hidden mt-2 w-full items-center justify-center gap-2 px-3 py-2 text-xs font-medium text-[#818CF8] bg-[#6366F1]/10 hover:bg-[#6366F1]/20 border border-[#6366F1]/20 rounded-lg transition-colors cursor-pointer">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <span>Đổi mật khẩu</span>
+      </button>
       <button id="logoutBtn" onclick="logoutAccount()"
-        class="hidden mt-3 w-full items-center justify-center gap-2 px-3 py-2 text-xs font-medium text-[#F87171] bg-[#EF4444]/10 hover:bg-[#EF4444]/20 border border-[#EF4444]/20 rounded-lg transition-colors cursor-pointer">
+        class="hidden mt-2 w-full items-center justify-center gap-2 px-3 py-2 text-xs font-medium text-[#F87171] bg-[#EF4444]/10 hover:bg-[#EF4444]/20 border border-[#EF4444]/20 rounded-lg transition-colors cursor-pointer">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
           <polyline points="16 17 21 12 16 7"/>
@@ -871,43 +953,54 @@ function switchToTab(tabName) {
 
 // ========== AUTH GATE ==========
 window.AuthGate = {
-  // Hiện form đăng nhập email
+  _pendingEmail: null,
+
   showLogin: function() {
-    document.getElementById('setupGate').classList.replace('flex', 'hidden');
-    document.getElementById('deniedGate').classList.replace('flex', 'hidden');
-    const loginGate = document.getElementById('loginGate');
+    ['setupGate','deniedGate','setPasswordGate','changePasswordModal'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) { el.classList.add('hidden'); el.classList.remove('flex'); }
+    });
+    var loginGate = document.getElementById('loginGate');
     loginGate.style.display = 'flex';
     document.getElementById('loginError').classList.add('hidden');
-    const inp = document.getElementById('loginEmailInput');
-    inp.value = '';
-    setTimeout(function() { inp.focus(); }, 100);
+    document.getElementById('loginEmailInput').value = '';
+    document.getElementById('loginPasswordInput').value = '';
+    setTimeout(function() { document.getElementById('loginEmailInput').focus(); }, 100);
   },
-  // Submit form đăng nhập
+
   submitLogin: async function(event) {
     if (event) event.preventDefault();
-    const email = document.getElementById('loginEmailInput').value.trim();
-    const errEl = document.getElementById('loginError');
-    const btn = document.getElementById('loginSubmitBtn');
+    var email = document.getElementById('loginEmailInput').value.trim();
+    var password = document.getElementById('loginPasswordInput').value;
+    var errEl = document.getElementById('loginError');
+    var btn = document.getElementById('loginSubmitBtn');
     errEl.classList.add('hidden');
     if (!email) { errEl.textContent = 'Vui lòng nhập email.'; errEl.classList.remove('hidden'); return; }
+    if (!password) { errEl.textContent = 'Vui lòng nhập mật khẩu.'; errEl.classList.remove('hidden'); return; }
     btn.disabled = true;
     btn.textContent = 'Đang kiểm tra...';
     try {
-      const res = await new Promise(function(resolve, reject) {
-        google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).loginWithEmail(email);
+      var res = await new Promise(function(resolve, reject) {
+        google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)
+          .loginWithEmailAndPassword(email, password);
       });
       if (res && res.isSetupNeeded) {
         document.getElementById('loginGate').style.display = 'none';
         AuthGate.showSetup(email);
         return;
       }
+      if (res && res.needSetPassword) {
+        document.getElementById('loginGate').style.display = 'none';
+        AuthGate._pendingEmail = res.email;
+        AuthGate.showSetPasswordGate(res.email);
+        return;
+      }
       if (res && res.denied) {
-        errEl.textContent = res.reason || 'Email không có trong hệ thống.';
+        errEl.textContent = res.reason || 'Email hoặc mật khẩu không đúng.';
         errEl.classList.remove('hidden');
         return;
       }
       if (res && res.success) {
-        // Lưu email vào session và AppCache
         try { sessionStorage.setItem('__emailToken', res.email); } catch(e) {}
         AppCache._emailToken = res.email;
         document.getElementById('loginGate').style.display = 'none';
@@ -925,51 +1018,142 @@ window.AuthGate = {
       btn.textContent = 'Đăng nhập';
     }
   },
-  // Hiện form tạo Admin lần đầu
+
+  showSetPasswordGate: function(email) {
+    hideLoading();
+    document.getElementById('setPasswordEmail').textContent = email || '';
+    document.getElementById('setPasswordNew').value = '';
+    document.getElementById('setPasswordConfirm').value = '';
+    document.getElementById('setPasswordError').classList.add('hidden');
+    var gate = document.getElementById('setPasswordGate');
+    gate.classList.remove('hidden');
+    gate.classList.add('flex');
+    setTimeout(function() { document.getElementById('setPasswordNew').focus(); }, 100);
+  },
+
+  submitSetPassword: async function() {
+    var email = AuthGate._pendingEmail;
+    var pw = document.getElementById('setPasswordNew').value;
+    var pw2 = document.getElementById('setPasswordConfirm').value;
+    var errEl = document.getElementById('setPasswordError');
+    var btn = document.getElementById('setPasswordBtn');
+    errEl.classList.add('hidden');
+    if (!pw || pw.length < 6) { errEl.textContent = 'Mật khẩu phải từ 6 ký tự.'; errEl.classList.remove('hidden'); return; }
+    if (pw !== pw2) { errEl.textContent = 'Xác nhận mật khẩu không khớp.'; errEl.classList.remove('hidden'); return; }
+    btn.disabled = true; btn.textContent = 'Đang lưu...';
+    try {
+      var res = await new Promise(function(resolve, reject) {
+        google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)
+          .setFirstPassword(email, pw);
+      });
+      if (!res || !res.success) throw new Error((res && res.error) || 'Lỗi tạo mật khẩu');
+      showToast('Đã tạo mật khẩu thành công! Đang vào ứng dụng...', 'success');
+      try { sessionStorage.setItem('__emailToken', email); } catch(e) {}
+      AppCache._emailToken = email;
+      document.getElementById('setPasswordGate').classList.add('hidden');
+      document.getElementById('setPasswordGate').classList.remove('flex');
+      showLoading();
+      await initApp();
+    } catch(e) {
+      errEl.textContent = e.message || String(e);
+      errEl.classList.remove('hidden');
+      btn.disabled = false; btn.textContent = 'Tạo mật khẩu';
+    }
+  },
+
   showSetup: function(prefillEmail) {
     hideLoading();
-    const gate = document.getElementById('setupGate');
+    var gate = document.getElementById('setupGate');
     gate.classList.remove('hidden');
     gate.classList.add('flex');
     if (prefillEmail) {
-      const inp = document.getElementById('setupEmailInput');
+      var inp = document.getElementById('setupEmailInput');
       if (inp) inp.value = prefillEmail;
     }
+    document.getElementById('setupPasswordInput').value = '';
+    document.getElementById('setupPasswordConfirm').value = '';
     document.getElementById('setupSubmitBtn').onclick = async function() {
-      const emailInput = document.getElementById('setupEmailInput');
-      const email = emailInput ? emailInput.value.trim() : (prefillEmail || '');
-      const staffName = document.getElementById('setupStaffName').value.trim();
-      const errEl = document.getElementById('setupError');
+      var email = (document.getElementById('setupEmailInput').value || '').trim();
+      var staffName = document.getElementById('setupStaffName').value.trim();
+      var pw = document.getElementById('setupPasswordInput').value;
+      var pw2 = document.getElementById('setupPasswordConfirm').value;
+      var errEl = document.getElementById('setupError');
+      var btn = document.getElementById('setupSubmitBtn');
       errEl.classList.add('hidden');
       if (!email) { errEl.textContent = 'Vui lòng nhập email.'; errEl.classList.remove('hidden'); return; }
-      const btn = document.getElementById('setupSubmitBtn');
-      btn.disabled = true;
-      btn.textContent = 'Đang tạo...';
+      if (!pw || pw.length < 6) { errEl.textContent = 'Mật khẩu phải từ 6 ký tự.'; errEl.classList.remove('hidden'); return; }
+      if (pw !== pw2) { errEl.textContent = 'Xác nhận mật khẩu không khớp.'; errEl.classList.remove('hidden'); return; }
+      btn.disabled = true; btn.textContent = 'Đang tạo...';
       try {
-        const res = await AppCache.callServerFunction('setupFirstAdmin', staffName || email, email);
+        var res = await AppCache.callServerFunction('setupFirstAdmin', staffName || email, email, pw);
         if (!res || !res.success) throw new Error((res && res.error) || 'Setup thất bại');
-        showToast('Đã tạo admin. Đang vào ứng dụng...', 'success');
+        showToast('Đã tạo Admin. Đang vào ứng dụng...', 'success');
         try { sessionStorage.setItem('__emailToken', email); } catch(e) {}
         AppCache._emailToken = email;
-        gate.classList.add('hidden');
-        gate.classList.remove('flex');
+        gate.classList.add('hidden'); gate.classList.remove('flex');
         showLoading();
         await initApp();
       } catch(e) {
         errEl.textContent = e.message || String(e);
         errEl.classList.remove('hidden');
-        btn.disabled = false;
-        btn.textContent = 'Tạo tài khoản Admin';
+        btn.disabled = false; btn.textContent = 'Tạo tài khoản Admin';
       }
     };
   },
+
   showDenied: function(email, reason) {
     hideLoading();
     document.getElementById('deniedEmail').textContent = email || '(không xác định)';
     if (reason) document.getElementById('deniedReason').textContent = reason;
-    const gate = document.getElementById('deniedGate');
+    var gate = document.getElementById('deniedGate');
     gate.classList.remove('hidden');
     gate.classList.add('flex');
+  },
+
+  showChangePassword: function() {
+    ['cpOldPassword','cpNewPassword','cpConfirmPassword'].forEach(function(id) {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('cpError').classList.add('hidden');
+    var modal = document.getElementById('changePasswordModal');
+    modal.classList.remove('hidden'); modal.classList.add('flex');
+    setTimeout(function() { document.getElementById('cpOldPassword').focus(); }, 100);
+  },
+
+  hideChangePassword: function() {
+    var modal = document.getElementById('changePasswordModal');
+    modal.classList.add('hidden'); modal.classList.remove('flex');
+  },
+
+  submitChangePassword: async function() {
+    var old = document.getElementById('cpOldPassword').value;
+    var pw = document.getElementById('cpNewPassword').value;
+    var pw2 = document.getElementById('cpConfirmPassword').value;
+    var errEl = document.getElementById('cpError');
+    var btn = document.getElementById('cpSubmitBtn');
+    errEl.classList.add('hidden');
+    if (!old) { errEl.textContent = 'Nhập mật khẩu hiện tại.'; errEl.classList.remove('hidden'); return; }
+    if (!pw || pw.length < 6) { errEl.textContent = 'Mật khẩu mới phải từ 6 ký tự.'; errEl.classList.remove('hidden'); return; }
+    if (pw !== pw2) { errEl.textContent = 'Xác nhận mật khẩu không khớp.'; errEl.classList.remove('hidden'); return; }
+    btn.disabled = true; btn.textContent = 'Đang lưu...';
+    try {
+      var res = await new Promise(function(resolve, reject) {
+        google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)
+          .changePassword(AppCache._emailToken, old, pw);
+      });
+      if (!res || !res.success) throw new Error((res && res.error) || 'Đổi mật khẩu thất bại');
+      AuthGate.hideChangePassword();
+      showToast('Đổi mật khẩu thành công!', 'success');
+    } catch(e) {
+      errEl.textContent = e.message || String(e);
+      errEl.classList.remove('hidden');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Đổi mật khẩu';
+    }
+  },
+
+  showForgotInfo: function() {
+    showToast('Liên hệ Admin để được reset mật khẩu. Admin vào Cài đặt → Quản lý tài khoản → Reset mật khẩu.', 'info');
   }
 };
 
@@ -1002,6 +1186,11 @@ function applyRoleVisibility() {
   if (logoutBtn) {
     logoutBtn.classList.remove('hidden');
     logoutBtn.classList.add('flex');
+  }
+  const changePasswordBtn = document.getElementById('changePasswordBtn');
+  if (changePasswordBtn) {
+    changePasswordBtn.classList.remove('hidden');
+    changePasswordBtn.classList.add('flex');
   }
   // Ẩn các nút admin-only theo class
   document.querySelectorAll('[data-admin-only]').forEach(el => {

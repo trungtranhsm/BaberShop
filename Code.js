@@ -20,8 +20,8 @@ const CONFIG = {
   },
   APPOINTMENT_HEADERS: ['ID', 'Tên khách hàng', 'Số điện thoại', 'Dịch vụ', 'Ngày', 'Giờ', 'Nhân viên', 'Trạng thái', 'Ghi chú'],
   SERVICE_HEADERS: ['ID', 'Tên dịch vụ', 'Giá'],
-  // Sheet Nhân viên gộp với Users: cột F-I là tài khoản login
-  STAFF_HEADERS: ['ID', 'Tên nhân viên', 'Chuyên môn', 'SĐT', 'Trạng thái', 'Email', 'Role', 'Quyền', 'Ngày tạo'],
+  // Sheet Nhân viên gộp với Users: cột F-I là tài khoản login, cột J là mật khẩu
+  STAFF_HEADERS: ['ID', 'Tên nhân viên', 'Chuyên môn', 'SĐT', 'Trạng thái', 'Email', 'Role', 'Quyền', 'Ngày tạo', 'Mật khẩu'],
   CUSTOMER_HEADERS: ['Tên', 'Số điện thoại', 'Ngày tạo'],
   LOG_HEADERS: ['Thời gian', 'Email', 'Role', 'Hành động', 'Chi tiết'],
   LOG_MAX_ROWS: 5000, // tự cắt bớt log cũ khi vượt
@@ -39,6 +39,7 @@ const STAFF_COL = {
   ROLE: 6,
   PERMISSIONS: 7,
   CREATED_AT: 8,
+  PASSWORD: 9, // SHA-256 hash mật khẩu
 };
 
 // =================================================================
@@ -558,27 +559,24 @@ function buildStaffRow_(payload) {
  * Tạo admin đầu tiên — chỉ chạy được khi chưa có user nào.
  * Email được client nhập vào form setup.
  */
-function setupFirstAdmin(staffName, email) {
-  const sheet = ensureStaffSheetSchema_();
+function setupFirstAdmin(staffName, email, password) {
+  var sheet = ensureStaffSheetSchema_();
   if (listUsersRaw().length > 0) {
     return { success: false, error: 'Đã có user, không thể setup lần đầu nữa.' };
   }
-  const normalizedEmail = String(email || '').trim().toLowerCase();
+  var normalizedEmail = String(email || '').trim().toLowerCase();
   if (!normalizedEmail || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(normalizedEmail)) {
     return { success: false, error: 'Vui lòng nhập email hợp lệ.' };
   }
-  // Reuse normalizedEmail as the email variable below
-  const emailToUse = normalizedEmail;
-  if (!emailToUse) {
-    return { success: false, error: 'Vui lòng nhập email.' };
+  if (password && password.length < 6) {
+    return { success: false, error: 'Mật khẩu phải từ 6 ký tự.' };
   }
 
-  // Nếu staffName đã tồn tại trong sheet (admin trùng tên nhân viên), update row đó. Ngược lại tạo row mới.
-  const data = sheet.getDataRange().getValues();
-  const idx = getStaffNameIndex_(data, staffName);
-  const newRow = buildStaffRow_({
+  var data = sheet.getDataRange().getValues();
+  var idx = getStaffNameIndex_(data, staffName);
+  var newRow = buildStaffRow_({
     staffName: staffName,
-    email: emailToUse,
+    email: normalizedEmail,
     role: ROLE.ADMIN,
     status: 'Đang làm'
   });
@@ -587,14 +585,19 @@ function setupFirstAdmin(staffName, email) {
     newRow[STAFF_COL.ID] = nextStaffId_(sheet);
     sheet.appendRow(newRow);
   } else {
-    const rowNum = idx + 1;
-    // Giữ ID gốc nếu có
+    var rowNum = idx + 1;
     newRow[STAFF_COL.ID] = data[idx][STAFF_COL.ID] || nextStaffId_(sheet);
     sheet.getRange(rowNum, 1, 1, CONFIG.STAFF_HEADERS.length).setValues([newRow]);
   }
+
+  // Lưu password nếu đã cung cấp
+  if (password) {
+    setUserPassword_(normalizedEmail, password, sheet);
+  }
+
   clearCache();
-  logAction_('auth_setup_first_admin', { email: email });
-  return { success: true, email: email };
+  logAction_('auth_setup_first_admin', { email: normalizedEmail });
+  return { success: true, email: normalizedEmail };
 }
 
 function listUsers(emailToken) {
