@@ -212,7 +212,7 @@
       tbody.innerHTML = '<tr><td colspan="4" class="px-5 py-8 text-center text-sm text-[#64748B]">Không có dữ liệu trong kỳ này</td></tr>';
       return;
     }
-    const re = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const re = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     tbody.innerHTML = transactions.map(t => `
       <tr class="hover:bg-[#1E1E2A] transition-colors">
         <td class="px-5 py-3.5 text-sm font-medium">${re(t.customerName)}</td>

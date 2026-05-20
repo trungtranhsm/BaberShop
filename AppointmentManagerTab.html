@@ -261,7 +261,7 @@
       const card = document.createElement('div');
       card.id = `appointment-card-${apt.id}`;
       card.className = `bg-[#16161D] border border-l-2 ${sm.border} border-[#2A2A38] rounded-xl p-4 flex flex-col gap-3 hover:border-[#3A3A50] transition-colors`;
-      const e = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      const e = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
       card.innerHTML = `
         <div class="flex items-start justify-between gap-2">
           <div class="min-w-0">
@@ -562,7 +562,7 @@
 
     if (!matches.length) { phoneDropdown.style.display = 'none'; return; }
 
-    const ce = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const ce = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     phoneDropdown.innerHTML = matches.map(c => `
       <div class="phone-suggest-item flex items-center justify-between px-3 py-2.5 hover:bg-[#2A2A38] cursor-pointer transition-colors gap-3"
            data-phone="${ce(c.phone)}" data-name="${ce(c.name)}">
@@ -661,7 +661,7 @@
     }
     if (btn.classList.contains('cancel-btn')) {
       document.getElementById('cancel-appointment-id').value = apt.id;
-      const ce = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      const ce = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
       document.getElementById('cancel-confirmation-text').innerHTML = `Bạn có chắc muốn hủy lịch hẹn của <strong>${ce(apt.customerName)}</strong> vào lúc <strong>${ce(apt.time)} ngày ${ce(apt.date)}</strong>?`;
       showCancelModal(true);
     }

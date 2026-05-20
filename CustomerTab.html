@@ -124,7 +124,7 @@
       listBody.innerHTML = '<tr><td colspan="4" class="px-5 py-8 text-center text-sm text-[#64748B]">Không có khách hàng nào.</td></tr>';
       return;
     }
-    const ce = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const ce = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     listBody.innerHTML = customers.map(c => `
       <tr class="hover:bg-[#1E1E2A] transition-colors">
         <td class="px-5 py-3.5 text-sm font-medium">${ce(c.name)}</td>
@@ -178,7 +178,7 @@
             </thead>
             <tbody class="divide-y divide-[#2A2A38]">
               ${d.appointmentHistory.map(a => {
-                const he = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+                const he = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
                 return `<tr>
                   <td class="px-4 py-2.5 text-sm text-[#94A3B8]">${he(a.date)}</td>
                   <td class="px-4 py-2.5 text-sm">${he(a.service)}</td>
@@ -203,7 +203,7 @@
 
   function renderSuggestions(matches) {
     if (!matches.length) { phoneSuggestions.style.display = 'none'; return; }
-    const ce = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const ce = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     phoneSuggestions.innerHTML = matches.slice(0, 6).map(c => `
       <div class="suggestion-item flex items-center justify-between px-4 py-2.5 hover:bg-[#2A2A38] cursor-pointer transition-colors"
            data-phone="${ce(c.phone)}" data-name="${ce(c.name)}">

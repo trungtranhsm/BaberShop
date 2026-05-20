@@ -329,7 +329,7 @@ function loadSettingsStaff() {
   const tbody = document.getElementById('settingsStaffTableBody');
   if (!tbody) return;
   const staff = (AppCache.getData('staff') || []);
-  const ce = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const ce = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   if (!staff.length) {
     tbody.innerHTML = '<tr><td colspan="4" class="px-5 py-8 text-center text-sm text-[#64748B]">Chưa có nhân viên</td></tr>';
     return;
@@ -350,7 +350,7 @@ function loadSettingsServices() {
   const tbody = document.getElementById('settingsServiceTableBody');
   if (!tbody) return;
   const services = (AppCache.getData('services') || []);
-  const ce = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const ce = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   if (!services.length) {
     tbody.innerHTML = '<tr><td colspan="4" class="px-5 py-8 text-center text-sm text-[#64748B]">Chưa có dịch vụ</td></tr>';
     return;
@@ -375,7 +375,7 @@ function renderStaffSpecialtyList(selectedText) {
     list.innerHTML = '<p class="text-xs text-[#64748B]">Chưa có dịch vụ để gán.</p>';
     return;
   }
-  const ce = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const ce = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   list.innerHTML = services.map(s => `
     <label class="flex items-center gap-2 cursor-pointer">
       <input type="checkbox" data-staff-specialty value="${ce(s.name)}" ${selected.includes(s.name) ? 'checked' : ''}
@@ -404,7 +404,7 @@ function renderUserSpecialtyList(selectedText) {
     list.innerHTML = '<p class="text-xs text-[#64748B]">Chưa có dịch vụ để gán.</p>';
     return;
   }
-  const ce = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const ce = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   list.innerHTML = services.map(s => `
     <label class="flex items-center gap-2 cursor-pointer">
       <input type="checkbox" data-user-specialty value="${ce(s.name)}" ${selected.includes(s.name) ? 'checked' : ''}
@@ -420,7 +420,7 @@ function collectUserSpecialty() {
 function loadUsers() {
   const tbody = document.getElementById('userTableBody');
   if (!tbody) return;
-  const ce = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const ce = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   google.script.run
     .withSuccessHandler(res => {
       if (!res) {
@@ -457,7 +457,7 @@ function _populateStaffSelect(selected) {
   const input = document.getElementById('userStaffNameInput');
   const options = document.getElementById('userStaffNameOptions');
   const staff = (AppCache.getData('staff') || []);
-  const ce = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const ce = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   input.value = selected || '';
   options.innerHTML = staff.map(s => `<option value="${ce(s.name || s[1] || '')}"></option>`).join('');
 }
