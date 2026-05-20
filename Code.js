@@ -12,10 +12,10 @@ const CONFIG = {
   SHEETS: {
     APPOINTMENTS: 'Lịch hẹn',
     SERVICES: 'Dịch vụ',
-    STAFF: 'Nhân viên',
+    STAFF: 'Users',
     CUSTOMERS: 'Khách hàng',
     SETTINGS: 'Cài Đặt',
-    USERS_LEGACY: 'Users', // chỉ dùng cho migration 1 lần, sau migrate có thể xóa sheet này
+    USERS_LEGACY: 'Nhân viên', // dùng cho migration ngược lại
     LOGS: 'Logs',
   },
   APPOINTMENT_HEADERS: ['ID', 'Tên khách hàng', 'Số điện thoại', 'Dịch vụ', 'Ngày', 'Giờ', 'Nhân viên', 'Trạng thái', 'Ghi chú'],
@@ -803,85 +803,42 @@ function deleteUser(email, emailToken) {
  *    Nếu không khớp → append row mới (admin không có chuyên môn).
  *  - KHÔNG xóa sheet Users tự động — bạn tự kiểm tra & xóa tay sau migration.
  */
-function migrateUsersToStaff() {
+/**
+ * MIGRATION Ngược lại: Sao chép toàn bộ data từ sheet "Nhân viên" (cũ) vào sheet "Users" (mới).
+ * Cách chạy: vào Apps Script editor → chọn function migrateStaffToUsers → Run.
+ */
+function migrateStaffToUsers() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const usersSheet = ss.getSheetByName(CONFIG.SHEETS.USERS_LEGACY);
-  if (!usersSheet) {
-    return { success: true, migrated: 0, message: 'Không có sheet "Users" để migrate.' };
+  const staffSheet = ss.getSheetByName('Nhân viên');
+  if (!staffSheet) {
+    return { success: true, migrated: 0, message: 'Không tìm thấy sheet "Nhân viên" để chuyển.' };
   }
-  if (usersSheet.getLastRow() < 2) {
-    return { success: true, migrated: 0, message: 'Sheet Users trống.' };
+  const usersSheet = ensureStaffSheetSchema_();
+  
+  const data = staffSheet.getDataRange().getValues();
+  if (data.length < 2) {
+    return { success: true, migrated: 0, message: 'Sheet "Nhân viên" trống.' };
   }
-
-  const staffSheet = ensureStaffSheetSchema_();
-  const usersData = usersSheet.getRange(2, 1, usersSheet.getLastRow() - 1, usersSheet.getLastColumn()).getValues();
-  let migrated = 0, updated = 0, appended = 0, skipped = 0;
-  const log = [];
-
-  usersData.forEach(uRow => {
-    // Schema Users cũ: [Email, Role, Tên nhân viên liên kết, Trạng thái, Ngày tạo, Quyền]
-    const email = String(uRow[0] || '').trim().toLowerCase();
-    if (!email) { skipped++; return; }
-    const role = String(uRow[1] || '').trim().toLowerCase();
-    const staffName = String(uRow[2] || '').trim() || email;
-    const status = String(uRow[3] || 'Đang làm').trim();
-    const createdAt = uRow[4] instanceof Date ? uRow[4] : (uRow[4] ? new Date(uRow[4]) : new Date());
-    const permissionsRaw = uRow[5];
-
-    const staffData = staffSheet.getDataRange().getValues();
-    // Skip nếu email đã có sẵn trong staff (đã migrate trước)
-    if (getStaffEmailIndex_(staffData, email) !== -1) { skipped++; log.push(email + ' đã có trong Nhân viên (skip)'); return; }
-
-    const nameIdx = getStaffNameIndex_(staffData, staffName);
-    if (nameIdx !== -1) {
-      // Row staff có sẵn → update email/role/quyền vào row đó (giữ specialty/phone cũ)
-      const rowNum = nameIdx + 1;
-      const existing = staffData[nameIdx];
-      const merged = buildStaffRow_({
-        id: existing[STAFF_COL.ID] || nextStaffId_(staffSheet),
-        staffName: staffName,
-        specialty: existing[STAFF_COL.SPECIALTY] || '',
-        phone: existing[STAFF_COL.PHONE] || '',
-        status: existing[STAFF_COL.STATUS] || (status === 'active' ? 'Đang làm' : status),
-        email: email,
-        role: role,
-        permissions: permissionsRaw,
-        createdAt: existing[STAFF_COL.CREATED_AT] || createdAt
-      });
-      staffSheet.getRange(rowNum, 1, 1, CONFIG.STAFF_HEADERS.length).setValues([merged]);
-      updated++;
-      log.push('UPDATE ' + email + ' → row ' + rowNum + ' (' + staffName + ')');
-    } else {
-      // Không có row khớp → append row mới
-      const newRow = buildStaffRow_({
-        id: nextStaffId_(staffSheet),
-        staffName: staffName,
-        specialty: '',
-        phone: '',
-        status: status === 'active' ? 'Đang làm' : status,
-        email: email,
-        role: role,
-        permissions: permissionsRaw,
-        createdAt: createdAt
-      });
-      staffSheet.appendRow(newRow);
-      appended++;
-      log.push('APPEND ' + email + ' (' + staffName + ')');
-    }
-    migrated++;
-  });
-
+  
+  // Ghi đè toàn bộ dữ liệu từ sheet "Nhân viên" sang "Users"
+  usersSheet.clear();
+  
+  const targetCols = CONFIG.STAFF_HEADERS.length;
+  usersSheet.getRange(1, 1, data.length, targetCols).setValues(
+    data.map(row => {
+      const newRow = new Array(targetCols).fill('');
+      for (let i = 0; i < targetCols; i++) {
+        newRow[i] = row[i] !== undefined ? row[i] : '';
+      }
+      return newRow;
+    })
+  );
+  
   clearCache();
-  console.log('Migration done:', JSON.stringify({ migrated, updated, appended, skipped }));
-  log.forEach(l => console.log(' - ' + l));
   return {
     success: true,
-    migrated,
-    updated,
-    appended,
-    skipped,
-    log,
-    message: 'Migration hoàn tất. Kiểm tra sheet Nhân viên rồi xóa sheet Users tay nếu OK.'
+    migrated: data.length - 1,
+    message: 'Đã sao chép toàn bộ dữ liệu từ sheet "Nhân viên" sang sheet "Users" thành công. Hãy kiểm tra lại và xóa sheet "Nhân viên" thủ công.'
   };
 }
 
