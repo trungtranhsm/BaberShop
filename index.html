@@ -233,7 +233,10 @@
 window.__appBootedAt = Date.now();
 window.addEventListener('error', function(event) {
   const el = document.getElementById('loadingStatus');
-  if (el) el.textContent = 'Lỗi JS: ' + (event.message || 'Không rõ lỗi');
+  if (el) {
+    const file = event.filename ? event.filename.split('/').pop() : 'inline';
+    el.textContent = 'Lỗi JS: ' + (event.message || 'Không rõ lỗi') + ' tại ' + file + ':' + event.lineno + ':' + event.colno;
+  }
 });
 window.addEventListener('unhandledrejection', function(event) {
   const el = document.getElementById('loadingStatus');
