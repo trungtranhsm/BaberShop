@@ -199,8 +199,20 @@
           <p id="invoice-bank-details" class="text-[10px] text-[#94A3B8]"></p>
         </div>
         <!-- VietQR Image container -->
-        <div class="bg-white p-2.5 rounded-xl flex items-center justify-center shadow-lg border border-amber-500/20">
-          <img id="invoice-vietqr-img" src="" alt="VietQR Code" class="w-48 h-48 object-contain">
+        <div class="relative bg-white p-2.5 rounded-xl flex flex-col items-center justify-center shadow-lg border border-amber-500/20 w-52 h-52 overflow-hidden">
+          <!-- Spinner/Skeleton -->
+          <div id="invoice-vietqr-loader" class="absolute inset-0 flex flex-col items-center justify-center bg-white rounded-xl select-none z-10">
+            <div class="w-9 h-9 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin"></div>
+            <p class="text-[10px] text-[#64748B] mt-2 font-medium" data-i18n="invoice.loadingQr">Đang tải mã QR...</p>
+          </div>
+          <!-- Failure / Retry Message -->
+          <button id="invoice-vietqr-retry-btn" type="button" class="absolute inset-0 flex flex-col items-center justify-center bg-white rounded-xl select-none cursor-pointer hidden p-3 text-center hover:bg-gray-50 transition-colors z-20">
+            <svg class="w-8 h-8 text-rose-500 mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <p class="text-[10px] text-rose-600 font-bold" data-i18n="invoice.qrLoadError">Lỗi tải mã QR</p>
+            <p class="text-[9px] text-[#64748B] mt-0.5" data-i18n="invoice.clickToRetry">Nhấp để thử lại</p>
+          </button>
+          <!-- Image -->
+          <img id="invoice-vietqr-img" src="" alt="VietQR Code" class="w-48 h-48 object-contain opacity-0 transition-opacity duration-300">
         </div>
       </div>
     </div>
@@ -328,19 +340,29 @@
       const labelCancel = window.currentLanguage === 'vi' ? 'Hủy' : 'Cancel';
       const labelUnassigned = window.currentLanguage === 'vi' ? 'Chưa chỉ định' : 'Unassigned';
 
-      const actions = canAct ? `
-        <button data-id="${apt.id}" class="edit-btn flex items-center gap-1.5 px-3 py-1.5 bg-[#6366F1]/15 hover:bg-[#6366F1]/25 text-[#818CF8] text-xs font-medium rounded-lg cursor-pointer transition-colors">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          ${labelEdit}
-        </button>
-        <button data-id="${apt.id}" class="complete-btn flex items-center gap-1.5 px-3 py-1.5 bg-[#22C55E]/15 hover:bg-[#22C55E]/25 text-[#4ADE80] text-xs font-medium rounded-lg cursor-pointer transition-colors">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-          ${labelComplete}
-        </button>
-        <button data-id="${apt.id}" class="cancel-btn flex items-center gap-1.5 px-3 py-1.5 bg-[#EF4444]/15 hover:bg-[#EF4444]/25 text-[#F87171] text-xs font-medium rounded-lg cursor-pointer transition-colors">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          ${labelCancel}
-        </button>` : '';
+      let actions = '';
+      if (canAct) {
+        actions = `
+          <button data-id="${apt.id}" class="edit-btn flex items-center gap-1.5 px-3 py-1.5 bg-[#6366F1]/15 hover:bg-[#6366F1]/25 text-[#818CF8] text-xs font-medium rounded-lg cursor-pointer transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            ${labelEdit}
+          </button>
+          <button data-id="${apt.id}" class="complete-btn flex items-center gap-1.5 px-3 py-1.5 bg-[#22C55E]/15 hover:bg-[#22C55E]/25 text-[#4ADE80] text-xs font-medium rounded-lg cursor-pointer transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            ${labelComplete}
+          </button>
+          <button data-id="${apt.id}" class="cancel-btn flex items-center gap-1.5 px-3 py-1.5 bg-[#EF4444]/15 hover:bg-[#EF4444]/25 text-[#F87171] text-xs font-medium rounded-lg cursor-pointer transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            ${labelCancel}
+          </button>`;
+      } else if (apt.status === 'Hoàn thành' && !String(apt.id).startsWith('temp-')) {
+        const labelViewInvoice = window.currentLanguage === 'vi' ? 'Hóa đơn' : 'Receipt';
+        actions = `
+          <button data-id="${apt.id}" class="view-invoice-btn flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 text-xs font-medium rounded-lg cursor-pointer transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            ${labelViewInvoice}
+          </button>`;
+      }
 
       const card = document.createElement('div');
       card.id = `appointment-card-${apt.id}`;
@@ -634,6 +656,7 @@
     window.AppCache.data.appointments[idx] = { ...original, status: 'Hoàn thành', service: finalServices.join(', '), notes: finalNotes };
     filterAndRender();
     showCompleteModal(false);
+    showInvoiceModal(id, finalServices);
 
     try {
       const result = await window.AppCache.callServerFunction('completeAppointment', id, { services: finalServices, notes: finalNotes, _emailToken: window.AppCache._emailToken });
@@ -642,12 +665,12 @@
       const successMsg = window.currentLanguage === 'vi' ? 'Đã hoàn thành lịch hẹn!' : 'Appointment completed!';
       showToast(successMsg, 'success');
       if (window.updateDashboard) window.updateDashboard();
-      showInvoiceModal(id, finalServices);
     } catch (err) {
       const errorPrefix = window.currentLanguage === 'vi' ? 'Lỗi: ' : 'Error: ';
       showToast(errorPrefix + err.message, 'error');
       window.AppCache.data.appointments[idx] = original;
       filterAndRender();
+      hideInvoiceModal();
     } finally {
       btn.disabled = false; 
       btn.textContent = window.currentLanguage === 'vi' ? 'Xác nhận hoàn thành' : 'Confirm Completion';
@@ -812,6 +835,10 @@
       document.getElementById('cancel-confirmation-text').innerHTML = confirmQuestionHtml;
       showCancelModal(true);
     }
+    if (btn.classList.contains('view-invoice-btn')) {
+      const services = apt.service ? apt.service.split(',').map(s => s.trim()) : [];
+      showInvoiceModal(apt.id, services);
+    }
   });
 
   searchInput.addEventListener('input', e => {
@@ -928,6 +955,32 @@
       
       const qrUrl = `https://img.vietqr.io/image/${bankIdEncoded}-${accountNoEncoded}-compact2.png?amount=${amountEncoded}&addInfo=${descEncoded}&accountName=${accountNameEncoded}`;
       
+      // Reset image state
+      qrImg.classList.add('opacity-0');
+      const qrLoader = document.getElementById('invoice-vietqr-loader');
+      const qrRetryBtn = document.getElementById('invoice-vietqr-retry-btn');
+      
+      if (qrLoader) qrLoader.style.display = 'flex';
+      if (qrRetryBtn) qrRetryBtn.style.display = 'none';
+
+      // Set up retry handler
+      if (qrRetryBtn) {
+        qrRetryBtn.onclick = function() {
+          if (qrLoader) qrLoader.style.display = 'flex';
+          if (qrRetryBtn) qrRetryBtn.style.display = 'none';
+          qrImg.classList.add('opacity-0');
+          
+          if (printBtn) {
+            printBtn.disabled = true;
+            const loadingText = window.currentLanguage === 'vi' ? 'Đang tải QR...' : 'Loading QR...';
+            const spanEl = printBtn.querySelector('span');
+            if (spanEl) spanEl.textContent = loadingText;
+          }
+          
+          qrImg.src = qrUrl + '&t=' + Date.now();
+        };
+      }
+
       if (printBtn) {
         printBtn.disabled = true;
         const loadingText = window.currentLanguage === 'vi' ? 'Đang tải QR...' : 'Loading QR...';
@@ -936,10 +989,15 @@
         
         qrImg.onload = function() {
           printBtn.disabled = false;
+          if (qrLoader) qrLoader.style.display = 'none';
+          if (qrRetryBtn) qrRetryBtn.style.display = 'none';
+          qrImg.classList.remove('opacity-0');
           if (spanEl) spanEl.textContent = window.currentLanguage === 'vi' ? 'In hóa đơn' : 'Print Invoice';
         };
         qrImg.onerror = function() {
           printBtn.disabled = false;
+          if (qrLoader) qrLoader.style.display = 'none';
+          if (qrRetryBtn) qrRetryBtn.style.display = 'flex';
           if (spanEl) spanEl.textContent = window.currentLanguage === 'vi' ? 'In hóa đơn' : 'Print Invoice';
         };
       }
