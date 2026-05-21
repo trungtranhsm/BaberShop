@@ -1226,7 +1226,7 @@ window.AuthGate = {
         return;
       }
       if (res && res.success) {
-        try { localStorage.setItem('__emailToken', res.email); } catch(e) {}
+        persistAuthToken_(res.email);
         AppCache._emailToken = res.email;
         if (typeof saveTokenToUrl === 'function') saveTokenToUrl(res.email);
         document.getElementById('loginGate').style.display = 'none';
@@ -1440,7 +1440,7 @@ function applyRoleVisibility() {
 }
 
 function logoutAccount() {
-  try { localStorage.removeItem('__emailToken'); } catch(e) {}
+  clearStoredAuthToken_();
   if (typeof clearTokenFromUrl === 'function') clearTokenFromUrl();
   AppCache.isLoaded = false;
   AppCache.currentUser = null;
@@ -1492,6 +1492,57 @@ function getUrlToken() {
   });
 }
 
+// ========== SESSION STORAGE HELPERS (COOKIE + LOCALSTORAGE) ==========
+var AUTH_COOKIE_MAX_AGE = 2592000; // 30 ngay
+
+function normalizeAuthToken_(token) {
+  return String(token || '').trim().toLowerCase();
+}
+
+function setCookieToken_(value) {
+  try {
+    var exp = value ? '; max-age=' + AUTH_COOKIE_MAX_AGE : '; max-age=0';
+    document.cookie = '__emailToken=' + encodeURIComponent(value || '') + exp + '; path=/; SameSite=Lax';
+  } catch(e) {}
+}
+
+function getCookieToken_() {
+  try {
+    var cookies = document.cookie.split(';');
+    for (var i = 0; i < cookies.length; i++) {
+      var c = cookies[i].trim();
+      if (c.indexOf('__emailToken=') === 0) {
+        return normalizeAuthToken_(decodeURIComponent(c.substring('__emailToken='.length)));
+      }
+    }
+  } catch(e) {}
+  return '';
+}
+
+function persistAuthToken_(token) {
+  var n = normalizeAuthToken_(token);
+  if (!n) return '';
+  setCookieToken_(n);
+  try { localStorage.setItem('__emailToken', n); } catch(e) {}
+  try { sessionStorage.setItem('__emailToken', n); } catch(e) {}
+  return n;
+}
+
+function getStoredAuthToken_() {
+  var token = getCookieToken_(); // Cookie la reliable nhat trong GAS iframe
+  if (token) return token;
+  try { token = normalizeAuthToken_(localStorage.getItem('__emailToken')); } catch(e) {}
+  if (token) return token;
+  try { token = normalizeAuthToken_(sessionStorage.getItem('__emailToken')); } catch(e) {}
+  return token || '';
+}
+
+function clearStoredAuthToken_() {
+  setCookieToken_('');
+  try { localStorage.removeItem('__emailToken'); } catch(e) {}
+  try { sessionStorage.removeItem('__emailToken'); } catch(e) {}
+  AppCache._emailToken = null;
+}
 function saveTokenToUrl(token) {
   if (typeof google !== 'undefined' && google.script && google.script.history) {
     if (token) {
@@ -1524,12 +1575,18 @@ async function initApp() {
     TabManager.init();
 
     // Lấy emailToken từ URL hash trước, sau đó fallback localStorage
-    var emailToken = await getUrlToken();
+    // Uu tien: kiem tra cookie/localStorage truoc (nhanh, khong can cho URL timeout)
+    var emailToken = normalizeAuthToken_(AppCache._emailToken) || getStoredAuthToken_();
+
     if (!emailToken) {
-      emailToken = AppCache._emailToken;
-    }
-    if (!emailToken) {
-      try { emailToken = localStorage.getItem('__emailToken'); } catch(e) {}
+      // Chua co trong storage -> moi can cho URL token (timeout 1.5s)
+      emailToken = await getUrlToken();
+    } else {
+      // Da co trong storage -> fetch URL token ngam de sync neu co link chia se
+      getUrlToken().then(function(urlToken) {
+        var n = normalizeAuthToken_(urlToken);
+        if (n && n !== emailToken) { persistAuthToken_(n); AppCache._emailToken = n; }
+      }).catch(function() {});
     }
     
     if (!emailToken) {
