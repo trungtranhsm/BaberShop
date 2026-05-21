@@ -139,6 +139,83 @@
   </div>
 </div>
 
+<!-- ===== INVOICE MODAL ===== -->
+<div id="invoice-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in" style="display:none;">
+  <div class="bg-[#16161D] border border-[#2A2A38] rounded-2xl shadow-2xl p-6 w-full max-w-md mx-4 max-h-[95vh] overflow-y-auto flex flex-col">
+    <!-- Header -->
+    <div class="flex justify-between items-center pb-4 border-b border-[#2A2A38] no-print">
+      <h3 class="text-lg font-bold text-[#F1F5F9]" data-i18n="invoice.title">HÓA ĐƠN THANH TOÁN</h3>
+      <button onclick="hideInvoiceModal()" class="text-[#94A3B8] hover:text-[#F1F5F9] cursor-pointer">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <!-- Invoice Content for print/display -->
+    <div id="invoice-print-area" class="flex-1 py-4 space-y-4 text-[#F1F5F9]">
+      <!-- Shop details -->
+      <div class="text-center space-y-1">
+        <h2 id="invoice-shop-name" class="text-xl font-extrabold uppercase tracking-wide text-amber-500"></h2>
+        <p id="invoice-shop-address" class="text-xs text-[#94A3B8]"></p>
+        <p id="invoice-shop-phone" class="text-xs text-[#94A3B8]"></p>
+      </div>
+
+      <div class="border-t border-dashed border-[#2A2A38] my-3"></div>
+
+      <!-- Bill Info -->
+      <div class="grid grid-cols-2 gap-y-2 text-xs">
+        <div><span class="text-[#94A3B8]" data-i18n="invoice.customer">Khách hàng</span>: <span id="invoice-cust-name" class="font-medium text-[#F1F5F9]"></span></div>
+        <div class="text-right"><span class="text-[#94A3B8]" data-i18n="invoice.phone">SĐT</span>: <span id="invoice-cust-phone" class="font-medium text-[#F1F5F9]"></span></div>
+        <div><span class="text-[#94A3B8]" data-i18n="invoice.time">Thời gian</span>: <span id="invoice-apt-time" class="font-medium text-[#F1F5F9]"></span></div>
+        <div class="text-right"><span class="text-[#94A3B8]" data-i18n="invoice.staff">Nhân viên</span>: <span id="invoice-staff-name" class="font-medium text-[#F1F5F9]"></span></div>
+      </div>
+
+      <div class="border-t border-dashed border-[#2A2A38] my-3"></div>
+
+      <!-- Service list table -->
+      <table class="w-full text-left text-xs border-collapse">
+        <thead>
+          <tr class="border-b border-[#2A2A38] text-[#94A3B8]">
+            <th class="pb-2 font-medium" data-i18n="invoice.service">Dịch vụ</th>
+            <th class="pb-2 text-right font-medium" data-i18n="invoice.price">Đơn giá</th>
+          </tr>
+        </thead>
+        <tbody id="invoice-services-body">
+          <!-- Rows will be injected here -->
+        </tbody>
+      </table>
+
+      <div class="border-t border-dashed border-[#2A2A38] my-3"></div>
+
+      <!-- Total -->
+      <div class="flex justify-between items-center">
+        <span class="text-sm font-bold" data-i18n="invoice.total">TỔNG CỘNG</span>
+        <span id="invoice-total-amount" class="text-lg font-black text-[#22C55E]">0 đ</span>
+      </div>
+
+      <!-- VietQR info & Code -->
+      <div id="invoice-vietqr-section" class="pt-4 border-t border-[#2A2A38] flex flex-col items-center space-y-3">
+        <div class="text-center space-y-1">
+          <p class="text-xs font-bold text-[#22C55E]" data-i18n="invoice.scanToPay">QUÉT MÃ QR THANH TOÁN</p>
+          <p id="invoice-bank-details" class="text-[10px] text-[#94A3B8]"></p>
+        </div>
+        <!-- VietQR Image container -->
+        <div class="bg-white p-2.5 rounded-xl flex items-center justify-center shadow-lg border border-amber-500/20">
+          <img id="invoice-vietqr-img" src="" alt="VietQR Code" class="w-48 h-48 object-contain">
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions (No print) -->
+    <div class="flex gap-3 pt-4 border-t border-[#2A2A38] no-print mt-auto">
+      <button onclick="hideInvoiceModal()" class="flex-1 px-4 py-2.5 bg-[#1E1E2A] hover:bg-[#252533] border border-[#2A2A38] text-sm font-medium rounded-lg cursor-pointer transition-colors text-center text-[#F1F5F9]" data-i18n="invoice.close">Đóng</button>
+      <button onclick="printInvoice()" class="flex-1 px-4 py-2.5 bg-[#6366F1] hover:bg-[#4F46E5] text-white text-sm font-bold rounded-lg cursor-pointer transition-colors flex items-center justify-center gap-1.5" data-i18n="invoice.print">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        <span>In hóa đơn</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== CANCEL MODAL ===== -->
 <div id="cancel-appointment-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50" style="display:none;">
   <div class="bg-[#16161D] border border-[#2A2A38] rounded-2xl shadow-2xl p-6 w-full max-w-md mx-4">
@@ -565,6 +642,7 @@
       const successMsg = window.currentLanguage === 'vi' ? 'Đã hoàn thành lịch hẹn!' : 'Appointment completed!';
       showToast(successMsg, 'success');
       if (window.updateDashboard) window.updateDashboard();
+      showInvoiceModal(id, finalServices);
     } catch (err) {
       const errorPrefix = window.currentLanguage === 'vi' ? 'Lỗi: ' : 'Error: ';
       showToast(errorPrefix + err.message, 'error');
@@ -752,6 +830,117 @@
 
   prevPageBtn.addEventListener('click', () => { if (state.currentPage > 1) { state.currentPage--; filterAndRender(); } });
   nextPageBtn.addEventListener('click', () => { state.currentPage++; filterAndRender(); });
+
+  function showInvoiceModal(aptId, servicesList) {
+    const apt = (window.AppCache.getData('appointments') || []).find(a => String(a.id) === String(aptId));
+    if (!apt) return;
+
+    // Load settings
+    const settings = (window.AppCache.data && window.AppCache.data.systemSettings) || {};
+    
+    // Fill shop info
+    document.getElementById('invoice-shop-name').textContent = settings.shop_name || 'Barber Shop';
+    document.getElementById('invoice-shop-address').textContent = settings.shop_address || '';
+    document.getElementById('invoice-shop-phone').textContent = settings.shop_phone || '';
+
+    // Fill customer / booking info
+    document.getElementById('invoice-cust-name').textContent = apt.customerName || '';
+    document.getElementById('invoice-cust-phone').textContent = apt.phone || '';
+    
+    // Format date & time nicely
+    let timeStr = apt.time || '';
+    if (apt.date) {
+      const parts = apt.date.split('-');
+      if (parts.length === 3) {
+        timeStr += ` (${parts[2]}/${parts[1]}/${parts[0]})`;
+      }
+    }
+    document.getElementById('invoice-apt-time').textContent = timeStr;
+    document.getElementById('invoice-staff-name').textContent = apt.staffName || '';
+
+    // Fill service list and calculate total
+    const servicesData = window.AppCache.getData('services') || [];
+    const servicePriceMap = {};
+    servicesData.forEach(s => {
+      const name = s.name || s[1];
+      const price = Number(s.price || s[2] || 0);
+      if (name) servicePriceMap[name.trim()] = price;
+    });
+
+    let total = 0;
+    const tbody = document.getElementById('invoice-services-body');
+    tbody.innerHTML = '';
+    
+    servicesList.forEach(srvName => {
+      const trimmed = srvName.trim();
+      const price = servicePriceMap[trimmed] || 0;
+      total += price;
+
+      const tr = document.createElement('tr');
+      tr.className = 'border-b border-[#2A2A38]/50';
+      
+      const tdName = document.createElement('td');
+      tdName.className = 'py-2';
+      tdName.textContent = trimmed;
+      
+      const tdPrice = document.createElement('td');
+      tdPrice.className = 'py-2 text-right font-medium text-[#4ADE80]';
+      tdPrice.textContent = price.toLocaleString('vi-VN') + ' đ';
+      
+      tr.appendChild(tdName);
+      tr.appendChild(tdPrice);
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('invoice-total-amount').textContent = total.toLocaleString('vi-VN') + ' đ';
+
+    // VietQR code generation
+    const vietqrSection = document.getElementById('invoice-vietqr-section');
+    const bankId = settings.bank_id;
+    const accountNo = settings.account_no;
+    const accountName = settings.account_name;
+
+    if (bankId && accountNo && accountName) {
+      vietqrSection.style.display = 'flex';
+      
+      // Update Bank details text
+      const bankLabel = window.currentLanguage === 'vi' ? 'Ngân hàng' : 'Bank';
+      const accLabel = window.currentLanguage === 'vi' ? 'STK' : 'Acc';
+      const nameLabel = window.currentLanguage === 'vi' ? 'Chủ TK' : 'Holder';
+      document.getElementById('invoice-bank-details').textContent = `${bankLabel}: ${bankId} | ${accLabel}: ${accountNo} | ${nameLabel}: ${accountName}`;
+      
+      // Generate description: e.g. "TT HD APT 123"
+      const description = `TT HD APT ${apt.id || ''}`.toUpperCase();
+      
+      // URL format: https://img.vietqr.io/image/<BANK_ID>-<ACCOUNT_NO>-compact2.png?amount=<AMOUNT>&addInfo=<DESCRIPTION>&accountName=<ACCOUNT_NAME>
+      const bankIdEncoded = encodeURIComponent(bankId);
+      const accountNoEncoded = encodeURIComponent(accountNo);
+      const amountEncoded = total;
+      const descEncoded = encodeURIComponent(description);
+      const accountNameEncoded = encodeURIComponent(accountName);
+      
+      const qrUrl = `https://img.vietqr.io/image/${bankIdEncoded}-${accountNoEncoded}-compact2.png?amount=${amountEncoded}&addInfo=${descEncoded}&accountName=${accountNameEncoded}`;
+      document.getElementById('invoice-vietqr-img').src = qrUrl;
+    } else {
+      vietqrSection.style.display = 'none';
+    }
+
+    // Display modal
+    document.getElementById('invoice-modal').style.display = 'flex';
+  }
+
+  window.hideInvoiceModal = function() {
+    document.getElementById('invoice-modal').style.display = 'none';
+  };
+
+  window.printInvoice = function() {
+    document.body.classList.add('printing-invoice');
+    window.print();
+  };
+
+  window.addEventListener('afterprint', () => {
+    document.body.classList.remove('printing-invoice');
+  });
 
   window.initAppointmentManagerTab = function() {
     if (window.AppCache && window.AppCache.isLoaded) filterAndRender();

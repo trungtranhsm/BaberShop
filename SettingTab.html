@@ -125,8 +125,78 @@
     </div>
   </div>
 
+  <!-- Shop & Payment settings (VietQR) -->
+  <div data-permission="viewSettings" class="bg-[#16161D] border border-[#2A2A38] rounded-xl overflow-hidden">
+    <div class="px-5 py-3.5 border-b border-[#2A2A38]">
+      <h3 class="text-sm font-semibold" data-i18n="settings.shopPaymentTitle">Cài đặt Cửa hàng & Thanh toán</h3>
+    </div>
+    <form id="shopPaymentSettingsForm" class="p-5 space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Shop Info -->
+        <div class="space-y-3">
+          <h4 class="text-xs font-bold text-[#6366F1] uppercase" data-i18n="settings.shopInfo">Thông tin cửa hàng</h4>
+          <div>
+            <label class="block text-xs font-medium text-[#94A3B8] mb-1" data-i18n="settings.shopName">Tên cửa hàng</label>
+            <input type="text" id="setting_shop_name" class="w-full px-3 py-2 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none text-[#F1F5F9]" required>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-[#94A3B8] mb-1" data-i18n="settings.shopAddress">Địa chỉ</label>
+            <input type="text" id="setting_shop_address" class="w-full px-3 py-2 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none text-[#F1F5F9]">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-[#94A3B8] mb-1" data-i18n="settings.shopPhone">Số điện thoại</label>
+            <input type="text" id="setting_shop_phone" class="w-full px-3 py-2 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none text-[#F1F5F9]">
+          </div>
+        </div>
+        
+        <!-- Payment Info (VietQR) -->
+        <div class="space-y-3">
+          <h4 class="text-xs font-bold text-[#22C55E] uppercase" data-i18n="settings.paymentInfo">Thông tin VietQR</h4>
+          <div>
+            <label class="block text-xs font-medium text-[#94A3B8] mb-1" data-i18n="settings.bankId">Ngân hàng</label>
+            <select id="setting_bank_id" class="w-full px-3 py-2 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none text-[#F1F5F9]">
+              <option value="" data-i18n="booking.selectBank">Chọn ngân hàng...</option>
+              <option value="VCB">Vietcombank (VCB)</option>
+              <option value="CTG">Vietinbank (CTG)</option>
+              <option value="BIDV">BIDV</option>
+              <option value="VBA">Agribank (VBA)</option>
+              <option value="MB">MBBank (MB)</option>
+              <option value="TCB">Techcombank (TCB)</option>
+              <option value="ACB">ACB</option>
+              <option value="STB">Sacombank (STB)</option>
+              <option value="VPB">VPBank (VPB)</option>
+              <option value="TPB">TPBank (TPB)</option>
+              <option value="VIB">VIB</option>
+              <option value="SHB">SHB</option>
+              <option value="HDB">HDBank (HDB)</option>
+              <option value="OCB">OCB</option>
+              <option value="SCB">SCB</option>
+              <option value="MSB">MSB</option>
+              <option value="BAB">BacABank (BAB)</option>
+              <option value="PVB">PVcomBank (PVB)</option>
+              <option value="WVB">Woori Bank (WVB)</option>
+              <option value="SHJV">Shinhan Bank (SHJV)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-[#94A3B8] mb-1" data-i18n="settings.accountNo">Số tài khoản</label>
+            <input type="text" id="setting_account_no" class="w-full px-3 py-2 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none text-[#F1F5F9]">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-[#94A3B8] mb-1" data-i18n="settings.accountName">Tên chủ tài khoản (Không dấu)</label>
+            <input type="text" id="setting_account_name" placeholder="NGUYEN VAN A" class="w-full px-3 py-2 bg-[#1E1E2A] border border-[#2A2A38] focus:border-[#6366F1] rounded-lg text-sm outline-none text-[#F1F5F9]">
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex justify-end pt-2 border-t border-[#2A2A38]">
+        <button type="submit" id="saveShopPaymentBtn" class="px-5 py-2 text-sm font-medium bg-[#6366F1] hover:bg-[#4F46E5] text-white rounded-lg cursor-pointer transition-colors" data-i18n="common.save">Lưu cấu hình</button>
+      </div>
+    </form>
+  </div>
+
   <!-- Staff & Service Management -->
-  <div data-permission="manageStaff" class="hidden">
+  <div data-permission="manageStaff" class="bg-[#16161D] border border-[#2A2A38] rounded-xl overflow-hidden mt-5">
     <div class="px-5 py-3.5 border-b border-[#2A2A38] flex items-center justify-between">
       <h3 class="text-sm font-semibold" data-i18n="settings.staffSection">Nhân viên</h3>
       <button onclick="showSettingsStaffForm()" class="flex items-center gap-1.5 px-3 py-1.5 bg-[#6366F1] hover:bg-[#4F46E5] text-white text-xs font-medium rounded-lg cursor-pointer transition-colors">
@@ -352,6 +422,9 @@ window.initSettingsTab = function() {
   if (window.AppCache && window.AppCache.isLoaded) {
     document.getElementById('totalAppointmentsCount').textContent = window.AppCache.getData('appointments').length;
   }
+  if (window.AppCache && window.AppCache.hasPermission && window.AppCache.hasPermission('viewSettings')) {
+    loadShopPaymentSettings();
+  }
   if (window.AppCache && window.AppCache.hasPermission && window.AppCache.hasPermission('manageStaff')) {
     loadSettingsStaff();
   }
@@ -362,6 +435,73 @@ window.initSettingsTab = function() {
     loadUsers();
   }
 };
+
+function loadShopPaymentSettings() {
+  const settings = (window.AppCache && window.AppCache.data && window.AppCache.data.systemSettings) || {};
+  const shopNameInp = document.getElementById('setting_shop_name');
+  const shopAddressInp = document.getElementById('setting_shop_address');
+  const shopPhoneInp = document.getElementById('setting_shop_phone');
+  const bankIdSelect = document.getElementById('setting_bank_id');
+  const accountNoInp = document.getElementById('setting_account_no');
+  const accountNameInp = document.getElementById('setting_account_name');
+  
+  if (shopNameInp) shopNameInp.value = settings.shop_name || 'Barber Shop';
+  if (shopAddressInp) shopAddressInp.value = settings.shop_address || '';
+  if (shopPhoneInp) shopPhoneInp.value = settings.shop_phone || '';
+  if (bankIdSelect) bankIdSelect.value = settings.bank_id || '';
+  if (accountNoInp) accountNoInp.value = settings.account_no || '';
+  if (accountNameInp) accountNameInp.value = settings.account_name || '';
+}
+
+// Register submit listener after DOM fully loaded
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('shopPaymentSettingsForm');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('saveShopPaymentBtn');
+      const origText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = window.currentLanguage === 'vi' ? 'Đang lưu...' : 'Saving...';
+      
+      const payload = {
+        shop_name: document.getElementById('setting_shop_name').value.trim(),
+        shop_address: document.getElementById('setting_shop_address').value.trim(),
+        shop_phone: document.getElementById('setting_shop_phone').value.trim(),
+        bank_id: document.getElementById('setting_bank_id').value,
+        account_no: document.getElementById('setting_account_no').value.trim(),
+        account_name: document.getElementById('setting_account_name').value.trim().toUpperCase()
+      };
+      
+      const payloadWithToken = Object.assign({}, payload, { _emailToken: window.AppCache && window.AppCache._emailToken });
+      
+      google.script.run
+        .withSuccessHandler(res => {
+          btn.disabled = false;
+          btn.textContent = origText;
+          const errLabel = window.currentLanguage === 'vi' ? 'Lỗi' : 'Error';
+          if (!res || !res.success) {
+            showToast(res ? res.error : errLabel, 'error');
+            return;
+          }
+          const successMsg = window.currentLanguage === 'vi' ? 'Đã lưu cấu hình!' : 'Settings saved!';
+          showToast(successMsg, 'success');
+          // Refresh local AppCache data
+          if (window.AppCache && typeof window.AppCache.refresh === 'function') {
+            window.AppCache.refresh().then(() => {
+              loadShopPaymentSettings();
+            });
+          }
+        })
+        .withFailureHandler(err => {
+          btn.disabled = false;
+          btn.textContent = origText;
+          showToast(err.message || err, 'error');
+        })
+        .saveSystemSettings(payloadWithToken);
+    });
+  }
+});
 
 window.changeLanguage = function(val) {
   if (typeof window.setAppLanguage === 'function') {

@@ -145,6 +145,7 @@ function initializeAllData(emailToken) {
       services: services,
       staff: staff,
       customers: customers,
+      systemSettings: loadSystemSettings(),
       currentUser: currentUser,
       permissionDefs: USER_PERMISSION_DEFS,
       loadedAt: new Date().toISOString()
