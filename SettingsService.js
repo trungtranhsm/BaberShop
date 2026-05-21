@@ -46,7 +46,8 @@ function loadSystemSettings() {
  */
 function saveSystemSettings(settings, emailToken) {
   try {
-    assertPermission_(emailToken, 'viewSettings'); // Check permissions
+    const token = emailToken || (settings && settings._emailToken);
+    assertPermission_(token, 'viewSettings'); // Check permissions
     const sheet = getOrCreateSheet(CONFIG.SHEETS.SETTINGS, ['Khóa', 'Giá trị']);
     
     // Read existing keys to update or append
@@ -72,7 +73,7 @@ function saveSystemSettings(settings, emailToken) {
     });
     
     clearCache();
-    logAction_('settings_update', settings, emailToken);
+    logAction_('settings_update', settings, token);
     return { success: true };
   } catch (e) {
     console.error('Error in saveSystemSettings:', e);

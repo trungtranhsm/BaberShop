@@ -322,7 +322,7 @@
     listContainer.innerHTML = '';
     apts.forEach(apt => {
       const sm = statusMap[apt.status] || { border: 'border-[#F59E0B]/50', badge: 'badge-pending', label: apt.status === 'Đang lưu...' ? (window.currentLanguage === 'vi' ? 'Đang lưu...' : 'Saving...') : (window.currentLanguage === 'vi' ? 'Đã đặt' : 'Booked') };
-      const canAct = !['Hoàn thành','Đã hủy'].includes(apt.status);
+      const canAct = !['Hoàn thành','Đã hủy','Đang lưu...'].includes(apt.status) && !String(apt.id).startsWith('temp-');
       const labelEdit = window.currentLanguage === 'vi' ? 'Sửa' : 'Edit';
       const labelComplete = window.currentLanguage === 'vi' ? 'Hoàn thành' : 'Complete';
       const labelCancel = window.currentLanguage === 'vi' ? 'Hủy' : 'Cancel';
@@ -772,6 +772,10 @@
       const notFoundMsg = window.currentLanguage === 'vi' ? 'Không tìm thấy lịch hẹn!' : 'Appointment not found!';
       showToast(notFoundMsg, 'error'); 
       return; 
+    }
+
+    if (String(id).startsWith('temp-') || apt.status === 'Đang lưu...') {
+      return;
     }
 
     if (btn.classList.contains('edit-btn')) {
