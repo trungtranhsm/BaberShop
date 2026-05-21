@@ -933,6 +933,7 @@ window.AppCache = {
         // Token invalid — xóa session rồi hiện lại login
         try { localStorage.removeItem('__emailToken'); } catch(e) {}
         this._emailToken = null;
+        if (typeof clearTokenFromUrl === 'function') clearTokenFromUrl();
         AuthGate.showDenied(result.email || emailToken || '', result.reason);
         return 'denied';
       }
@@ -1227,6 +1228,7 @@ window.AuthGate = {
       if (res && res.success) {
         try { localStorage.setItem('__emailToken', res.email); } catch(e) {}
         AppCache._emailToken = res.email;
+        if (typeof saveTokenToUrl === 'function') saveTokenToUrl(res.email);
         document.getElementById('loginGate').style.display = 'none';
         showLoading();
         await initApp();
@@ -1274,6 +1276,7 @@ window.AuthGate = {
       showToast(window.t('toast.setPasswordSuccess'), 'success');
       try { localStorage.setItem('__emailToken', email); } catch(e) {}
       AppCache._emailToken = email;
+      if (typeof saveTokenToUrl === 'function') saveTokenToUrl(email);
       document.getElementById('setPasswordGate').classList.add('hidden');
       document.getElementById('setPasswordGate').classList.remove('flex');
       showLoading();
@@ -1314,6 +1317,7 @@ window.AuthGate = {
         showToast(window.t('toast.adminCreated'), 'success');
         try { localStorage.setItem('__emailToken', email); } catch(e) {}
         AppCache._emailToken = email;
+        if (typeof saveTokenToUrl === 'function') saveTokenToUrl(email);
         gate.classList.add('hidden'); gate.classList.remove('flex');
         showLoading();
         await initApp();
@@ -1437,6 +1441,7 @@ function applyRoleVisibility() {
 
 function logoutAccount() {
   try { localStorage.removeItem('__emailToken'); } catch(e) {}
+  if (typeof clearTokenFromUrl === 'function') clearTokenFromUrl();
   AppCache.isLoaded = false;
   AppCache.currentUser = null;
   AppCache._emailToken = null;
@@ -1444,50 +1449,130 @@ function logoutAccount() {
   AuthGate.showLogin();
 }
 
+// ========== SESSION RECOVERY VIA URL HASH ==========
+function getUrlToken() {
+  return new Promise((resolve) => {
+    var resolved = false;
+    var timer = setTimeout(function() {
+      if (!resolved) {
+        resolved = true;
+        console.warn('getLocation timed out, returning null');
+        resolve(null);
+      }
+    }, 1500);
+
+    if (typeof google !== 'undefined' && google.script && google.script.url) {
+      google.script.url.getLocation(function(location) {
+        clearTimeout(timer);
+        if (resolved) return;
+        resolved = true;
+        
+        var hash = location.hash || '';
+        var token = null;
+        if (hash) {
+          var hashStr = hash.replace(/^#/, '');
+          var parts = hashStr.split('&');
+          for (var i = 0; i < parts.length; i++) {
+            var pair = parts[i].split('=');
+            if (pair[0] === 'token' && pair[1]) {
+              token = decodeURIComponent(pair[1]);
+              break;
+            }
+          }
+        }
+        if (!token && location.parameter && location.parameter.token) {
+          token = location.parameter.token;
+        }
+        resolve(token);
+      });
+    } else {
+      clearTimeout(timer);
+      resolve(null);
+    }
+  });
+}
+
+function saveTokenToUrl(token) {
+  if (typeof google !== 'undefined' && google.script && google.script.history) {
+    if (token) {
+      google.script.history.replace(null, null, 'token=' + encodeURIComponent(token));
+    } else {
+      google.script.history.replace(null, null, '');
+    }
+  }
+}
+
+function clearTokenFromUrl() {
+  saveTokenToUrl(null);
+}
+
 // ========== INIT ==========
 async function initApp() {
-  // Initialize Theme and Language
-  if (typeof window.setAppTheme === 'function') window.setAppTheme(window.currentTheme);
-  if (typeof window.setAppLanguage === 'function') window.setAppLanguage(window.currentLanguage);
-
-  setInterval(updateTime, 1000);
-  updateTime();
-  TabManager.init();
-
-  // Lấy emailToken từ AppCache hoặc localStorage
-  var emailToken = AppCache._emailToken;
-  if (!emailToken) {
-    try { emailToken = localStorage.getItem('__emailToken'); } catch(e) {}
-  }
-  if (!emailToken) {
-    // Chưa đăng nhập — hiện form login
-    hideLoading();
-    var loginGate = document.getElementById('loginGate');
-    if (loginGate) loginGate.style.display = 'flex';
+  if (window.__initAppRunning) {
+    console.warn('initApp is already running, skipping parallel execution.');
     return;
   }
+  window.__initAppRunning = true;
 
-  AppCache._emailToken = emailToken;
-  const ok = await AppCache.init();
-  if (ok === 'setup' || ok === 'denied') {
+  try {
+    // Initialize Theme and Language
+    if (typeof window.setAppTheme === 'function') window.setAppTheme(window.currentTheme);
+    if (typeof window.setAppLanguage === 'function') window.setAppLanguage(window.currentLanguage);
+
+    setInterval(updateTime, 1000);
+    updateTime();
+    TabManager.init();
+
+    // Lấy emailToken từ URL hash trước, sau đó fallback localStorage
+    var emailToken = await getUrlToken();
+    if (!emailToken) {
+      emailToken = AppCache._emailToken;
+    }
+    if (!emailToken) {
+      try { emailToken = localStorage.getItem('__emailToken'); } catch(e) {}
+    }
+    
+    if (!emailToken) {
+      // Chưa đăng nhập — hiện form login
+      hideLoading();
+      var loginGate = document.getElementById('loginGate');
+      if (loginGate) loginGate.style.display = 'flex';
+      return;
+    }
+
+    AppCache._emailToken = emailToken;
+    saveTokenToUrl(emailToken);
+    try { localStorage.setItem('__emailToken', emailToken); } catch(e) {}
+
+    const ok = await AppCache.init();
+    if (ok === 'setup' || ok === 'denied') {
+      if (ok === 'denied') {
+        clearTokenFromUrl();
+      }
+      hideLoading();
+      return;
+    }
+    if (ok) {
+      applyRoleVisibility();
+      updateDashboard();
+      if (typeof window.initAppointmentManagerTab === 'function') window.initAppointmentManagerTab();
+      if (typeof window.initRevenueTab === 'function') window.initRevenueTab();
+      if (AppCache.hasPermission('viewCustomers') && typeof window.initCustomerTab === 'function') window.initCustomerTab();
+      if (AppCache.hasPermission('viewLogs') && typeof window.initLogsTab === 'function') window.initLogsTab();
+      if (typeof window.initSettingsTab === 'function') window.initSettingsTab();
+      setInterval(function() { AppCache.updateCacheStatus(); }, 30000);
+      const displayName = AppCache.currentUser ? (AppCache.currentUser.name || AppCache.currentUser.email || '') : '';
+      showToast(window.t('toast.hello') + ' ' + displayName, 'success');
+    } else {
+      showToast(window.t('toast.initError'), 'error');
+    }
+  } catch (err) {
+    console.error('Error during initApp:', err);
+    showToast(window.t('toast.initError') + ': ' + err.message, 'error');
+  } finally {
     hideLoading();
-    return;
+    window.__initAppRunning = false;
   }
-  if (ok) {
-    applyRoleVisibility();
-    updateDashboard();
-    if (typeof window.initAppointmentManagerTab === 'function') window.initAppointmentManagerTab();
-    if (typeof window.initRevenueTab === 'function') window.initRevenueTab();
-    if (AppCache.hasPermission('viewCustomers') && typeof window.initCustomerTab === 'function') window.initCustomerTab();
-    if (AppCache.hasPermission('viewLogs') && typeof window.initLogsTab === 'function') window.initLogsTab();
-    if (typeof window.initSettingsTab === 'function') window.initSettingsTab();
-    setInterval(function() { AppCache.updateCacheStatus(); }, 30000);
-    const displayName = AppCache.currentUser ? (AppCache.currentUser.name || AppCache.currentUser.email || '') : '';
-    showToast(window.t('toast.hello') + ' ' + displayName, 'success');
-  } else {
-    showToast(window.t('toast.initError'), 'error');
-  }
-  hideLoading();
 }
 
 if (document.readyState === 'loading') {

@@ -453,55 +453,53 @@ function loadShopPaymentSettings() {
   if (accountNameInp) accountNameInp.value = settings.account_name || '';
 }
 
-// Register submit listener after DOM fully loaded
-document.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementById('shopPaymentSettingsForm');
-  if (form) {
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const btn = document.getElementById('saveShopPaymentBtn');
-      const origText = btn.textContent;
-      btn.disabled = true;
-      btn.textContent = window.currentLanguage === 'vi' ? 'Đang lưu...' : 'Saving...';
-      
-      const payload = {
-        shop_name: document.getElementById('setting_shop_name').value.trim(),
-        shop_address: document.getElementById('setting_shop_address').value.trim(),
-        shop_phone: document.getElementById('setting_shop_phone').value.trim(),
-        bank_id: document.getElementById('setting_bank_id').value,
-        account_no: document.getElementById('setting_account_no').value.trim(),
-        account_name: document.getElementById('setting_account_name').value.trim().toUpperCase()
-      };
-      
-      const payloadWithToken = Object.assign({}, payload, { _emailToken: window.AppCache && window.AppCache._emailToken });
-      
-      google.script.run
-        .withSuccessHandler(res => {
-          btn.disabled = false;
-          btn.textContent = origText;
-          const errLabel = window.currentLanguage === 'vi' ? 'Lỗi' : 'Error';
-          if (!res || !res.success) {
-            showToast(res ? res.error : errLabel, 'error');
-            return;
-          }
-          const successMsg = window.currentLanguage === 'vi' ? 'Đã lưu cấu hình!' : 'Settings saved!';
-          showToast(successMsg, 'success');
-          // Refresh local AppCache data
-          if (window.AppCache && typeof window.AppCache.refresh === 'function') {
-            window.AppCache.refresh().then(() => {
-              loadShopPaymentSettings();
-            });
-          }
-        })
-        .withFailureHandler(err => {
-          btn.disabled = false;
-          btn.textContent = origText;
-          showToast(err.message || err, 'error');
-        })
-        .saveSystemSettings(payloadWithToken);
-    });
-  }
-});
+// Register submit listener immediately (DOM is already parsed when script runs)
+const form = document.getElementById('shopPaymentSettingsForm');
+if (form) {
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('saveShopPaymentBtn');
+    const origText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = window.currentLanguage === 'vi' ? 'Đang lưu...' : 'Saving...';
+    
+    const payload = {
+      shop_name: document.getElementById('setting_shop_name').value.trim(),
+      shop_address: document.getElementById('setting_shop_address').value.trim(),
+      shop_phone: document.getElementById('setting_shop_phone').value.trim(),
+      bank_id: document.getElementById('setting_bank_id').value,
+      account_no: document.getElementById('setting_account_no').value.trim(),
+      account_name: document.getElementById('setting_account_name').value.trim().toUpperCase()
+    };
+    
+    const payloadWithToken = Object.assign({}, payload, { _emailToken: window.AppCache && window.AppCache._emailToken });
+    
+    google.script.run
+      .withSuccessHandler(res => {
+        btn.disabled = false;
+        btn.textContent = origText;
+        const errLabel = window.currentLanguage === 'vi' ? 'Lỗi' : 'Error';
+        if (!res || !res.success) {
+          showToast(res ? res.error : errLabel, 'error');
+          return;
+        }
+        const successMsg = window.currentLanguage === 'vi' ? 'Đã lưu cấu hình!' : 'Settings saved!';
+        showToast(successMsg, 'success');
+        // Refresh local AppCache data
+        if (window.AppCache && typeof window.AppCache.refresh === 'function') {
+          window.AppCache.refresh().then(() => {
+            loadShopPaymentSettings();
+          });
+        }
+      })
+      .withFailureHandler(err => {
+        btn.disabled = false;
+        btn.textContent = origText;
+        showToast(err.message || err, 'error');
+      })
+      .saveSystemSettings(payloadWithToken);
+  });
+}
 
 window.changeLanguage = function(val) {
   if (typeof window.setAppLanguage === 'function') {
