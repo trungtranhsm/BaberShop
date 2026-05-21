@@ -373,12 +373,22 @@
       display: none !important;
     }
     /* Hide all extra text colors and borders that are not print friendly */
-    body.printing-invoice #invoice-modal text-amber-500 {
+    body.printing-invoice #invoice-modal * {
       color: black !important;
+      text-shadow: none !important;
     }
     body.printing-invoice #invoice-modal .border-b,
-    body.printing-invoice #invoice-modal .border-t {
-      border-color: #ddd !important;
+    body.printing-invoice #invoice-modal .border-t,
+    body.printing-invoice #invoice-modal th,
+    body.printing-invoice #invoice-modal td,
+    body.printing-invoice #invoice-modal tr {
+      border-color: #999 !important;
+    }
+    body.printing-invoice #invoice-modal .bg-white {
+      background: transparent !important;
+      box-shadow: none !important;
+      border: none !important;
+      padding: 0 !important;
     }
     /* Ensure VietQR print styling works nicely */
     body.printing-invoice #invoice-modal img {

@@ -208,7 +208,7 @@
     <!-- Actions (No print) -->
     <div class="flex gap-3 pt-4 border-t border-[#2A2A38] no-print mt-auto">
       <button onclick="hideInvoiceModal()" class="flex-1 px-4 py-2.5 bg-[#1E1E2A] hover:bg-[#252533] border border-[#2A2A38] text-sm font-medium rounded-lg cursor-pointer transition-colors text-center text-[#F1F5F9]" data-i18n="invoice.close">Đóng</button>
-      <button onclick="printInvoice()" class="flex-1 px-4 py-2.5 bg-[#6366F1] hover:bg-[#4F46E5] text-white text-sm font-bold rounded-lg cursor-pointer transition-colors flex items-center justify-center gap-1.5" data-i18n="invoice.print">
+      <button id="invoice-print-btn" onclick="printInvoice()" class="flex-1 px-4 py-2.5 bg-[#6366F1] hover:bg-[#4F46E5] text-white text-sm font-bold rounded-lg cursor-pointer transition-colors flex items-center justify-center gap-1.5" data-i18n="invoice.print">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
         <span>In hóa đơn</span>
       </button>
@@ -904,6 +904,9 @@
     const accountNo = settings.account_no;
     const accountName = settings.account_name;
 
+    const qrImg = document.getElementById('invoice-vietqr-img');
+    const printBtn = document.getElementById('invoice-print-btn');
+
     if (bankId && accountNo && accountName) {
       vietqrSection.style.display = 'flex';
       
@@ -924,9 +927,30 @@
       const accountNameEncoded = encodeURIComponent(accountName);
       
       const qrUrl = `https://img.vietqr.io/image/${bankIdEncoded}-${accountNoEncoded}-compact2.png?amount=${amountEncoded}&addInfo=${descEncoded}&accountName=${accountNameEncoded}`;
-      document.getElementById('invoice-vietqr-img').src = qrUrl;
+      
+      if (printBtn) {
+        printBtn.disabled = true;
+        const loadingText = window.currentLanguage === 'vi' ? 'Đang tải QR...' : 'Loading QR...';
+        const spanEl = printBtn.querySelector('span');
+        if (spanEl) spanEl.textContent = loadingText;
+        
+        qrImg.onload = function() {
+          printBtn.disabled = false;
+          if (spanEl) spanEl.textContent = window.currentLanguage === 'vi' ? 'In hóa đơn' : 'Print Invoice';
+        };
+        qrImg.onerror = function() {
+          printBtn.disabled = false;
+          if (spanEl) spanEl.textContent = window.currentLanguage === 'vi' ? 'In hóa đơn' : 'Print Invoice';
+        };
+      }
+      qrImg.src = qrUrl;
     } else {
       vietqrSection.style.display = 'none';
+      if (printBtn) {
+        printBtn.disabled = false;
+        const spanEl = printBtn.querySelector('span');
+        if (spanEl) spanEl.textContent = window.currentLanguage === 'vi' ? 'In hóa đơn' : 'Print Invoice';
+      }
     }
 
     // Display modal
