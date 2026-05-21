@@ -916,7 +916,7 @@ window.AppCache = {
       }
       if (result.denied) {
         // Token invalid — xóa session rồi hiện lại login
-        try { sessionStorage.removeItem('__emailToken'); } catch(e) {}
+        try { localStorage.removeItem('__emailToken'); } catch(e) {}
         this._emailToken = null;
         AuthGate.showDenied(result.email || emailToken || '', result.reason);
         return 'denied';
@@ -1210,7 +1210,7 @@ window.AuthGate = {
         return;
       }
       if (res && res.success) {
-        try { sessionStorage.setItem('__emailToken', res.email); } catch(e) {}
+        try { localStorage.setItem('__emailToken', res.email); } catch(e) {}
         AppCache._emailToken = res.email;
         document.getElementById('loginGate').style.display = 'none';
         showLoading();
@@ -1257,7 +1257,7 @@ window.AuthGate = {
       });
       if (!res || !res.success) throw new Error((res && res.error) || (window.currentLanguage === 'vi' ? 'Lỗi tạo mật khẩu' : 'Password creation failed'));
       showToast(window.t('toast.setPasswordSuccess'), 'success');
-      try { sessionStorage.setItem('__emailToken', email); } catch(e) {}
+      try { localStorage.setItem('__emailToken', email); } catch(e) {}
       AppCache._emailToken = email;
       document.getElementById('setPasswordGate').classList.add('hidden');
       document.getElementById('setPasswordGate').classList.remove('flex');
@@ -1297,7 +1297,7 @@ window.AuthGate = {
         var res = await AppCache.callServerFunction('setupFirstAdmin', staffName || email, email, pw);
         if (!res || !res.success) throw new Error((res && res.error) || (window.currentLanguage === 'vi' ? 'Setup thất bại' : 'Setup failed'));
         showToast(window.t('toast.adminCreated'), 'success');
-        try { sessionStorage.setItem('__emailToken', email); } catch(e) {}
+        try { localStorage.setItem('__emailToken', email); } catch(e) {}
         AppCache._emailToken = email;
         gate.classList.add('hidden'); gate.classList.remove('flex');
         showLoading();
@@ -1421,7 +1421,7 @@ function applyRoleVisibility() {
 }
 
 function logoutAccount() {
-  try { sessionStorage.removeItem('__emailToken'); } catch(e) {}
+  try { localStorage.removeItem('__emailToken'); } catch(e) {}
   AppCache.isLoaded = false;
   AppCache.currentUser = null;
   AppCache._emailToken = null;
@@ -1439,10 +1439,10 @@ async function initApp() {
   updateTime();
   TabManager.init();
 
-  // Lấy emailToken từ AppCache hoặc sessionStorage
+  // Lấy emailToken từ AppCache hoặc localStorage
   var emailToken = AppCache._emailToken;
   if (!emailToken) {
-    try { emailToken = sessionStorage.getItem('__emailToken'); } catch(e) {}
+    try { emailToken = localStorage.getItem('__emailToken'); } catch(e) {}
   }
   if (!emailToken) {
     // Chưa đăng nhập — hiện form login
